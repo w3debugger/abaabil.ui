@@ -1,0 +1,39 @@
+@layer abaabil.tokens {
+  :root {
+    --color-primary: var(--abaabil-blue-500);
+    --color-primary-hover: var(--abaabil-blue-400);
+    --color-primary-fg: var(--abaabil-white);
+    --color-surface: var(--abaabil-white);
+    --color-text: var(--abaabil-gray-900);
+    --color-border: var(--abaabil-gray-300);
+    --color-muted: var(--abaabil-gray-100);
+    --color-danger: var(--abaabil-red-600);
+    --color-focus-ring: var(--abaabil-blue-500);
+
+    --radius-md: 0.375rem;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --font-size-sm: 0.875rem;
+    --font-weight-semibold: 600;
+    --control-height-md: 2.5rem;
+    --duration-fast: 150ms;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-surface: #0b0f19;
+      --color-text: #e5e7eb;
+      --color-border: #374151;
+      --color-muted: #1f2937;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --color-surface: #0b0f19;
+    --color-text: #e5e7eb;
+    --color-border: #374151;
+    --color-muted: #1f2937;
+  }
+}

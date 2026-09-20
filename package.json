@@ -1,0 +1,34 @@
+{
+  "name": "abaabil",
+  "version": "1.0.0",
+  "description": "Minimal, themeable, accessible React components. Zero dependencies.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "files": ["dist"],
+  "scripts": {
+    "build": "node scripts/build-css.js && rollup -c && node scripts/check-directives.js && node scripts/measure.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "jest-axe": "^9.0.0",
+    "jsdom": "^25.0.1",
+    "lightningcss": "^1.29.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "rollup": "^4.30.1",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "rollup-plugin-preserve-directives": "^0.4.0",
+    "vitest": "^3.0.0"
+  }
+}
