@@ -17,7 +17,7 @@ const MUST_NOT_BE_CLIENT = [
   'dist/button/a11y.js',
 ]
 
-const has = (f) => /^\s*['"]use client['"]/m.test(readFileSync(join(root, f), 'utf8'))
+const has = (f) => /^\s*['"]use client['"]/.test(readFileSync(join(root, f), 'utf8'))
 const errors = []
 
 for (const f of MUST_BE_CLIENT) {
