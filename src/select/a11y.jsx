@@ -18,7 +18,7 @@ import Select from './styled.jsx'
  *   <label>. Omitted entirely (not rendered as an empty tag) when not
  *   given, so a consumer naming the control via aria-label instead does
  *   not get a stray empty <label for="...">.
- * @param {boolean} [props.hideLabel=true] Visually hide the label (it stays
+ * @param {boolean} [props.hideLabel=false] Visually hide the label (it stays
  *   in the accessibility tree either way, still a real <label> associated
  *   via htmlFor/id). Set to false to render it visibly. Matches combobox's
  *   `hideLabel` semantics and default.

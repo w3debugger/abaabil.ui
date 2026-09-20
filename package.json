@@ -21,7 +21,9 @@
     "css-variables",
     "apg",
     "aria",
-    "design-system"
+    "design-system",
+    "ui",
+    "react-19"
   ],
   "type": "module",
   "sideEffects": [

@@ -21,7 +21,7 @@ import Input from './styled.jsx'
  * @param {object} props
  * @param {string} [props.label] Rendered as a real <label>, associated
  *   with the input via htmlFor/id.
- * @param {boolean} [props.hideLabel=true] Visually hide the label (it stays
+ * @param {boolean} [props.hideLabel=false] Visually hide the label (it stays
  *   in the accessibility tree either way, still a real <label> associated
  *   via htmlFor/id). Set to false to render it visibly. Matches combobox's
  *   `hideLabel` semantics and default.

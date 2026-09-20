@@ -2,6 +2,22 @@
 
 Minimal, themeable, accessible React components. Zero dependencies.
 
+Eight components: button, dialog, combobox, input, checkbox, radio, select, accordion.
+
+```js
+import Button from 'abaabil/button/a11y'
+import 'abaabil/theme.css'
+
+function Example() {
+  return <Button onClick={() => console.log('clicked')}>Save</Button>
+}
+```
+
+Each component ships three tiers, `normal`, `styled`, `a11y`, so you only pay for what you use. Two facts worth knowing up front:
+
+- A fully accessible `dialog/a11y` is **572 B gzipped**, against `@radix-ui/react-dialog` at **12,585 B**. Radix also bundles its own positioning and portal logic and predates a usable native `<dialog>`; the difference is mostly what the platform now gives you for free, not a claim of doing more with less.
+- `accordion/a11y` needs **no JavaScript at all**. Every tier of accordion, including `a11y`, is server-renderable, because it's built on native `<details>`/`<summary>` rather than a scripted widget.
+
 ## Install
 
 ```
@@ -12,13 +28,13 @@ npm install abaabil
 
 ## The three tiers
 
-Every component ships as three separate entry points so you only pay for what you use. For button and dialog, each tier builds on the one before it: `styled` adds abaabil's CSS on top of `normal`, and `a11y` adds ARIA wiring and keyboard handling on top of `styled`. Combobox is the exception: its `a11y` tier is an independent implementation that imports `combobox.css` directly, rather than building on `styled`, because its ARIA attributes have to sit on specific elements (the input and the listbox) that the `styled`/`normal` markup does not expose as separate parts.
+Every component ships as three separate entry points so you only pay for what you use. For most components, each tier builds on the one before it: `styled` adds abaabil's CSS on top of `normal`, and `a11y` adds ARIA wiring and keyboard handling on top of `styled`.
+
+Combobox is the exception: its `a11y` tier is an independent implementation that imports `combobox.css` directly, rather than building on `styled`, because its ARIA attributes have to sit on specific elements (the input and the listbox) that the `styled`/`normal` markup does not expose as separate parts.
 
 ### Delivered size
 
-The table below is the actual cost of importing each entry point on its own: that entry point bundled with its full module graph (so, for example, `button/styled`'s cost already includes the `button` markup it imports), React treated as external (a peer, not bundled), gzipped. This is different from the per-file numbers in `SIZES.md`, which are produced with `preserveModules` and so under-count any tier that imports another module, such as `styled.js`, which shows only the bytes of its own file, not the `index.js` it re-exports.
-
-The `styled` and `a11y` tiers also pull in their component's stylesheet as a side-effect import; the CSS column is that stylesheet's own gzipped size, separate from the JS number.
+The gzipped cost of importing each entry point on its own, React treated as external (a peer, not bundled):
 
 | Entry | JS | CSS |
 |---|---:|---:|
@@ -47,7 +63,9 @@ The `styled` and `a11y` tiers also pull in their component's stylesheet as a sid
 | `abaabil/accordion/styled` | 334 B | 533 B |
 | `abaabil/accordion/a11y` | 383 B | 533 B |
 
-Measured by bundling each entry point on its own with Rollup (the same plugins as the real build: `@rollup/plugin-node-resolve` and `esbuild` in minify mode), `react`/`react-dom`/`*.css` external, then gzipping the output. `normal` tier entries have no CSS column because they import none. Re-run this yourself with the same setup (each entry bundled alone, React external, gzip the output) to reproduce these numbers; they are not the same numbers as `SIZES.md` for the reason above.
+Each entry point is bundled on its own with its full module graph (so, for example, `button/styled`'s cost already includes the `button` markup it imports) using Rollup (the same plugins as the real build: `@rollup/plugin-node-resolve` and `esbuild` in minify mode), `react`/`react-dom`/`*.css` external, then gzipped. The `styled` and `a11y` tiers also pull in their component's stylesheet as a side-effect import; the CSS column is that stylesheet's own gzipped size, separate from the JS number. `normal` tier entries have no CSS column because they import none.
+
+This is different from the per-file numbers in `SIZES.md`, which are produced with `preserveModules` and so under-count any tier that imports another module, such as `styled.js`, which shows only the bytes of its own file, not the `index.js` it re-exports. Re-run this yourself with the same setup (each entry bundled alone, React external, gzip the output) to reproduce these numbers.
 
 Import the tier you need directly:
 
@@ -222,7 +240,7 @@ Uncontrolled at every tier: there is no `value` prop, the input manages its own 
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `label` | `string` | — | Accessible name for the input, wired to `aria-labelledby`. Required for the combobox to have a usable accessible name; omitting it warns in dev. |
-| `hideLabel` | `boolean` | `true` | Visually hides the label (it is always present in the accessibility tree). Set to `false` to render it as a normal visible block above the input. |
+| `hideLabel` | `boolean` | `false` | Visually hides the label (it is always present in the accessibility tree). Set to `true` to visually hide it. |
 | `onChange` | `(value: string \| null) => void` | — | Called with the selected option's `value`, or `null` when the query is cleared via Escape. |
 
 ### Input
@@ -239,6 +257,7 @@ Uncontrolled at every tier: there is no `value` prop, the input manages its own 
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `label` | `string` | - | Rendered as a real `<label>`, associated with the input via `htmlFor`/`id`. |
+| `hideLabel` | `boolean` | `false` | Visually hides the label (it is always present in the accessibility tree, still a real `<label>` associated via `htmlFor`/`id`). Set to `true` to visually hide it. Matches combobox's `hideLabel` semantics and default. |
 | `description` | `string` | - | Rendered as help text and wired into `aria-describedby`. |
 | `error` | `string` | - | Rendered as an error message, sets `aria-invalid`, and is wired into `aria-describedby` alongside the description. |
 | `required` | `boolean` | `false` | Passed to the underlying input. |
@@ -313,6 +332,7 @@ A consumer-supplied `ref` composes with the ref this tier uses internally for `i
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `label` | `string` | - | Accessible name, rendered as a real `<label>`. |
+| `hideLabel` | `boolean` | `false` | Visually hides the label (it is always present in the accessibility tree, still a real `<label>` associated via `htmlFor`/`id`). Set to `true` to visually hide it. Matches combobox's `hideLabel` semantics and default. |
 | `description` | `string` | - | Rendered and wired into `aria-describedby`. |
 | `error` | `string` | - | Rendered, sets `aria-invalid`, and is joined into `aria-describedby` alongside the description. |
 | `id` | `string` | - | Overrides the generated select id. |
