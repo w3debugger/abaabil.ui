@@ -6,6 +6,22 @@
   "type": "module",
   "sideEffects": ["*.css"],
   "files": ["dist"],
+  "exports": {
+    "./button": "./dist/button/index.js",
+    "./button/styled": "./dist/button/styled.js",
+    "./button/a11y": "./dist/button/a11y.js",
+    "./dialog": "./dist/dialog/index.js",
+    "./dialog/styled": "./dist/dialog/styled.js",
+    "./dialog/a11y": "./dist/dialog/a11y.js",
+    "./combobox": "./dist/combobox/index.js",
+    "./combobox/styled": "./dist/combobox/styled.js",
+    "./combobox/a11y": "./dist/combobox/a11y.js",
+    "./theme.css": "./dist/theme.css",
+    "./styles.css": "./dist/styles.css",
+    "./button.css": "./dist/button/button.css",
+    "./dialog.css": "./dist/dialog/dialog.css",
+    "./combobox.css": "./dist/combobox/combobox.css"
+  },
   "scripts": {
     "build": "node scripts/build-css.js && rollup -c && node scripts/check-directives.js && node scripts/measure.js",
     "test": "vitest run",
