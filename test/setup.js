@@ -24,3 +24,9 @@ if (typeof HTMLDialogElement !== 'undefined') {
     }
   }
 }
+
+// Accessibility matchers. Lives here rather than in each suite so every test
+// file gets them without repeating the wiring.
+import { toHaveNoViolations } from 'jest-axe'
+import { expect } from 'vitest'
+expect.extend(toHaveNoViolations)

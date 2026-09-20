@@ -48,7 +48,13 @@ export default function Checkbox_a11y({
     [consumerRef]
   )
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !label) {
+  // A control named with aria-label or aria-labelledby is correctly named.
+  // Warning on those too trains people to ignore the warning.
+  const hasAccessibleName = Boolean(
+    label || props['aria-label'] || props['aria-labelledby']
+  )
+
+  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/checkbox: no `label` given, so the checkbox has no accessible name ' +
         'and screen readers announce it as unnamed.'

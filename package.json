@@ -16,8 +16,12 @@
     "design-system"
   ],
   "type": "module",
-  "sideEffects": ["*.css"],
-  "files": ["dist"],
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist"
+  ],
   "exports": {
     "./button": "./dist/button/index.js",
     "./button/styled": "./dist/button/styled.js",

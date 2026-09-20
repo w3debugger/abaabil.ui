@@ -37,7 +37,13 @@ export default function Radio_a11y({
   const descId = `${baseId}-description`
   const describedBy = [ariaDescribedBy, description ? descId : null].filter(Boolean).join(' ') || undefined
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !label) {
+  // A control named with aria-label or aria-labelledby is correctly named.
+  // Warning on those too trains people to ignore the warning.
+  const hasAccessibleName = Boolean(
+    label || props['aria-label'] || props['aria-labelledby']
+  )
+
+  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/radio: no `label` given, so the radio has no accessible name ' +
         'and screen readers announce it as unnamed.'

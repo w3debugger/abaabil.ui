@@ -43,7 +43,13 @@ export default function Combobox_a11y({
   const labelId = `${baseId}-label`
   const optionId = (index) => `${baseId}-option-${index}`
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !label) {
+  // A control named with aria-label or aria-labelledby is correctly named.
+  // Warning on those too trains people to ignore the warning.
+  const hasAccessibleName = Boolean(
+    label || props['aria-label'] || props['aria-labelledby']
+  )
+
+  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/combobox: no `label` given, so the combobox has no accessible name ' +
         'and screen readers announce it as unnamed.'

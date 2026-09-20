@@ -40,7 +40,13 @@ export default function Select_a11y({
   const errorId = error ? `${baseId}-error` : undefined
   const describedBy = [ariaDescribedBy, descriptionId, errorId].filter(Boolean).join(' ') || undefined
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !label) {
+  // A control named with aria-label or aria-labelledby is correctly named.
+  // Warning on those too trains people to ignore the warning.
+  const hasAccessibleName = Boolean(
+    label || props['aria-label'] || props['aria-labelledby']
+  )
+
+  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/select: no `label` given, so the select has no accessible name ' +
         'and screen readers announce it as unnamed.'
