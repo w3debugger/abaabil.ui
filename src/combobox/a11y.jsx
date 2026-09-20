@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useRef, useState } from 'react'
+import { useId, useState } from 'react'
 import './combobox.css'
 
 /**
@@ -36,7 +36,6 @@ export default function Combobox_a11y({
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(-1)
   const [selected, setSelected] = useState(null)
-  const inputRef = useRef(null)
 
   const filtered = options.filter((o) =>
     o.label.toLowerCase().includes(query.trim().toLowerCase())
@@ -98,7 +97,6 @@ export default function Combobox_a11y({
     <div className={cls} {...props}>
       <span id={labelId} className="abaabil-combobox__label">{label}</span>
       <input
-        ref={inputRef}
         className="abaabil-combobox__input"
         type="text"
         role="combobox"
@@ -110,6 +108,7 @@ export default function Combobox_a11y({
         aria-autocomplete="list"
         aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
         onFocus={() => setOpen(true)}
+        onClick={() => setOpen(true)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); setActive(-1) }}
