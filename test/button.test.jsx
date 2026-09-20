@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import userEvent from '@testing-library/user-event'
 import Button from '../src/button/index.jsx'
+import A11yButton from '../src/button/a11y.jsx'
 
 describe('Button (normal tier)', () => {
   it('renders a button element with the base class', () => {
@@ -55,5 +57,61 @@ describe('Button (styled tier)', () => {
     const btn = screen.getByRole('button', { name: 'Save' })
     expect(btn).toHaveClass('abaabil-button')
     expect(btn).toHaveAttribute('type', 'button')
+  })
+})
+
+describe('Button (a11y tier)', () => {
+  let warn
+  beforeEach(() => { warn = vi.spyOn(console, 'warn').mockImplementation(() => {}) })
+  afterEach(() => { warn.mockRestore() })
+
+  it('uses the native disabled attribute by default', () => {
+    render(<A11yButton disabled>Save</A11yButton>)
+    expect(screen.getByRole('button')).toBeDisabled()
+  })
+
+  it('uses aria-disabled and stays focusable when keepFocusable is set', async () => {
+    const onClick = vi.fn()
+    render(<A11yButton disabled keepFocusable onClick={onClick}>Save</A11yButton>)
+    const btn = screen.getByRole('button')
+    expect(btn).not.toBeDisabled()
+    expect(btn).toHaveAttribute('aria-disabled', 'true')
+    btn.focus()
+    expect(btn).toHaveFocus()
+    await userEvent.click(btn)
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('warns in development when an icon-only button has no accessible name', () => {
+    render(<A11yButton leftIcon={<svg />} />)
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('accessible name')
+    )
+  })
+
+  it('does not warn when an icon-only button has aria-label', () => {
+    render(<A11yButton leftIcon={<svg />} aria-label="Close" />)
+    expect(warn).not.toHaveBeenCalled()
+  })
+
+  it('marks decorative icons aria-hidden so they are not announced', () => {
+    render(<A11yButton leftIcon={<svg data-testid="icon" />}>Save</A11yButton>)
+    expect(screen.getByTestId('icon').parentElement).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('gives link-buttons a button role and Space activation', async () => {
+    const onClick = vi.fn()
+    render(<A11yButton as="a" href="#x" onClick={onClick}>Go</A11yButton>)
+    const el = screen.getByRole('button', { name: 'Go' })
+    expect(el.tagName).toBe('A')
+    expect(el).toHaveAttribute('tabindex', '0')
+    el.focus()
+    await userEvent.keyboard(' ')
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('removes a disabled link-button from the tab order', () => {
+    render(<A11yButton as="a" href="#x" disabled>Go</A11yButton>)
+    expect(screen.getByRole('button', { name: 'Go' })).toHaveAttribute('tabindex', '-1')
   })
 })
