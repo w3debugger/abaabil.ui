@@ -62,6 +62,30 @@ import 'abaabil/button.css'
 The `normal` tier (`abaabil/button`, `abaabil/dialog`, `abaabil/combobox`) never imports CSS and
 loads cleanly with no bundler.
 
+### Why a `normal`-tier component can still look styled
+
+The `normal` tier ships no CSS, but shipping no CSS is not the same as rendering unstyled. All
+three tiers of a component render the same class name (for example `abaabil-button`), and
+`button.css` styles that class globally, not per tier. So if anything in your app imports the
+`styled` or `a11y` tier of a component, every `normal`-tier instance of that same component on
+the page picks up those styles too, purely because the stylesheet got loaded somewhere:
+
+```js
+import Button from 'abaabil/button'          // no CSS import
+import ButtonA11y from 'abaabil/button/a11y' // imports button.css
+
+// Both render class="abaabil-button". Once button.css is loaded anywhere
+// on the page, both are styled, because the rule targets the class, not
+// the import site.
+```
+
+If you chose `normal` in order to style the component yourself, this works in your favor: the
+library's own rules live in `@layer abaabil.components`, and ordinary unlayered CSS always beats
+a layered rule, so your styles win with no `!important` needed.
+
+To get a genuinely unstyled component, import only its `normal` tier and make sure nothing else
+in your app imports that component's stylesheet (directly or through its `styled`/`a11y` tier).
+
 ## Theming
 
 abaabil ships design tokens in `abaabil/theme.css`. Override the CSS custom properties in your own stylesheet to retheme every component:
