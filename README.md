@@ -367,7 +367,7 @@ Accordion is the only component whose every tier, including `a11y`, is server-re
 
 **Deliberate limitation:** `Accordion_a11y` offers no `headingLevel` prop, and this is intentional, not an oversight. `<summary>` has an implicit ARIA role of `button` in some browsers, and a heading nested inside a button is not reliably exposed to assistive technology (VoiceOver, for one, does not expose a heading nested inside `<summary>` as a heading). The reverse, wrapping `<summary>` in a heading element, isn't an option either: `<summary>` must be the literal first child of `<details>` for the browser to recognize it as the disclosure trigger. Consumers who need reliable heading navigation across sections need the button-in-heading accordion pattern instead (an explicit heading wrapping a button, with `aria-expanded` and `aria-controls`), a different, ARIA-driven widget that this component does not attempt to be.
 
-## Combobox: uncontrolled in 1.0.0
+## Combobox: uncontrolled in 1.x
 
 The combobox is uncontrolled in this release: it does not accept a `value` prop. Observe the selected value through the `onChange` callback instead of driving it from external state.
 
