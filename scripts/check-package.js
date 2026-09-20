@@ -3,7 +3,7 @@
 // Exits non-zero on any failed check.
 
 import { readFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 
 const root = new URL('..', import.meta.url).pathname
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
@@ -46,6 +46,54 @@ check(
     ? exportEntries.map(([name, target]) => `${name} -> ${target}`).join('\n    ')
     : `missing: ${missing.map(([name, target]) => `${name} -> ${target}`).join(', ')}`
 )
+
+// Guard: each a11y tier's built import graph must actually reach its
+// component's CSS file. This catches a bundler pass-through optimisation
+// (e.g. Rollup collapsing `a11y.jsx -> styled.jsx -> index.jsx` and dropping
+// styled.jsx's `import './x.css'` side effect along the way) that leaves
+// source correct but the shipped artifact silently unstyled.
+function collectCssImports(entryAbsPath) {
+  const visitedJs = new Set()
+  const cssFound = new Set()
+  const specifierRe = /\b(?:from|import)\s*['"]([^'"]+)['"]/g
+
+  function walk(absPath) {
+    if (visitedJs.has(absPath) || !existsSync(absPath)) return
+    visitedJs.add(absPath)
+    const src = readFileSync(absPath, 'utf8')
+    let m
+    specifierRe.lastIndex = 0
+    while ((m = specifierRe.exec(src))) {
+      const spec = m[1]
+      if (!spec.startsWith('.')) continue // external (react, react/jsx-runtime, ...)
+      const resolved = join(dirname(absPath), spec)
+      if (spec.endsWith('.css')) cssFound.add(resolved)
+      else walk(resolved)
+    }
+  }
+
+  walk(entryAbsPath)
+  return cssFound
+}
+
+for (const name of ['button', 'dialog', 'combobox']) {
+  const a11yTarget = pkg.exports[`./${name}/a11y`]
+  const cssTarget = pkg.exports[`./${name}.css`]
+  if (!a11yTarget || !cssTarget) continue
+
+  const entryAbs = join(root, a11yTarget)
+  const cssAbs = join(root, cssTarget)
+  const reachedCss = collectCssImports(entryAbs)
+  const ok = reachedCss.has(cssAbs)
+
+  check(
+    `${name}/a11y's built import graph reaches ${cssTarget}`,
+    ok,
+    ok
+      ? `css reachable from ${a11yTarget}: ${[...reachedCss].map((f) => f.replace(root, '')).join(', ')}`
+      : `the ${name}/a11y tier would ship UNSTYLED: no import chain from ${a11yTarget} reaches ${cssTarget}`
+  )
+}
 
 let failed = false
 console.log('package.json publish-readiness checks\n')

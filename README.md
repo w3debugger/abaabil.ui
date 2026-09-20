@@ -18,7 +18,7 @@ Every component ships as three separate entry points so you only pay for what yo
 |---|---|---:|---:|---:|
 | normal | unstyled, semantic markup | 190 B | 162 B | not tracked in `SIZES.md` |
 | styled | abaabil's CSS classes/tokens | 86 B | 86 B | not tracked in `SIZES.md` |
-| a11y | ARIA attributes, keyboard interaction, focus management | 541 B | 567 B | 1064 B |
+| a11y | ARIA attributes, keyboard interaction, focus management | 548 B | 574 B | 1064 B |
 
 All sizes above are gzipped, measured with React treated as external (peer, not bundled), taken from the project's `SIZES.md` build output.
 
@@ -29,6 +29,26 @@ import Button from 'abaabil/button/a11y'
 import Dialog from 'abaabil/dialog/a11y'
 import Combobox from 'abaabil/combobox/a11y'
 ```
+
+### Bundler required for `styled` and `a11y` tiers
+
+The `styled` and `a11y` entry points (all six across the three components) import their
+component's CSS as a JS side effect (`import 'abaabil/button/button.css'` style, resolved
+relative to the package). That works in any bundler that understands CSS imports, which
+covers Next.js, Vite, and webpack. It does **not** work if you run the built file directly in
+plain Node with no bundler in front of it (for example `node --input-type=module -e "import(...)"`):
+Node has no loader for `.css` and throws `ERR_UNKNOWN_FILE_EXTENSION`.
+
+If you need a bundler-free environment, use the `normal` tier and import the component's
+stylesheet yourself, which is why each component's CSS is exported separately:
+
+```js
+import Button from 'abaabil/button'
+import 'abaabil/button.css'
+```
+
+The `normal` tier (`abaabil/button`, `abaabil/dialog`, `abaabil/combobox`) never imports CSS and
+loads cleanly with no bundler.
 
 ## Theming
 
