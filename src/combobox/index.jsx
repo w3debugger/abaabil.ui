@@ -6,17 +6,18 @@ import { useState } from 'react'
  * Combobox, normal tier. Structure and behaviour only: open/close,
  * filtering and selection. No ARIA, no keyboard navigation.
  *
+ * Uncontrolled in 1.0.0: the input manages its own text internally.
+ * Selection is observed via `onChange`, not driven by a `value` prop.
+ *
  * Client-only at every tier, because the highlighted option has to be
  * tracked in JS.
  *
  * @param {object} props
  * @param {Array<{value: string, label: string}>} props.options
- * @param {string} [props.value]
  * @param {(value: string) => void} [props.onChange]
  */
 export default function Combobox({
   options = [],
-  value,
   onChange,
   placeholder,
   className,
@@ -46,6 +47,7 @@ export default function Combobox({
         placeholder={placeholder}
         onFocus={() => setOpen(true)}
         onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
+        onBlur={() => setOpen(false)}
       />
       {open && filtered.length > 0 ? (
         <ul className="abaabil-combobox__list">

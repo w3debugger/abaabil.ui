@@ -46,4 +46,17 @@ describe('Combobox (normal tier)', () => {
     )
     expect(aria).toEqual([])
   })
+
+  it('closes the list when the input blurs', async () => {
+    render(
+      <>
+        <Combobox options={OPTIONS} />
+        <button type="button">elsewhere</button>
+      </>
+    )
+    await userEvent.click(screen.getByRole('textbox'))
+    expect(screen.queryByRole('list')).toBeInTheDocument()
+    await userEvent.click(screen.getByText('elsewhere'))
+    expect(screen.queryByRole('list')).not.toBeInTheDocument()
+  })
 })
