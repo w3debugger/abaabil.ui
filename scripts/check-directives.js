@@ -10,6 +10,7 @@ const root = new URL('..', import.meta.url).pathname
 const MUST_BE_CLIENT = [
   'dist/dialog/a11y.js',
   'dist/combobox/index.js',
+  'dist/combobox/a11y.js',
 ]
 
 // Components without hooks MUST NOT carry it: an accidental directive
