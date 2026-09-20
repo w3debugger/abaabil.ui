@@ -58,9 +58,11 @@ export default function Radio_a11y({
         name={name ?? group?.name}
         aria-describedby={describedBy}
       />
-      <label htmlFor={inputId} className="abaabil-radio__label">
-        {label}
-      </label>
+      {label ? (
+        <label htmlFor={inputId} className="abaabil-radio__label">
+          {label}
+        </label>
+      ) : null}
       {description ? (
         <span id={descId} className="abaabil-radio__description">
           {description}

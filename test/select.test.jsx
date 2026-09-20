@@ -202,4 +202,21 @@ describe('Select (a11y tier)', () => {
     )
     expect(await axe(container)).toHaveNoViolations()
   })
+
+  it('shows the label by default, and hides it only when hideLabel is set', () => {
+    render(<A11ySelect label="Language" options={OPTIONS} />)
+    const select = screen.getByLabelText('Language')
+    const label = screen.getByText('Language')
+    expect(label.tagName).toBe('LABEL')
+    expect(label).toHaveAttribute('for', select.id)
+    expect(label).not.toHaveClass('abaabil-visually-hidden')
+  })
+
+  it('renders the label visibly when hideLabel is false, without the visually-hidden class', () => {
+    render(<A11ySelect label="Language" hideLabel={false} options={OPTIONS} />)
+    const select = screen.getByLabelText('Language')
+    const label = screen.getByText('Language')
+    expect(label).toHaveAttribute('for', select.id)
+    expect(label).not.toHaveClass('abaabil-visually-hidden')
+  })
 })

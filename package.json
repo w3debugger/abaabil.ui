@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "description": "Minimal, themeable, accessible React components. Zero dependencies.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w3debugger/abaabil.ui.git"
+  },
+  "homepage": "https://github.com/w3debugger/abaabil.ui#readme",
+  "bugs": {
+    "url": "https://github.com/w3debugger/abaabil.ui/issues"
+  },
   "author": "Abaabil",
   "keywords": [
     "react",

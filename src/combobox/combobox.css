@@ -4,8 +4,12 @@
     display: inline-block;
   }
 
-  .abaabil-combobox__label,
-  .abaabil-visually-hidden {
+  /* hideLabel=true (default): visually hidden. The shared utility class
+     lives in tokens/base.css now (abaabil.base layer); this selector keeps
+     the same rules for this component's own label span rather than
+     applying the utility class directly from JSX, since the visible
+     variant below needs to fully replace it, not just remove one class. */
+  .abaabil-combobox__label {
     position: absolute;
     width: 1px;
     height: 1px;

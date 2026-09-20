@@ -74,9 +74,11 @@ export default function Checkbox_a11y({
         aria-describedby={describedBy}
         aria-checked={indeterminate ? 'mixed' : undefined}
       />
-      <label htmlFor={inputId} className="abaabil-checkbox__label">
-        {label}
-      </label>
+      {label ? (
+        <label htmlFor={inputId} className="abaabil-checkbox__label">
+          {label}
+        </label>
+      ) : null}
       {description ? (
         <span id={descId} className="abaabil-checkbox__description">
           {description}

@@ -25,7 +25,7 @@ import './combobox.css'
  * @param {object} props
  * @param {Array<{value: string, label: string}>} props.options
  * @param {string} props.label Accessible name for the input.
- * @param {boolean} [props.hideLabel=true] Visually hide the label (it stays
+ * @param {boolean} [props.hideLabel=false] Visually hide the label (it stays
  *   in the accessibility tree either way). Set to false to render it visibly.
  * @param {(value: string|null) => void} [props.onChange]
  */
@@ -35,7 +35,7 @@ export default function Combobox_a11y({
   label,
   placeholder,
   className,
-  hideLabel = true,
+  hideLabel = false,
   ...props
 }) {
   const baseId = useId()

@@ -14,7 +14,14 @@ import Select from './styled.jsx'
  * carrying "use client".
  *
  * @param {object} props
- * @param {string} props.label Accessible name, rendered as a real <label>.
+ * @param {string} [props.label] Accessible name, rendered as a real
+ *   <label>. Omitted entirely (not rendered as an empty tag) when not
+ *   given, so a consumer naming the control via aria-label instead does
+ *   not get a stray empty <label for="...">.
+ * @param {boolean} [props.hideLabel=true] Visually hide the label (it stays
+ *   in the accessibility tree either way, still a real <label> associated
+ *   via htmlFor/id). Set to false to render it visibly. Matches combobox's
+ *   `hideLabel` semantics and default.
  * @param {string} [props.description] Rendered and wired via aria-describedby.
  * @param {string} [props.error] Rendered, sets aria-invalid, and is joined
  *   into aria-describedby alongside the description.
@@ -27,6 +34,7 @@ import Select from './styled.jsx'
  */
 export default function Select_a11y({
   label,
+  hideLabel = false,
   description,
   error,
   id,
@@ -57,9 +65,14 @@ export default function Select_a11y({
 
   return (
     <div className={cls}>
-      <label htmlFor={selectId} className="abaabil-select__label">
-        {label}
-      </label>
+      {label ? (
+        <label
+          htmlFor={selectId}
+          className={hideLabel ? 'abaabil-select__label abaabil-visually-hidden' : 'abaabil-select__label'}
+        >
+          {label}
+        </label>
+      ) : null}
       <Select
         {...props}
         id={selectId}

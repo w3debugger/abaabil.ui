@@ -9,7 +9,7 @@ const root = fileURLToPath(new URL('..', import.meta.url))
 const out = (p) => { mkdirSync(dirname(join(root, 'dist', p)), { recursive: true }); return join(root, 'dist', p) }
 
 // theme.css: layer order + tokens. The single file consumers override.
-const theme = ['tokens/layers.css', 'tokens/primitive.css', 'tokens/semantic.css']
+const theme = ['tokens/layers.css', 'tokens/primitive.css', 'tokens/semantic.css', 'tokens/base.css']
   .map((f) => readFileSync(join(root, 'src', f), 'utf8'))
   .join('\n')
 

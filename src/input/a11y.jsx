@@ -21,6 +21,10 @@ import Input from './styled.jsx'
  * @param {object} props
  * @param {string} [props.label] Rendered as a real <label>, associated
  *   with the input via htmlFor/id.
+ * @param {boolean} [props.hideLabel=true] Visually hide the label (it stays
+ *   in the accessibility tree either way, still a real <label> associated
+ *   via htmlFor/id). Set to false to render it visibly. Matches combobox's
+ *   `hideLabel` semantics and default.
  * @param {string} [props.description] Rendered as help text and wired
  *   into aria-describedby.
  * @param {string} [props.error] Rendered as an error message, sets
@@ -31,6 +35,7 @@ import Input from './styled.jsx'
  */
 export default function Input_a11y({
   label,
+  hideLabel = false,
   description,
   error,
   required = false,
@@ -60,7 +65,10 @@ export default function Input_a11y({
   return (
     <div className="abaabil-input-group">
       {label ? (
-        <label htmlFor={inputId} className="abaabil-input__label">
+        <label
+          htmlFor={inputId}
+          className={hideLabel ? 'abaabil-input__label abaabil-visually-hidden' : 'abaabil-input__label'}
+        >
           {label}
         </label>
       ) : null}
