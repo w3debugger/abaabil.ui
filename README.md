@@ -15,7 +15,7 @@ function Example() {
 
 Each component ships three tiers, `normal`, `styled`, `a11y`, so you only pay for what you use. Two facts worth knowing up front:
 
-- A fully accessible `dialog/a11y` is **572 B gzipped**, against `@radix-ui/react-dialog` at **12,585 B**. Radix also bundles its own positioning and portal logic and predates a usable native `<dialog>`; the difference is mostly what the platform now gives you for free, not a claim of doing more with less.
+- A fully accessible `dialog/a11y` is **674 B gzipped**, against `@radix-ui/react-dialog` at **3,422 B**, both measured the same way: the component imported alone, bundled with esbuild, `react`/`react-dom` external, minified, then gzipped. Both numbers are JS only; Radix ships no stylesheet of its own, and it also bundles its own positioning and portal logic and predates a usable native `<dialog>`, so it isn't attempting exactly what abaabil does. The difference is mostly what the platform now gives you for free, not a claim of doing more with less.
 - `accordion/a11y` needs **no JavaScript at all**. Every tier of accordion, including `a11y`, is server-renderable, because it's built on native `<details>`/`<summary>` rather than a scripted widget.
 
 ## Install
