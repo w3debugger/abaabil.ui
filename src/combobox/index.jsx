@@ -39,15 +39,16 @@ export default function Combobox({
   const cls = className ? `abaabil-combobox ${className}` : 'abaabil-combobox'
 
   return (
-    <div className={cls} {...props}>
+    <div className={cls}>
       <input
+        {...props}
         className="abaabil-combobox__input"
         type="text"
         value={query}
         placeholder={placeholder}
-        onFocus={() => setOpen(true)}
+        onFocus={(e) => { props.onFocus?.(e); setOpen(true) }}
         onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
-        onBlur={() => setOpen(false)}
+        onBlur={(e) => { props.onBlur?.(e); setOpen(false) }}
       />
       {open && filtered.length > 0 ? (
         <ul className="abaabil-combobox__list">
