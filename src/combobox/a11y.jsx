@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import './combobox.css'
 
 /**
@@ -12,12 +12,20 @@ import './combobox.css'
  * conveyed solely through aria-activedescendant.
  *
  * Uncontrolled in 1.0.0: the input manages its own text, and selection is
- * observed via onChange.
+ * observed via onChange. onChange is also the only signal when the
+ * selection is cleared (Escape while closed), since there is no value prop.
+ *
+ * Extra props (id, name, required, aria-describedby, autoFocus,
+ * onFocus, onClick, onBlur, onKeyDown, ...) land on the input, the
+ * semantic control consumers are actually targeting. A consumer-supplied
+ * onFocus/onClick/onBlur/onKeyDown composes with this component's own
+ * handler rather than replacing it. className composes on the wrapper,
+ * since that is the component's root box.
  *
  * @param {object} props
  * @param {Array<{value: string, label: string}>} props.options
  * @param {string} props.label Accessible name for the input.
- * @param {(value: string) => void} [props.onChange]
+ * @param {(value: string|null) => void} [props.onChange]
  */
 export default function Combobox_a11y({
   options = [],
@@ -44,6 +52,21 @@ export default function Combobox_a11y({
   // An activedescendant pointing at an unrendered option is the classic
   // silent failure, so clamp it against the current filtered list.
   const activeIndex = active >= 0 && active < filtered.length ? active : -1
+  const count = filtered.length
+
+  // Single source of truth for open-ness: an open list with zero matches
+  // is not actually expanded (it renders nothing, and `hidden` agrees),
+  // so aria-expanded must say so too.
+  const expanded = open && count > 0
+
+  // APG requires the active option be scrolled into view as
+  // aria-activedescendant moves, so a long list doesn't strand it
+  // off-screen for a sighted keyboard user. block: 'nearest' avoids
+  // yanking the page when the option is already visible.
+  useEffect(() => {
+    if (activeIndex < 0) return
+    document.getElementById(optionId(activeIndex))?.scrollIntoView?.({ block: 'nearest' })
+  }, [activeIndex])
 
   const commit = (index) => {
     const option = filtered[index]
@@ -58,15 +81,20 @@ export default function Combobox_a11y({
   const move = (delta) => {
     if (!filtered.length) return
     setOpen(true)
-    setActive((current) => {
-      const next = current + delta
-      if (next < 0) return filtered.length - 1
-      if (next >= filtered.length) return 0
-      return next
-    })
+    // Derive from the clamped activeIndex, not the raw active state: if
+    // options shrinks between renders, active can be out of range, and
+    // moving from a raw out-of-range value produces the wrong wrap.
+    const next = activeIndex + delta
+    if (next < 0) setActive(filtered.length - 1)
+    else if (next >= filtered.length) setActive(0)
+    else setActive(next)
   }
 
   const handleKeyDown = (event) => {
+    // An Enter that confirms an IME composition (Arabic, Urdu, CJK, ...)
+    // must not be read as "commit the active option".
+    if (event.nativeEvent?.isComposing) return
+
     switch (event.key) {
       case 'ArrowDown': event.preventDefault(); move(1); break
       case 'ArrowUp':   event.preventDefault(); move(-1); break
@@ -75,7 +103,14 @@ export default function Combobox_a11y({
       case 'Enter':     if (open && activeIndex >= 0) { event.preventDefault(); commit(activeIndex) } break
       case 'Escape':
         event.preventDefault()
-        if (open) { setOpen(false); setActive(-1) } else { setQuery(''); setSelected(null) }
+        if (open) {
+          setOpen(false)
+          setActive(-1)
+        } else {
+          setQuery('')
+          setSelected(null)
+          onChange?.(null)
+        }
         break
       case 'Tab':
         if (open && activeIndex >= 0) commit(activeIndex)
@@ -91,26 +126,27 @@ export default function Combobox_a11y({
   }
 
   const cls = className ? `abaabil-combobox ${className}` : 'abaabil-combobox'
-  const count = filtered.length
 
   return (
-    <div className={cls} {...props}>
+    <div className={cls}>
       <span id={labelId} className="abaabil-combobox__label">{label}</span>
       <input
+        {...props}
         className="abaabil-combobox__input"
         type="text"
         role="combobox"
         value={query}
         placeholder={placeholder}
+        autoComplete="off"
         aria-labelledby={labelId}
-        aria-expanded={open}
+        aria-expanded={expanded}
         aria-controls={listId}
         aria-autocomplete="list"
-        aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
-        onFocus={() => setOpen(true)}
-        onClick={() => setOpen(true)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
+        aria-activedescendant={expanded && activeIndex >= 0 ? optionId(activeIndex) : undefined}
+        onFocus={(e) => { props.onFocus?.(e); setOpen(true) }}
+        onClick={(e) => { props.onClick?.(e); setOpen(true) }}
+        onBlur={(e) => { props.onBlur?.(e); handleBlur(e) }}
+        onKeyDown={(e) => { props.onKeyDown?.(e); handleKeyDown(e) }}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); setActive(-1) }}
       />
 
@@ -119,7 +155,7 @@ export default function Combobox_a11y({
         role="listbox"
         aria-labelledby={labelId}
         className="abaabil-combobox__list"
-        hidden={!open || count === 0}
+        hidden={!expanded}
       >
         {filtered.map((o, i) => (
           <li
