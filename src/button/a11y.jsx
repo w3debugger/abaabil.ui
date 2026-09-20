@@ -27,7 +27,7 @@ export default function Button_a11y({
   const label = props['aria-label'] ?? props['aria-labelledby']
   const hasText = typeof children === 'string' ? children.trim().length > 0 : Boolean(children)
 
-  if (process.env.NODE_ENV !== 'production' && (leftIcon || rightIcon) && !hasText && !label) {
+  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && (leftIcon || rightIcon) && !hasText && !label) {
     console.warn(
       'abaabil/button: an icon-only button has no accessible name. ' +
         'Pass aria-label or aria-labelledby.'
@@ -62,12 +62,24 @@ export default function Button_a11y({
     onKeyDown?.(event)
   }
 
+  // Attach handlers only when actually needed, so the common server-rendered
+  // case (no onClick, no onKeyDown, not disabled) emits no function props at
+  // all: a plain host <button> serializes cleanly from a server module. A
+  // consumer who passes onClick is already in a client component by
+  // construction, so conditional attachment is sound.
+  const needsOnClick =
+    Boolean(onClick) || (disabled && keepFocusable) || (as !== 'button' && disabled)
+  const needsOnKeyDown = as !== 'button' || Boolean(onKeyDown)
+
+  const interactionProps = {}
+  if (needsOnClick) interactionProps.onClick = suppressed(onClick)
+  if (needsOnKeyDown) interactionProps.onKeyDown = handleKeyDown
+
   return (
     <Button
       as={as}
       {...semantics}
-      onClick={suppressed(onClick)}
-      onKeyDown={handleKeyDown}
+      {...interactionProps}
       {...props}
     >
       {leftIcon ? <span aria-hidden="true">{leftIcon}</span> : null}
