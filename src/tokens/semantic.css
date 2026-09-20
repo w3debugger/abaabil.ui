@@ -10,6 +10,8 @@
     --color-danger: var(--abaabil-red-600);
     --color-focus-ring: var(--abaabil-blue-500);
     --color-overlay: rgb(0 0 0 / 0.5);
+    --color-text-muted: #6b7280;
+    --color-placeholder: #9ca3af;
 
     --radius-md: 0.375rem;
     --space-1: 0.25rem;
@@ -29,6 +31,8 @@
       --color-text: #e5e7eb;
       --color-border: #374151;
       --color-muted: #1f2937;
+      --color-text-muted: #9ca3af;
+      --color-placeholder: #6b7280;
     }
   }
 
@@ -37,5 +41,7 @@
     --color-text: #e5e7eb;
     --color-border: #374151;
     --color-muted: #1f2937;
+    --color-text-muted: #9ca3af;
+    --color-placeholder: #6b7280;
   }
 }

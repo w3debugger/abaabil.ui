@@ -1,0 +1,86 @@
+@layer abaabil.components {
+  .abaabil-radio {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    display: inline-grid;
+    place-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) ease,
+                border-color var(--duration-fast) ease;
+  }
+
+  .abaabil-radio::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-primary-fg);
+    transform: scale(0);
+    transition: transform var(--duration-fast) ease;
+  }
+
+  .abaabil-radio:checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .abaabil-radio:checked::before {
+    transform: scale(1);
+  }
+
+  .abaabil-radio:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .abaabil-radio:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .abaabil-radio__wrapper {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .abaabil-radio__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .abaabil-radio__description {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    opacity: 0.75;
+  }
+
+  .abaabil-radio-group {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+
+  .abaabil-radio-group__legend {
+    padding-inline: var(--space-1);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-radio,
+    .abaabil-radio::before {
+      transition: none;
+    }
+  }
+}

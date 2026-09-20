@@ -1,0 +1,65 @@
+@layer abaabil.components {
+  .abaabil-input {
+    --input-height: var(--control-height-md);
+    --input-padding-x: max(0.375rem, calc((var(--input-height) - var(--font-size-sm)) / 2));
+    --input-border: var(--color-border);
+    --input-placeholder-fg: var(--color-placeholder);
+
+    display: block;
+    width: 100%;
+    height: var(--input-height);
+    padding-inline: var(--input-padding-x);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    transition: border-color var(--duration-fast) ease;
+  }
+
+  .abaabil-input::placeholder {
+    color: var(--input-placeholder-fg);
+  }
+
+  /* :focus-visible only, so mouse users never see the ring */
+  .abaabil-input:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .abaabil-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .abaabil-input[aria-invalid="true"] {
+    --input-border: var(--color-danger);
+  }
+
+  .abaabil-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .abaabil-input__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+  }
+
+  .abaabil-input__description {
+    --input-description-fg: var(--color-text-muted);
+
+    font-size: var(--font-size-sm);
+    color: var(--input-description-fg);
+  }
+
+  .abaabil-input__error {
+    font-size: var(--font-size-sm);
+    color: var(--color-danger);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-input { transition: none; }
+  }
+}

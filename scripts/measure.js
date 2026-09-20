@@ -14,8 +14,25 @@ const BUDGETS = {
   'dist/dialog/styled.js': 350,
   'dist/dialog/a11y.js': 1500,
   'dist/combobox/a11y.js': 4000,
+  'dist/input/index.js': 250,
+  'dist/input/styled.js': 150,
+  'dist/input/a11y.js': 700,
+  'dist/checkbox/index.js': 250,
+  'dist/checkbox/styled.js': 150,
+  'dist/checkbox/a11y.js': 850,
+  'dist/radio/index.js': 200,
+  'dist/radio/styled.js': 150,
+  'dist/radio/a11y.js': 800,
+  'dist/select/index.js': 300,
+  'dist/select/styled.js': 150,
+  'dist/select/a11y.js': 700,
+  'dist/accordion/index.js': 450,
+  'dist/accordion/styled.js': 150,
+  'dist/accordion/a11y.js': 250,
 }
-const COMBINED = { 'all a11y entries': { max: 7000, match: /a11y\.js$/ } }
+// 8 a11y entries now (was 3): raised from 7000 to keep comparable headroom
+// over the actual combined total.
+const COMBINED = { 'all a11y entries': { max: 8000, match: /a11y\.js$/ } }
 const CSS_BUDGET = 3000
 
 const gz = (f) => gzipSync(readFileSync(join(root, f))).length

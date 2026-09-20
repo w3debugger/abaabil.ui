@@ -12,16 +12,34 @@ const MUST_BE_CLIENT = [
   'dist/dialog/a11y.js',
   'dist/combobox/index.js',
   'dist/combobox/a11y.js',
+  'dist/input/a11y.js',
+  'dist/checkbox/a11y.js',
+  'dist/radio/a11y.js',
+  'dist/select/a11y.js',
 ]
 
 // Components without hooks MUST NOT carry it: an accidental directive
 // silently destroys the RSC story that justifies the tier split.
+// accordion/a11y is pinned here deliberately: it is the only component
+// whose a11y tier is server-renderable, so this is what stops someone
+// casually adding a hook and silently destroying that property.
 const MUST_NOT_BE_CLIENT = [
   'dist/button/index.js',
   'dist/button/styled.js',
   'dist/button/a11y.js',
   'dist/dialog/index.js',
   'dist/dialog/styled.js',
+  'dist/input/index.js',
+  'dist/input/styled.js',
+  'dist/checkbox/index.js',
+  'dist/checkbox/styled.js',
+  'dist/radio/index.js',
+  'dist/radio/styled.js',
+  'dist/select/index.js',
+  'dist/select/styled.js',
+  'dist/accordion/index.js',
+  'dist/accordion/styled.js',
+  'dist/accordion/a11y.js',
 ]
 
 const has = (f) => /^\s*['"]use client['"]/.test(readFileSync(join(root, f), 'utf8'))

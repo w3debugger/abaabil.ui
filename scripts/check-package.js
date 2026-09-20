@@ -77,7 +77,22 @@ function collectCssImports(entryAbsPath) {
   return cssFound
 }
 
-for (const name of ['button', 'dialog', 'combobox']) {
+// Derive the component list from the exports map rather than hardcoding it.
+// A hardcoded list silently stops covering anything added after it was
+// written, which is how the five components added after the first three
+// went unchecked. If a component ships an a11y entry point, it is verified.
+const componentNames = Object.keys(pkg.exports)
+  .map((k) => /^\.\/([a-z]+)\/a11y$/.exec(k))
+  .filter(Boolean)
+  .map((m) => m[1])
+
+check(
+  'the stylesheet guard covers every exported a11y entry point',
+  componentNames.length > 0,
+  'found no ./<name>/a11y entries in the exports map'
+)
+
+for (const name of componentNames) {
   const a11yTarget = pkg.exports[`./${name}/a11y`]
   const cssTarget = pkg.exports[`./${name}.css`]
   if (!a11yTarget || !cssTarget) continue

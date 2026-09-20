@@ -1,0 +1,79 @@
+@layer abaabil.components {
+  .abaabil-accordion-group {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: clip;
+  }
+
+  .abaabil-accordion-group .abaabil-accordion + .abaabil-accordion {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .abaabil-accordion {
+    color: var(--color-text);
+  }
+
+  /* Remove the platform's default marker so a custom indicator can replace
+     it: list-style handles Chrome/Firefox, the pseudo-element handles
+     WebKit/Safari, which does not respect list-style on <summary>. */
+  .abaabil-accordion__summary {
+    list-style: none;
+  }
+
+  .abaabil-accordion__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .abaabil-accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: var(--control-height-md);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.3;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .abaabil-accordion__summary:hover {
+    background: var(--color-muted);
+  }
+
+  /* :focus-visible only, so mouse users never see the ring. Inset via a
+     negative offset, since the group wrapper clips overflow to keep its
+     border-radius clean and an outset ring would be cut off. */
+  .abaabil-accordion__summary:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  /* Custom open/close indicator: a chevron built from a rotated border
+     corner, so no icon asset or extra markup is needed. */
+  .abaabil-accordion__summary::after {
+    content: '';
+    flex: none;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform var(--duration-fast) ease;
+  }
+
+  .abaabil-accordion[open] > .abaabil-accordion__summary::after {
+    transform: rotate(-135deg);
+  }
+
+  .abaabil-accordion__panel {
+    padding: 0 var(--space-4) var(--space-3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-accordion__summary::after {
+      transition: none;
+    }
+  }
+}
