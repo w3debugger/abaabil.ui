@@ -1,7 +1,8 @@
 import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const root = new URL('..', import.meta.url).pathname
+const root = fileURLToPath(new URL('..', import.meta.url))
 
 // Components with hooks or internal state MUST carry the directive.
 // Note: combobox/styled.js is deliberately absent. It only re-exports

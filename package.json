@@ -3,6 +3,18 @@
   "version": "1.0.0",
   "description": "Minimal, themeable, accessible React components. Zero dependencies.",
   "license": "MIT",
+  "author": "Abaabil",
+  "keywords": [
+    "react",
+    "components",
+    "accessible",
+    "accessibility",
+    "headless",
+    "css-variables",
+    "apg",
+    "aria",
+    "design-system"
+  ],
   "type": "module",
   "sideEffects": ["*.css"],
   "files": ["dist"],
@@ -25,7 +37,8 @@
   "scripts": {
     "build": "node scripts/build-css.js && rollup -c && node scripts/check-directives.js && node scripts/measure.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && node scripts/check-package.js"
   },
   "peerDependencies": {
     "react": "^19.0.0",
