@@ -9,6 +9,7 @@ const root = new URL('..', import.meta.url).pathname
 // established there. The directive belongs where the hooks are.
 const MUST_BE_CLIENT = [
   'dist/dialog/a11y.js',
+  'dist/combobox/index.js',
 ]
 
 // Components without hooks MUST NOT carry it: an accidental directive
