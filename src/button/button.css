@@ -1,0 +1,65 @@
+@layer abaabil.components {
+  .abaabil-button {
+    --btn-bg: var(--color-primary);
+    --btn-fg: var(--color-primary-fg);
+    --btn-border: var(--color-primary);
+    --btn-height: var(--control-height-md);
+    --btn-padding-x: var(--space-3);
+    --btn-radius: var(--radius-md);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    height: var(--btn-height);
+    padding-inline: var(--btn-padding-x);
+    border: 1px solid var(--btn-border);
+    border-radius: var(--btn-radius);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color var(--duration-fast) ease,
+                border-color var(--duration-fast) ease;
+  }
+
+  .abaabil-button:hover {
+    --btn-bg: var(--color-primary-hover);
+    --btn-border: var(--color-primary-hover);
+  }
+
+  /* :focus-visible only, so mouse users never see the ring */
+  .abaabil-button:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .abaabil-button[data-variant="secondary"] {
+    --btn-bg: transparent;
+    --btn-fg: var(--color-text);
+    --btn-border: var(--color-border);
+  }
+
+  .abaabil-button[data-variant="ghost"] {
+    --btn-bg: transparent;
+    --btn-fg: var(--color-text);
+    --btn-border: transparent;
+  }
+
+  .abaabil-button[data-size="sm"] { --btn-height: 2rem; --btn-padding-x: var(--space-2); }
+  .abaabil-button[data-size="lg"] { --btn-height: 3rem; --btn-padding-x: var(--space-4); }
+
+  .abaabil-button:disabled,
+  .abaabil-button[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-button { transition: none; }
+  }
+}
