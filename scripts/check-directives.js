@@ -15,6 +15,8 @@ const MUST_NOT_BE_CLIENT = [
   'dist/button/index.js',
   'dist/button/styled.js',
   'dist/button/a11y.js',
+  'dist/dialog/index.js',
+  'dist/dialog/styled.js',
 ]
 
 const has = (f) => /^\s*['"]use client['"]/.test(readFileSync(join(root, f), 'utf8'))
