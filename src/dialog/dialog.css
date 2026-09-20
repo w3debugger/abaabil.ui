@@ -1,0 +1,42 @@
+@layer abaabil.components {
+  .abaabil-dialog {
+    --dialog-width: 32rem;
+    --dialog-padding: var(--space-4);
+
+    width: min(var(--dialog-width), calc(100vw - 2rem));
+    padding: var(--dialog-padding);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .abaabil-dialog::backdrop {
+    background: var(--color-overlay);
+  }
+
+  .abaabil-dialog__title {
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* Entry animation. @starting-style is Baseline low; browsers without it
+     simply show the dialog immediately, which is a fine degradation. */
+  @starting-style {
+    .abaabil-dialog[open] { opacity: 0; transform: translateY(0.5rem); }
+  }
+
+  .abaabil-dialog[open] {
+    opacity: 1;
+    transform: none;
+    transition: opacity var(--duration-fast) ease, transform var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-dialog[open] { transition: none; }
+    @starting-style {
+      .abaabil-dialog[open] { opacity: 1; transform: none; }
+    }
+  }
+}
