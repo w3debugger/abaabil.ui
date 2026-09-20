@@ -7,7 +7,9 @@ const root = new URL('..', import.meta.url).pathname
 // Note: combobox/styled.js is deliberately absent. It only re-exports
 // index.js, which carries the directive, so the client boundary is already
 // established there. The directive belongs where the hooks are.
-const MUST_BE_CLIENT = []
+const MUST_BE_CLIENT = [
+  'dist/dialog/a11y.js',
+]
 
 // Components without hooks MUST NOT carry it: an accidental directive
 // silently destroys the RSC story that justifies the tier split.
