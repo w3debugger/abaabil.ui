@@ -17,9 +17,19 @@
     border: 0;
   }
 
+  /* hideLabel={false}: render the label as a normal visible block above
+     the input, instead of visually hidden. */
+  .abaabil-combobox__label--visible {
+    display: block;
+    margin-bottom: var(--space-1);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+  }
+
   .abaabil-combobox__input {
     height: var(--control-height-md);
-    padding-inline: var(--space-3);
+    --input-padding-x: max(0.375rem, calc((var(--control-height-md) - var(--font-size-sm)) / 2));
+    padding-inline: var(--input-padding-x);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);

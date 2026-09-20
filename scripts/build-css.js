@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { transform, bundle } from 'lightningcss'
 
 const TARGETS = { chrome: 116 << 16, firefox: 125 << 16, safari: 17 << 16 }
-const root = new URL('..', import.meta.url).pathname
+const root = fileURLToPath(new URL('..', import.meta.url))
 
 const out = (p) => { mkdirSync(dirname(join(root, 'dist', p)), { recursive: true }); return join(root, 'dist', p) }
 

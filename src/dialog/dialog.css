@@ -12,12 +12,12 @@
   }
 
   .abaabil-dialog::backdrop {
-    background: rgb(0 0 0 / 0.5);
+    background: var(--color-overlay);
   }
 
   .abaabil-dialog__title {
     margin: 0 0 var(--space-3);
-    font-size: 1.125rem;
+    font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
   }
 

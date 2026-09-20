@@ -25,6 +25,8 @@ import './combobox.css'
  * @param {object} props
  * @param {Array<{value: string, label: string}>} props.options
  * @param {string} props.label Accessible name for the input.
+ * @param {boolean} [props.hideLabel=true] Visually hide the label (it stays
+ *   in the accessibility tree either way). Set to false to render it visibly.
  * @param {(value: string|null) => void} [props.onChange]
  */
 export default function Combobox_a11y({
@@ -33,12 +35,20 @@ export default function Combobox_a11y({
   label,
   placeholder,
   className,
+  hideLabel = true,
   ...props
 }) {
   const baseId = useId()
   const listId = `${baseId}-listbox`
   const labelId = `${baseId}-label`
   const optionId = (index) => `${baseId}-option-${index}`
+
+  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !label) {
+    console.warn(
+      'abaabil/combobox: no `label` given, so the combobox has no accessible name ' +
+        'and screen readers announce it as unnamed.'
+    )
+  }
 
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -98,8 +108,6 @@ export default function Combobox_a11y({
     switch (event.key) {
       case 'ArrowDown': event.preventDefault(); move(1); break
       case 'ArrowUp':   event.preventDefault(); move(-1); break
-      case 'Home':      if (open) { event.preventDefault(); setActive(0) } break
-      case 'End':       if (open) { event.preventDefault(); setActive(filtered.length - 1) } break
       case 'Enter':     if (open && activeIndex >= 0) { event.preventDefault(); commit(activeIndex) } break
       case 'Escape':
         event.preventDefault()
@@ -132,7 +140,9 @@ export default function Combobox_a11y({
 
   return (
     <div className={cls}>
-      <span id={labelId} className="abaabil-combobox__label">{label}</span>
+      <span id={labelId} className={hideLabel ? 'abaabil-combobox__label' : 'abaabil-combobox__label--visible'}>
+        {label}
+      </span>
       <input
         {...props}
         className="abaabil-combobox__input"
@@ -145,6 +155,7 @@ export default function Combobox_a11y({
         aria-expanded={expanded}
         aria-controls={listId}
         aria-autocomplete="list"
+        aria-haspopup="listbox"
         aria-activedescendant={expanded && activeIndex >= 0 ? optionId(activeIndex) : undefined}
         onFocus={(e) => { props.onFocus?.(e); setOpen(true) }}
         onClick={(e) => { props.onClick?.(e); setOpen(true) }}

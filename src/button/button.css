@@ -4,7 +4,10 @@
     --btn-fg: var(--color-primary-fg);
     --btn-border: var(--color-primary);
     --btn-height: var(--control-height-md);
-    --btn-padding-x: var(--space-3);
+    /* Match the optical inset on all four sides: the control centres its text in a
+       fixed height, so the free space above and below is (height - font-size) / 2.
+       Overridable, like every other component-level custom property here. */
+    --btn-padding-x: max(0.375rem, calc((var(--btn-height) - var(--font-size-sm)) / 2));
     --btn-radius: var(--radius-md);
 
     display: inline-flex;
@@ -50,8 +53,8 @@
     --btn-border: transparent;
   }
 
-  .abaabil-button[data-size="sm"] { --btn-height: 2rem; --btn-padding-x: var(--space-2); }
-  .abaabil-button[data-size="lg"] { --btn-height: 3rem; --btn-padding-x: var(--space-4); }
+  .abaabil-button[data-size="sm"] { --btn-height: 2rem; }
+  .abaabil-button[data-size="lg"] { --btn-height: 3rem; }
 
   .abaabil-button:disabled,
   .abaabil-button[aria-disabled="true"] {
