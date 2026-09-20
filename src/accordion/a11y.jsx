@@ -52,3 +52,8 @@ export function Accordion_a11y({ label, ...props }) {
   const groupProps = label ? { role: 'group', 'aria-label': label } : null
   return <Accordion {...groupProps} {...props} />
 }
+
+// Default export added in 1.1.0, matching every other component's a11y
+// tier: they all default-export their main component. The named export
+// above keeps working for anything already importing `{ Accordion_a11y }`.
+export default Accordion_a11y

@@ -1,6 +1,6 @@
 {
   "name": "abaabil",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Minimal, themeable, accessible React components. Zero dependencies.",
   "license": "MIT",
   "repository": {
@@ -30,9 +30,11 @@
     "*.css"
   ],
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "exports": {
+    "./package.json": "./package.json",
     "./button": "./dist/button/index.js",
     "./button/styled": "./dist/button/styled.js",
     "./button/a11y": "./dist/button/a11y.js",

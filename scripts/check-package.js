@@ -36,7 +36,7 @@ check(
   `sideEffects: ${JSON.stringify(pkg.sideEffects)}`
 )
 
-check('version is exactly 1.0.0', pkg.version === '1.0.0', `version: ${pkg.version}`)
+check('version is exactly 1.1.0', pkg.version === '1.1.0', `version: ${pkg.version}`)
 
 const exportEntries = Object.entries(pkg.exports ?? {})
 const missing = exportEntries.filter(([, target]) => !existsSync(join(root, target)))

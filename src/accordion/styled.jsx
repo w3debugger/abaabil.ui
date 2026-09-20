@@ -1,2 +1,2 @@
 import './accordion.css'
-export { Disclosure, Accordion } from './index.jsx'
+export { default, Disclosure, Accordion } from './index.jsx'

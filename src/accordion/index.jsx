@@ -52,3 +52,9 @@ export function Accordion({ items, name = 'abaabil-accordion', className, ...pro
     </div>
   )
 }
+
+// Default export added in 1.1.0 so accordion matches every other
+// component's tiers, which all default-export their main component. The
+// named export above keeps working for anything already importing
+// `{ Accordion }`.
+export default Accordion

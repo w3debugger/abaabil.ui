@@ -3,8 +3,11 @@ import { describe, it, expect } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { Disclosure, Accordion } from '../src/accordion/index.jsx'
+import DefaultAccordion from '../src/accordion/index.jsx'
 import { Disclosure as StyledDisclosure, Accordion as StyledAccordion } from '../src/accordion/styled.jsx'
+import DefaultStyledAccordion from '../src/accordion/styled.jsx'
 import { Disclosure as A11yDisclosure, Accordion_a11y } from '../src/accordion/a11y.jsx'
+import DefaultAccordionA11y from '../src/accordion/a11y.jsx'
 
 const items = [
   { key: 'a', summary: 'Section A', children: 'Panel A content' },
@@ -71,6 +74,31 @@ describe('Accordion (normal tier)', () => {
   it('sets no tabindex anywhere in the normal tier', () => {
     const { container } = render(<Accordion items={items} />)
     expect(container.querySelectorAll('[tabindex]')).toHaveLength(0)
+  })
+})
+
+describe('Accordion default export (added in 1.1.0)', () => {
+  it('normal tier: default export is the same component as the named export', () => {
+    expect(DefaultAccordion).toBe(Accordion)
+    expect(typeof DefaultAccordion).toBe('function')
+    const { container } = render(<DefaultAccordion items={items} />)
+    expect(container.querySelectorAll('details')).toHaveLength(3)
+  })
+
+  it('styled tier: default export is the same component as the named export', () => {
+    expect(DefaultStyledAccordion).toBe(StyledAccordion)
+    expect(typeof DefaultStyledAccordion).toBe('function')
+    const { container } = render(<DefaultStyledAccordion items={items} />)
+    expect(container.querySelectorAll('details')).toHaveLength(3)
+  })
+
+  it('a11y tier: default export is the same component as Accordion_a11y', () => {
+    expect(DefaultAccordionA11y).toBe(Accordion_a11y)
+    expect(typeof DefaultAccordionA11y).toBe('function')
+    const { container } = render(<DefaultAccordionA11y items={items} label="FAQ" />)
+    const group = container.querySelector('.abaabil-accordion-group')
+    expect(group).toHaveAttribute('role', 'group')
+    expect(group).toHaveAttribute('aria-label', 'FAQ')
   })
 })
 

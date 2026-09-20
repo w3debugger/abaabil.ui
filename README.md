@@ -77,7 +77,7 @@ import Input from 'abaabil/input/a11y'
 import Checkbox from 'abaabil/checkbox/a11y'
 import Radio from 'abaabil/radio/a11y'
 import Select from 'abaabil/select/a11y'
-import { Accordion } from 'abaabil/accordion/a11y'
+import Accordion from 'abaabil/accordion/a11y'
 ```
 
 ### Bundler required for `styled` and `a11y` tiers
