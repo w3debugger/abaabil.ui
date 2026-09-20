@@ -109,7 +109,10 @@ export default function Combobox_a11y({
         } else {
           setQuery('')
           setSelected(null)
-          onChange?.(null)
+          // Idempotent: only notify if there was actually something
+          // selected to clear, so repeated Escapes on an already-cleared
+          // combobox don't emit spurious onChange(null) calls.
+          if (selected !== null) onChange?.(null)
         }
         break
       case 'Tab':
