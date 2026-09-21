@@ -189,8 +189,14 @@ cd scripts/compare
 npm install --prefer-online
 npm run all
 cp results.json ../../src/data/comparison.json
+cp sources.json ../../src/data/sources.json
 cp delivered.json ../../src/data/delivered.json
 ```
+
+All three, every time. `sources.json` records the package, version, link
+and exact import behind each figure, and the site publishes those as its
+proof; `check-complete.js` fails the build if a measured figure has no
+source, which is what catches copying `results.json` alone.
 
 `measure.mjs` exits non-zero **without writing** if any build fails, so
 a partial measurement cannot reach the site. `check-complete.js` then
