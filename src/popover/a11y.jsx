@@ -11,10 +11,17 @@ import { Popover, PopoverTrigger, PopoverPanel } from './styled.jsx'
  * that needs reimplementing, and reimplementing it would mean shipping
  * JavaScript to duplicate the browser.
  *
- * What is genuinely missing is a name for the panel. A popover is a
- * region of content with no implicit accessible name, so without one a
- * screen reader announces it as an unnamed group. That is what this tier
- * adds, plus the dev warning that catches its absence.
+ * What is genuinely missing is a name for the panel, and a role that can
+ * carry one. A bare <div popover> has no role at all, and `aria-label` is
+ * prohibited on a generic element: set it there and it is discarded, so
+ * the panel stays anonymous no matter what you pass. This tier gives the
+ * panel `role="group"` and then names it, plus a dev warning when no name
+ * is given.
+ *
+ * `group` rather than `dialog`: a popover here is a named region of
+ * related content, not something the user must deal with, and announcing
+ * it as a dialog would overstate it. Pass `role` to override when the
+ * panel really is a non-modal dialog.
  *
  * No hooks, so like the tiers below it this renders inside a React Server
  * Component tree. All three popover entry points ship zero runtime
@@ -31,6 +38,8 @@ import { Popover, PopoverTrigger, PopoverPanel } from './styled.jsx'
  * @param {object} props
  * @param {string} props.id Panel id; also wires the trigger.
  * @param {import('react').ReactNode} props.trigger Button content.
+ * @param {string} [props.role='group'] Role for the panel. Needed for the
+ *   name to be exposed at all; override only for a better-fitting role.
  * @param {string} [props.label] Accessible name for the panel, applied as
  *   aria-label.
  * @param {string} [props.labelledBy] Id of an element naming the panel,
@@ -44,6 +53,7 @@ export default function Popover_a11y({
   trigger,
   label,
   labelledBy,
+  role = 'group',
   triggerProps,
   mode = 'auto',
   children,
@@ -66,6 +76,7 @@ export default function Popover_a11y({
       trigger={trigger}
       triggerProps={triggerProps}
       mode={mode}
+      role={role}
       aria-label={label}
       aria-labelledby={labelledBy}
       {...props}

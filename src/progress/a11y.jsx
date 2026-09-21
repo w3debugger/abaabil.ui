@@ -41,6 +41,7 @@ export default function Progress_a11y({
   const baseId = useId()
   const progressId = id ?? `${baseId}-progress`
   const descriptionId = `${baseId}-description`
+  const labelId = `${baseId}-label`
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
@@ -58,6 +59,7 @@ export default function Progress_a11y({
     <div className="abaabil-progress-group">
       {label ? (
         <label
+          id={labelId}
           htmlFor={progressId}
           className={
             hideLabel ? 'abaabil-progress__label abaabil-visually-hidden' : 'abaabil-progress__label'
@@ -72,6 +74,14 @@ export default function Progress_a11y({
         value={value}
         max={max}
         aria-valuetext={valueText}
+        // The <label> alone does not name a <progress>. It is a labelable
+        // element, so htmlFor is not wrong, but accessible-name tooling
+        // computes nothing from it: axe names an <input> from the same
+        // markup and names neither <progress> nor <meter>. Pointing
+        // aria-labelledby at the label makes the name explicit rather
+        // than leaving it to differ between implementations. The <label>
+        // stays for its own sake, as the visible text.
+        aria-labelledby={label ? labelId : undefined}
         aria-describedby={describedBy}
       />
       {description ? (

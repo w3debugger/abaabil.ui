@@ -81,6 +81,22 @@ describe('Popover (a11y tier)', () => {
   beforeEach(() => { warn = vi.spyOn(console, 'warn').mockImplementation(() => {}) })
   afterEach(() => { warn.mockRestore() })
 
+  it('gives the panel a role, without which its name is discarded', () => {
+    // A bare <div popover> has no role, and aria-label is prohibited on
+    // a generic element: the panel computed role null and no accessible
+    // name at all, so this tier's whole contribution was being dropped.
+    // axe flags it as aria-prohibited-attr.
+    render(<A11yPopover id="menu" trigger="Options" label="Display options">Body</A11yPopover>)
+    expect(document.getElementById('menu')).toHaveAttribute('role', 'group')
+  })
+
+  it('allows the role to be overridden for a panel that is really a dialog', () => {
+    render(
+      <A11yPopover id="menu" trigger="Options" label="Options" role="dialog">Body</A11yPopover>
+    )
+    expect(document.getElementById('menu')).toHaveAttribute('role', 'dialog')
+  })
+
   it('names the panel with aria-label', () => {
     render(<A11yPopover id="menu" trigger="Options" label="Display options">Body</A11yPopover>)
     expect(document.getElementById('menu')).toHaveAttribute('aria-label', 'Display options')

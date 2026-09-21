@@ -47,6 +47,24 @@ describe('Progress (a11y tier)', () => {
     expect(screen.getByText('Uploading')).toHaveAttribute('for', el.id)
   })
 
+  it('names the bar with aria-labelledby, because a <label> alone does not name a <progress>', () => {
+    // <progress> is a labelable element, so htmlFor is not wrong, but
+    // accessible-name tooling computes nothing from it: axe names an
+    // <input> from the same markup and names neither <progress> nor
+    // <meter>. Without this the label was decorative.
+    render(<A11yProgress label="Uploading" value={40} />)
+    const el = screen.getByRole('progressbar')
+    const labelledBy = el.getAttribute('aria-labelledby')
+    expect(labelledBy).toBeTruthy()
+    expect(document.getElementById(labelledBy)).toHaveTextContent('Uploading')
+    expect(document.getElementById(labelledBy).tagName).toBe('LABEL')
+  })
+
+  it('sets no aria-labelledby when there is no label to point at', () => {
+    render(<A11yProgress aria-label="Uploading" value={40} />)
+    expect(screen.getByRole('progressbar')).not.toHaveAttribute('aria-labelledby')
+  })
+
   it('wires description into aria-describedby', () => {
     render(<A11yProgress label="Uploading" description="3 of 8 files" value={40} />)
     const id = screen.getByRole('progressbar').getAttribute('aria-describedby')

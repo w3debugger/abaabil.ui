@@ -72,6 +72,30 @@ the thing that was broken.
   fade is on the hidden state now and showing is instant, which is also
   the better behaviour for a tooltip.
 
+Two more came out of a full accessibility audit of all eighteen
+components, run with axe against a real browser. Both were silent: the
+component looked right, the tests passed, and the thing it claimed to add
+was being discarded.
+
+- **`popover/a11y` was not naming its panel at all.** A bare
+  `<div popover>` has no role, and `aria-label` is prohibited on a
+  generic element, so the label was dropped: the panel computed to role
+  `null` with no accessible name, and axe flags it as
+  `aria-prohibited-attr`. The panel is `role="group"` now, overridable
+  with `role`. Naming the panel was this tier's entire contribution, so
+  until now it added 484 bytes and achieved nothing.
+- **`progress/a11y` was not naming its bar.** `<progress>` is a labelable
+  element, so `<label for>` is not wrong, but no accessible name is
+  computed from it: axe names an `<input>` from identical markup and
+  names neither `<progress>` nor `<meter>`. `aria-labelledby` now points
+  at the label, making the name explicit instead of leaving it to differ
+  between implementations.
+
+The audit itself had to be redone once. The first pass rendered the
+dialog open, and a modal dialog makes everything behind it inert, so the
+sweep that reported zero violations had not actually examined the other
+seventeen components.
+
 ### Fixed
 
 - `dist/combobox/index.js` and `dist/combobox/styled.js` had no size
