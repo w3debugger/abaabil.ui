@@ -1,0 +1,63 @@
+@layer abaabil.components {
+  .abaabil-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--font-size-sm);
+  }
+
+  .abaabil-breadcrumb__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+  }
+
+  /* The separator is drawn, not rendered, so it never reaches the
+     accessibility tree. A screen reader should not read punctuation
+     between the steps of a trail.
+
+     It is a logical-property chevron rather than a slash, so it points
+     the way the text runs and needs no RTL override. */
+  .abaabil-breadcrumb__item + .abaabil-breadcrumb__item::before {
+    content: "";
+    inline-size: 0.35rem;
+    block-size: 0.35rem;
+    border-block-start: 1.5px solid currentColor;
+    border-inline-end: 1.5px solid currentColor;
+    rotate: 45deg;
+    opacity: 0.6;
+    flex: none;
+  }
+
+  .abaabil-breadcrumb__list:dir(rtl) .abaabil-breadcrumb__item + .abaabil-breadcrumb__item::before {
+    rotate: -135deg;
+  }
+
+  .abaabil-breadcrumb__link {
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    border-radius: var(--radius-md);
+  }
+
+  .abaabil-breadcrumb__link:hover {
+    color: var(--color-text);
+  }
+
+  .abaabil-breadcrumb__link:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* The current page is the one that is not a link, and it is the one
+     worth reading, so it is the one that gets full contrast. */
+  .abaabil-breadcrumb__current {
+    color: var(--color-text);
+    font-weight: var(--font-weight-semibold);
+  }
+}

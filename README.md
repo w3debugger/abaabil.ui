@@ -2,7 +2,7 @@
 
 Minimal, themeable, accessible React components. Zero dependencies.
 
-Thirteen components: button, dialog, combobox, input, textarea, checkbox, radio, switch, select, accordion, tabs, popover, alert.
+Eighteen components: button, dialog, popover, menu, tooltip, combobox, input, textarea, checkbox, radio, switch, select, slider, accordion, tabs, breadcrumb, progress, alert.
 
 ```js
 import Button from 'abaabil/button/a11y'
@@ -103,7 +103,7 @@ import Accordion from 'abaabil/accordion/a11y'
 
 ### Bundler required for `styled` and `a11y` tiers
 
-The `styled` and `a11y` entry points (all twenty-six across the thirteen components) import their
+The `styled` and `a11y` entry points (all thirty-six across the eighteen components) import their
 component's CSS as a JS side effect (`import 'abaabil/button/button.css'` style, resolved
 relative to the package). That works in any bundler that understands CSS imports, which
 covers Next.js, Vite, and webpack. It does **not** work if you run the built file directly in
@@ -214,15 +214,34 @@ Only the entry points that need interactivity are marked `"use client"`. The res
 | `abaabil/alert` | no |
 | `abaabil/alert/styled` | no |
 | `abaabil/alert/a11y` | no |
+| `abaabil/progress` | no |
+| `abaabil/progress/styled` | no |
+| `abaabil/progress/a11y` | yes |
+| `abaabil/slider` | no |
+| `abaabil/slider/styled` | no |
+| `abaabil/slider/a11y` | yes |
+| `abaabil/breadcrumb` | no |
+| `abaabil/breadcrumb/styled` | no |
+| `abaabil/breadcrumb/a11y` | no |
+| `abaabil/tooltip` | no |
+| `abaabil/tooltip/styled` | no |
+| `abaabil/tooltip/a11y` | yes |
+| `abaabil/menu` | no |
+| `abaabil/menu/styled` | no |
+| `abaabil/menu/a11y` | yes |
 
-Twenty-six of the thirty-nine entry points carry no client directive and render from a Server Component with zero client JS.
+Thirty-six of the fifty-four entry points carry no client directive and render from a Server Component with zero client JS.
 
-Four components are server-renderable at **every** tier, `a11y` included, because they need no JavaScript at all:
+Six components are server-renderable at **every** tier, `a11y` included, because they need no JavaScript at all:
 
 - **button**, which attaches handlers only when you actually pass one (see the note at the end of this section).
 - **accordion**, where exclusive open/close comes from the native `name` attribute on `<details>`.
 - **popover**, where the trigger, the top layer, light-dismiss and Escape all come from the native Popover API.
 - **alert**, which is a live region and a border.
+- **breadcrumb**, which is a `<nav>` and an ordered list.
+- **progress** and **slider** at `normal` and `styled`; their `a11y` tiers need `useId`.
+
+**tooltip** is the interesting case: it shows and hides on `:hover` and `:focus-within`, which are selectors, so its `normal` and `styled` tiers need no JavaScript to work at all. Only the tier that adds `aria-describedby` and Escape is a client component.
 
 Two components are client modules at every tier, because neither has a native element to build on and both need state to show one thing at a time: **combobox** and **tabs**.
 
@@ -525,6 +544,109 @@ Uncontrolled, like the combobox: observe the selection through `onChange`.
 
 **Read this before using it.** A live region is announced when its *contents change*, and assistive tech has to be watching the region before that happens. An alert that arrives in the DOM already carrying its message may not be announced at all, and behaviour differs between screen readers. If the message appears in response to something the user did, render the component with empty children from the start and fill it in, rather than mounting the whole alert at the moment you have something to say. Rendered empty it paints nothing.
 
+### Progress
+
+Native `<progress>`. Omit `value` for an indeterminate bar; it has no default, because defaulting it to 0 would turn every unknown-duration operation into one claiming to be 0% done.
+
+`normal` / `styled`:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `number` | - | Omit for indeterminate. |
+| `max` | `number` | `100` | |
+| `className` | `string` | - | Merged with the base class. |
+
+`a11y` adds the label wiring and the one thing people get wrong about a progress bar, which is what it announces:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | - | Rendered as a real `<label>`. |
+| `hideLabel` | `boolean` | `false` | Hide it visually; it stays in the accessibility tree. |
+| `description` | `string` | - | Help text, wired into `aria-describedby`. |
+| `valueText` | `string` | - | Announced instead of the percentage. A bare `<progress value="3" max="8">` says "38 percent"; pass `"3 of 8 files"` when the number means something else. |
+
+### Slider
+
+Native `<input type="range">`. The keyboard support, the min/max/step arithmetic and the announced role all come from the platform, which is why this is under 200 bytes at the lower tiers.
+
+`normal` / `styled`:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `min` / `max` / `step` | `number` | `0` / `100` / `1` | |
+| `className` | `string` | - | Merged with the base class. |
+
+`a11y`:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | - | Rendered as a real `<label>`. |
+| `hideLabel` | `boolean` | `false` | |
+| `description` | `string` | - | Wired into `aria-describedby`. |
+| `showValue` | `boolean` | `false` | Renders the value in an `<output>`, marked `aria-hidden` because the input already announces it. |
+| `formatValue` | `(value: number) => string` | - | Sets `aria-valuetext` and the visible output. A price slider announces "50" without it. |
+
+Uncontrolled by default; pass `defaultValue` and read `onChange`. An uncontrolled slider starts at the midpoint, matching the native thumb.
+
+### Breadcrumb
+
+A `<nav>` around an ordered list, because the order is the information. All three tiers are server-renderable.
+
+The separator is drawn in CSS, never rendered as text, so a screen reader is not reading punctuation between the steps.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `items` | `Array<{ key?, label, href? }>` | - | Root first. An item with no `href` renders as text. |
+| `className` | `string` | - | |
+
+`a11y` adds the two things a hand-rolled breadcrumb almost always misses:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | `'Breadcrumb'` | Names the `<nav>`. A page usually has several navigation landmarks, and unnamed ones are announced as "navigation, navigation, navigation". |
+| `linkCurrent` | `boolean` | `false` | By default the last item renders as text even if given an `href`, because a link to the page you are on is a link that does nothing. Either way it gets `aria-current="page"`. |
+
+### Tooltip
+
+**Read this before using one.** A tooltip is the control most often used for the wrong job.
+
+- **Never put essential information in one.** There is no hover on touch, so it is simply unreachable there.
+- **Never put interactive content in one.** Moving towards a link inside a tooltip dismisses the tooltip. If you need that, you want a popover.
+- **The trigger must be focusable.** A tooltip on a plain `<span>` does not exist for keyboard users. The `a11y` tier warns when its child cannot receive props.
+
+Showing and hiding is done in CSS, by `:hover` and `:focus-within`. Those are the two events that should reveal a tooltip and both are expressible as selectors, so the `normal` and `styled` tiers need no JavaScript.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `content` | `ReactNode` | - | The tooltip text. |
+| `placement` | `'top' \| 'bottom'` | `'top'` | |
+| `children` | `ReactElement` | - | The trigger. |
+
+`a11y` adds the two things CSS cannot: `aria-describedby` from the trigger to the bubble, which is what makes a screen reader read it at all, and Escape to dismiss, which WCAG 1.4.13 requires for content revealed on hover. It clones the child to attach them, so the trigger stays your element rather than a wrapper of ours.
+
+### Menu
+
+The W3C APG menu button pattern, on top of the native Popover API. The browser supplies the top layer, the outside-click dismissal and Escape; this component supplies the menu semantics and keyboard.
+
+Like popover, `id` is required rather than generated.
+
+**When not to use it.** `role="menu"` means a list of *actions*, in the application-menu sense. A button revealing a few navigation links is not a menu, and marking it up as one makes a screen reader announce a widget the user then cannot operate as one. Use `abaabil/popover` with links in it.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `id` | `string` | - | Panel id; also wires the trigger. Required. |
+| `trigger` | `ReactNode` | - | Button content. |
+| `items` | `Array<{ key?, label, href?, onSelect?, disabled? }>` | - | An item with `href` renders an `<a>`, otherwise a `<button>`. |
+| `triggerProps` | `object` | - | Spread onto the trigger. |
+
+`a11y` adds:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | - | Names the menu itself. Without it the menu is named by its trigger. |
+
+plus `aria-haspopup`, a live `aria-expanded` kept in step with the panel's own `toggle` event, `role="menu"`/`role="menuitem"`, a roving tabindex, Up/Down with wrapping, Home/End, multi-character typeahead, Tab to close, and focus moving to the first item on open and back to the trigger on close.
+
 ## Combobox: uncontrolled in 1.x
 
 The combobox is uncontrolled in this release: it does not accept a `value` prop. Observe the selected value through the `onChange` callback instead of driving it from external state.
@@ -554,6 +676,11 @@ Where the panel appears is a separate question from whether it works. Attaching 
 - Tabs implement the [WAI-ARIA Authoring Practices Guide tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), including a roving tabindex so Tab steps past the tablist rather than through every tab in it.
 - Switch carries `role="switch"` from its `normal` tier, so it never looks like a switch while announcing itself as a checkbox.
 - Alert derives `role="status"` or `role="alert"` from its variant, so a confirmation does not interrupt and an error does. Read the note in its props section about when live regions actually announce.
+- Menu implements the [WAI-ARIA Authoring Practices Guide menu button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/), and its docs say when a menu is the wrong widget.
+- Tooltip shows on both hover and focus, dismisses on Escape as WCAG 1.4.13 requires, and its bubble is never a pointer target so it cannot be hovered instead of its trigger.
+- Progress accepts `valueText`, because a bar whose number is not a percentage is otherwise announced as one.
+- Slider is a native range input, so its keyboard support is the platform's rather than a reimplementation; `formatValue` sets `aria-valuetext` for values that are not self-explanatory.
+- Breadcrumb names its `<nav>` and marks the current page with `aria-current`, and draws its separators in CSS so they are never read aloud.
 - `a11y` tiers are the recommended default for production use; `normal` and `styled` tiers exist for cases where you want to compose your own accessibility behavior.
 
 ## License

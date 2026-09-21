@@ -1,0 +1,84 @@
+@layer abaabil.components {
+  .abaabil-tooltip {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .abaabil-tooltip__bubble {
+    position: absolute;
+    z-index: 20;
+    inline-size: max-content;
+    max-inline-size: 16rem;
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-md);
+    background: var(--color-text);
+    color: var(--color-surface);
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+    text-align: start;
+
+    /* Hidden from sight and from the accessibility tree's flat reading
+       order, but still in the DOM so aria-describedby keeps resolving.
+       visibility, not display:none, so the transition has something to
+       run on and so the reference stays valid. */
+    opacity: 0;
+    visibility: hidden;
+
+    /* The fade is on the hidden state, not the shown one, so showing is
+       instant and can never depend on a transition having run. That is
+       not a style preference: whenever transitions do not advance, the
+       bubble was left at opacity 0 while every selector said it should
+       be visible, which is a tooltip that silently never appears.
+       Showing instantly is also the better behaviour for a tooltip.
+
+       visibility is stepped at the end of the fade rather than
+       interpolated, so the bubble stays hittable by nothing and
+       readable by nobody until the opacity has actually gone. */
+    transition:
+      opacity var(--duration-fast) ease,
+      visibility 0s linear var(--duration-fast);
+
+    /* Never a pointer target. A tooltip that can be hovered can be
+       hovered *instead of* its trigger, which makes it flicker, and it
+       invites putting interactive content inside, which is unreachable. */
+    pointer-events: none;
+
+    inset-inline-start: 50%;
+    translate: -50% 0;
+  }
+
+  .abaabil-tooltip[data-placement="top"] .abaabil-tooltip__bubble {
+    inset-block-end: calc(100% + var(--space-1));
+  }
+
+  .abaabil-tooltip[data-placement="bottom"] .abaabil-tooltip__bubble {
+    inset-block-start: calc(100% + var(--space-1));
+  }
+
+  /* The whole show/hide mechanism, in two selectors. Hover and focus are
+     the two events that should reveal a tooltip and both are expressible
+     as state in CSS, which is why the normal and styled tiers need no
+     JavaScript. :focus-within rather than :focus so the trigger can be
+     any focusable element inside the wrapper. */
+  .abaabil-tooltip:hover .abaabil-tooltip__bubble,
+  .abaabil-tooltip:focus-within .abaabil-tooltip__bubble {
+    opacity: 1;
+    visibility: visible;
+    transition: none;
+  }
+
+  /* Set by the a11y tier when Escape is pressed. WCAG 1.4.13 requires
+     content shown on hover to be dismissable without moving the pointer,
+     and CSS cannot hear a keystroke. */
+  .abaabil-tooltip[data-dismissed="true"] .abaabil-tooltip__bubble {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-tooltip__bubble {
+      transition: none;
+    }
+  }
+}

@@ -4,9 +4,82 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [1.3.0] - 2026-09-21
 
 ### Added
+
+Five components, taking the library from thirteen to eighteen. Two of
+them are the things people ask for most and are hard; three are nearly
+free because the platform already does the work.
+
+- **`abaabil/menu`** - the W3C APG menu button pattern on top of the
+  native Popover API. The browser supplies the top layer, the
+  outside-click dismissal and Escape; this supplies `role="menu"`, a
+  roving tabindex, Up/Down with wrapping, Home/End, multi-character
+  typeahead, Tab to close, and focus moving into the menu on open and
+  back to the trigger on close. `aria-expanded` is driven by the panel's
+  own `toggle` event rather than a second copy of the open state, since
+  the browser can close the panel without telling the component. Its
+  docs say when a menu is the wrong widget: a button revealing
+  navigation links is a popover, not a menu.
+- **`abaabil/tooltip`** - shows on `:hover` and `:focus-within`, which
+  are selectors, so the `normal` and `styled` tiers need no JavaScript
+  at all. The `a11y` tier adds the two things CSS cannot: the
+  `aria-describedby` that makes a screen reader read it, and Escape to
+  dismiss, which WCAG 1.4.13 requires. The docs lead with when not to
+  use one.
+- **`abaabil/progress`** - native `<progress>`. `value` has no default,
+  so omitting it gives a genuinely indeterminate bar rather than one
+  claiming to be 0% done. `valueText` sets `aria-valuetext`, because a
+  bar whose number is not a percentage is otherwise announced as one.
+- **`abaabil/slider`** - native `<input type="range">`, so the keyboard
+  support and the min/max/step arithmetic are the platform's.
+  `formatValue` sets `aria-valuetext` and the optional visible
+  `<output>`, which is marked `aria-hidden` so the value is not
+  announced twice.
+- **`abaabil/breadcrumb`** - a `<nav>` around an ordered list, because
+  the order is the information. Server-renderable at every tier. The
+  separator is drawn in CSS so it is never read aloud, the `<nav>` is
+  named, and the last item renders as text with `aria-current="page"`.
+
+Thirty-six of the fifty-four entry points now carry no client directive.
+Six components are server-renderable at every tier including `a11y`, up
+from four.
+
+`role="tooltip"` is deliberately **not** in tooltip's `normal` tier,
+unlike `role="switch"` in switch's. The difference: a switch's role
+changes how a reachable interactive control is announced, so it does
+something on its own. A tooltip is only ever reached through the
+`aria-describedby` on its trigger, so the role without that association
+announces nothing, and it belongs with the wiring that gives it meaning.
+
+Three bugs were found by driving these in a real browser, after 511
+jsdom tests had passed. All three are the same shape: jsdom does not run
+the thing that was broken.
+
+- Menu focused its first item inside `requestAnimationFrame`, which does
+  not fire in a background tab, so focus silently never moved there. The
+  `toggle` event already fires with the panel in the top layer and
+  focusable, so the focus call is synchronous now.
+- Menu read the active index from state, so two keydowns arriving in the
+  same tick both moved one step from the same origin: holding ArrowDown
+  advanced one item and stopped. The index is a ref now. Covered by a
+  test that dispatches two raw events inside one `act`, which is the
+  only way to reproduce it, since `fireEvent` flushes between calls.
+- Tooltip put its fade on the shown state, so whenever the transition
+  did not advance the bubble stayed at opacity 0 while every selector
+  said it should be visible: a tooltip that silently never appears. The
+  fade is on the hidden state now and showing is instant, which is also
+  the better behaviour for a tooltip.
+
+### Fixed
+
+- `dist/combobox/index.js` and `dist/combobox/styled.js` had no size
+  budget. Combobox was the first component built and only its `a11y`
+  tier was ever listed, so two entry points had been unwatched since
+  1.0.0. Found by the new registration check, not by noticing.
+
+### Added (tooling)
 
 - `llms.txt`, shipped inside the package. It is the short version of the
   README written for coding agents: the rules that are easy to get wrong

@@ -1,6 +1,6 @@
 # abaabil
 
-> A small React component library: thirteen components, three import tiers
+> A small React component library: eighteen components, three import tiers
 > each, plain CSS in cascade layers, zero runtime dependencies. React 19 is
 > the only peer dependency.
 
@@ -32,8 +32,9 @@ Each tier default-exports its main component. Components with extra parts
 also export them by name: `CheckboxGroup`, `RadioGroup`, `Disclosure`,
 `Accordion`, `PopoverTrigger`, `PopoverPanel`.
 
-Names: button, dialog, popover, combobox, input, textarea, checkbox, radio,
-switch, select, accordion, tabs, alert.
+Names: button, dialog, popover, menu, tooltip, combobox, input, textarea,
+checkbox, radio, switch, select, slider, accordion, tabs, breadcrumb,
+progress, alert.
 
 Stylesheets are also importable on their own as `abaabil/<name>.css`, and
 `abaabil/styles.css` is every component's CSS in one file.
@@ -60,17 +61,35 @@ Stylesheets are also importable on their own as `abaabil/<name>.css`, and
   has no HTML attribute.
 - **dialog** is the native `<dialog>` with `showModal()`. Do not add a
   focus trap; the browser already contains focus.
+- **menu** requires an explicit `id`, like popover. Use it only for a
+  list of *actions*. A button revealing navigation links is not a menu;
+  that is `popover` with links inside, and marking it `role="menu"`
+  announces a widget the user cannot operate as one.
+- **tooltip** takes a single focusable element as its child and clones
+  it. Never put essential information or anything interactive in one:
+  there is no hover on touch, and moving towards a link inside a tooltip
+  dismisses it. If you need either, use `popover`.
+- **progress** leaves `value` unset for an indeterminate bar. Pass
+  `valueText` whenever the number is not a percentage, or "3 of 8 files"
+  is announced as "38 percent".
+- **slider** is a native range input. Pass `formatValue` when the raw
+  number is not self-explanatory; it sets `aria-valuetext`.
+- **breadcrumb** renders the last item as text rather than a link, and
+  marks it `aria-current="page"`. Pass items root first.
 - Components needing an accessible name (**input**, **textarea**,
   **select**, **checkbox**, **radio**, **switch**, **combobox**,
-  **popover**, **tabs**) warn in development when given none. Pass
+  **popover**, **tabs**, **progress**, **slider**) warn in development
+  when given none. Pass
   `label`, or `aria-label`/`aria-labelledby`.
 
 ## Server Components
 
-Twenty-six of the thirty-nine entry points carry no `"use client"` and
+Thirty-six of the fifty-four entry points carry no `"use client"` and
 render inside a React Server Component tree.
 
-- Server-safe at **every** tier: button, accordion, popover, alert.
+- Server-safe at **every** tier: button, accordion, popover, alert,
+  breadcrumb. Tooltip too at `normal` and `styled`, because it shows and
+  hides in CSS rather than JavaScript.
 - Client at **every** tier: combobox, tabs. Neither has a native element
   to build on, so both need state.
 - Everything else is server-safe at `normal` and `styled`, and a client
@@ -98,5 +117,6 @@ block instead of opening and closing.
 ## What this library deliberately does not do
 
 No focus trap, no layout or spacing utilities, no theming runtime, no
-`headingLevel` on accordion, no controlled combobox or tabs. Each is a
+`headingLevel` on accordion, no controlled combobox or tabs, no date
+picker, no data table, no drag and drop. Each is a
 decision with a reason, documented at https://www.abaabil.com/why.md

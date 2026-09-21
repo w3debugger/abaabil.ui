@@ -16,6 +16,11 @@ import SwitchControl from '../src/switch/a11y.jsx'
 import Popover from '../src/popover/a11y.jsx'
 import Tabs from '../src/tabs/a11y.jsx'
 import Alert from '../src/alert/a11y.jsx'
+import Progress from '../src/progress/a11y.jsx'
+import Slider from '../src/slider/a11y.jsx'
+import Breadcrumb from '../src/breadcrumb/a11y.jsx'
+import TooltipControl from '../src/tooltip/a11y.jsx'
+import MenuControl from '../src/menu/a11y.jsx'
 
 const LANGUAGES = [
   { value: 'ar', label: 'Arabic' },
@@ -143,6 +148,50 @@ describe('Cross-component axe sweep (a11y tier)', () => {
   it('alert: no violations for the interrupting variant', async () => {
     const { container } = render(
       <Alert variant="danger" title="Could not save">Check your connection.</Alert>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('progress: no violations with a label and a value text', async () => {
+    const { container } = render(
+      <Progress label="Uploading" description="Large files take longer." value={3} max={8} valueText="3 of 8 files" />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('slider: no violations with a formatted value on show', async () => {
+    const { container } = render(
+      <Slider label="Budget" description="Per month." defaultValue={50} showValue formatValue={(v) => `$${v}`} />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('breadcrumb: no violations for a trail ending on the current page', async () => {
+    const { container } = render(
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Docs', href: '/docs' }, { label: 'Breadcrumb' }]} />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('tooltip: no violations describing a real trigger', async () => {
+    const { container } = render(
+      <TooltipControl content="Saves to your account">
+        <button type="button">Save</button>
+      </TooltipControl>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('menu: no violations for the menu button pattern', async () => {
+    // jsdom has no Popover API, so axe sees the panel rendered but never
+    // opened. The roles and the trigger wiring are what matter here.
+    const { container } = render(
+      <MenuControl
+        id="axe-menu"
+        trigger="Actions"
+        label="File actions"
+        items={[{ label: 'Duplicate' }, { label: 'Delete' }]}
+      />
     )
     expect(await axe(container)).toHaveNoViolations()
   })

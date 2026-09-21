@@ -16,6 +16,7 @@ const read = (relPath) => readFileSync(new URL(relPath, HERE), 'utf8')
 const COMPONENTS = [
   'button', 'dialog', 'combobox', 'input', 'checkbox', 'radio', 'select', 'accordion',
   'textarea', 'switch', 'popover', 'tabs', 'alert',
+  'progress', 'slider', 'breadcrumb', 'tooltip', 'menu',
 ]
 
 // Components whose normal tier carries one static role, because they have
@@ -116,6 +117,16 @@ describe("tier boundary: 'use client' appears only where hooks are used", () => 
     // show one panel at a time. Same reason combobox/index is true.
     'tabs/index': true, 'tabs/styled': false, 'tabs/a11y': true,
     'alert/index': false, 'alert/styled': false, 'alert/a11y': false,
+    'progress/index': false, 'progress/styled': false, 'progress/a11y': true,
+    'slider/index': false, 'slider/styled': false, 'slider/a11y': true,
+    // Breadcrumb is markup. Nothing in it needs a hook at any tier.
+    'breadcrumb/index': false, 'breadcrumb/styled': false, 'breadcrumb/a11y': false,
+    // Tooltip shows and hides in CSS (:hover and :focus-within), so only
+    // the tier adding aria-describedby and Escape needs a client tree.
+    'tooltip/index': false, 'tooltip/styled': false, 'tooltip/a11y': true,
+    // Menu's lower tiers are the Popover API and two real elements; the
+    // a11y tier adds the APG menu semantics and keyboard.
+    'menu/index': false, 'menu/styled': false, 'menu/a11y': true,
   }
 
   const hasUseClient = (src) => /^\s*['"]use client['"]/m.test(src)

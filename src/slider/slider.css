@@ -1,0 +1,99 @@
+@layer abaabil.components {
+  .abaabil-slider {
+    --slider-track: 0.3rem;
+    --slider-thumb: 1.1rem;
+
+    appearance: none;
+    inline-size: 100%;
+    block-size: var(--slider-thumb);
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  /* Track and thumb need one rule per engine and cannot be combined into
+     a selector list: a browser that does not understand one
+     pseudo-element throws away the whole rule. */
+  .abaabil-slider::-webkit-slider-runnable-track {
+    block-size: var(--slider-track);
+    border-radius: 999px;
+    background: var(--color-muted);
+  }
+
+  .abaabil-slider::-moz-range-track {
+    block-size: var(--slider-track);
+    border-radius: 999px;
+    background: var(--color-muted);
+  }
+
+  .abaabil-slider::-webkit-slider-thumb {
+    appearance: none;
+    inline-size: var(--slider-thumb);
+    block-size: var(--slider-thumb);
+    border: 2px solid var(--color-surface);
+    border-radius: 50%;
+    background: var(--color-primary);
+    /* Centres the thumb on the track: half the difference between them. */
+    margin-block-start: calc((var(--slider-track) - var(--slider-thumb)) / 2);
+  }
+
+  .abaabil-slider::-moz-range-thumb {
+    inline-size: var(--slider-thumb);
+    block-size: var(--slider-thumb);
+    border: 2px solid var(--color-surface);
+    border-radius: 50%;
+    background: var(--color-primary);
+  }
+
+  /* Firefox fills the track up to the value on its own; WebKit does not,
+     and faking it there would need the value in CSS, which would mean
+     JavaScript writing a custom property on every input event. The
+     filled portion is a nicety, so it is left to the engine that does it
+     for free rather than bought with a listener. */
+  .abaabil-slider::-moz-range-progress {
+    block-size: var(--slider-track);
+    border-radius: 999px;
+    background: var(--color-primary);
+  }
+
+  .abaabil-slider:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 4px;
+    border-radius: 999px;
+  }
+
+  .abaabil-slider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .abaabil-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .abaabil-slider__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .abaabil-slider__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+  }
+
+  .abaabil-slider__output {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+  }
+
+  .abaabil-slider__description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+}

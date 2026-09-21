@@ -1,6 +1,6 @@
 {
   "name": "abaabil",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Minimal, themeable, accessible React components. Zero dependencies.",
   "license": "MIT",
   "repository": {
@@ -75,6 +75,21 @@
     "./alert": "./dist/alert/index.js",
     "./alert/styled": "./dist/alert/styled.js",
     "./alert/a11y": "./dist/alert/a11y.js",
+    "./progress": "./dist/progress/index.js",
+    "./progress/styled": "./dist/progress/styled.js",
+    "./progress/a11y": "./dist/progress/a11y.js",
+    "./slider": "./dist/slider/index.js",
+    "./slider/styled": "./dist/slider/styled.js",
+    "./slider/a11y": "./dist/slider/a11y.js",
+    "./breadcrumb": "./dist/breadcrumb/index.js",
+    "./breadcrumb/styled": "./dist/breadcrumb/styled.js",
+    "./breadcrumb/a11y": "./dist/breadcrumb/a11y.js",
+    "./tooltip": "./dist/tooltip/index.js",
+    "./tooltip/styled": "./dist/tooltip/styled.js",
+    "./tooltip/a11y": "./dist/tooltip/a11y.js",
+    "./menu": "./dist/menu/index.js",
+    "./menu/styled": "./dist/menu/styled.js",
+    "./menu/a11y": "./dist/menu/a11y.js",
     "./theme.css": "./dist/theme.css",
     "./styles.css": "./dist/styles.css",
     "./button.css": "./dist/button/button.css",
@@ -89,7 +104,12 @@
     "./switch.css": "./dist/switch/switch.css",
     "./popover.css": "./dist/popover/popover.css",
     "./tabs.css": "./dist/tabs/tabs.css",
-    "./alert.css": "./dist/alert/alert.css"
+    "./alert.css": "./dist/alert/alert.css",
+    "./progress.css": "./dist/progress/progress.css",
+    "./slider.css": "./dist/slider/slider.css",
+    "./breadcrumb.css": "./dist/breadcrumb/breadcrumb.css",
+    "./tooltip.css": "./dist/tooltip/tooltip.css",
+    "./menu.css": "./dist/menu/menu.css"
   },
   "scripts": {
     "build": "node scripts/build-css.js && rollup -c && node scripts/check-directives.js && node scripts/check-complete.js && node scripts/measure.js",

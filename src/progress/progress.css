@@ -1,0 +1,87 @@
+@layer abaabil.components {
+  .abaabil-progress {
+    /* appearance:none is what makes the two vendor pseudo-elements below
+       take effect at all; without it the platform widget wins. */
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: 0.5rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-muted);
+    color: var(--color-primary);
+    overflow: hidden;
+  }
+
+  /* Track and value need one rule per engine. They cannot be combined
+     into a selector list: a browser that does not understand one
+     pseudo-element discards the whole rule. */
+  .abaabil-progress::-webkit-progress-bar {
+    background: var(--color-muted);
+    border-radius: 999px;
+  }
+
+  .abaabil-progress::-webkit-progress-value {
+    background: var(--color-primary);
+    border-radius: 999px;
+    transition: inline-size var(--duration-fast) ease;
+  }
+
+  .abaabil-progress::-moz-progress-bar {
+    background: var(--color-primary);
+    border-radius: 999px;
+  }
+
+  /* Indeterminate: no value attribute, so there is nothing to size. A
+     sliver travels the track instead, which is the one place in this
+     library an animation carries meaning rather than decorating. */
+  .abaabil-progress:indeterminate {
+    background:
+      linear-gradient(90deg, var(--color-primary) 0 35%, transparent 35% 100%)
+      0 0 / 250% 100% no-repeat
+      var(--color-muted);
+    animation: abaabil-progress-slide 1.4s linear infinite;
+  }
+
+  .abaabil-progress:indeterminate::-webkit-progress-bar {
+    background: transparent;
+  }
+
+  .abaabil-progress:indeterminate::-moz-progress-bar {
+    background: transparent;
+  }
+
+  @keyframes abaabil-progress-slide {
+    from { background-position: -60% 0; }
+    to { background-position: 160% 0; }
+  }
+
+  .abaabil-progress-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .abaabil-progress__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+  }
+
+  .abaabil-progress__description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-progress::-webkit-progress-value {
+      transition: none;
+    }
+
+    /* A bar that says "working" by moving is useless if it cannot move,
+       so it becomes a static half-filled track rather than nothing. */
+    .abaabil-progress:indeterminate {
+      animation: none;
+      background-position: 40% 0;
+    }
+  }
+}

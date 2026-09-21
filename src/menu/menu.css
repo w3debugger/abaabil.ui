@@ -1,0 +1,102 @@
+@layer abaabil.components {
+  .abaabil-menu {
+    /* Same fallback story as abaabil/popover: without CSS anchor
+       positioning the browser centres a popover in the viewport, and
+       placing it under its trigger any other way would mean measuring
+       the DOM in JavaScript. */
+    inline-size: max-content;
+    min-inline-size: 10rem;
+    max-inline-size: min(18rem, calc(100vw - 2rem));
+    padding: var(--space-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .abaabil-menu::backdrop {
+    background: transparent;
+  }
+
+  .abaabil-menu__trigger {
+    font: inherit;
+    color: inherit;
+  }
+
+  .abaabil-menu__item {
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    /* Menus read as a column of actions, so every label starts at the
+       same edge whichever way the text runs. */
+    text-align: start;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .abaabil-menu__item:hover {
+    background: var(--color-muted);
+  }
+
+  /* The roving tabindex means exactly one item is focusable, and moving
+     between them moves real focus, so the focus ring is the selection
+     indicator. It sits inside the item rather than around it because the
+     panel clips at its own padding. */
+  .abaabil-menu__item:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: -2px;
+    background: var(--color-muted);
+  }
+
+  .abaabil-menu__item:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .abaabil-menu__item:disabled:hover {
+    background: none;
+  }
+
+  @supports (anchor-name: --x) {
+    .abaabil-menu {
+      position: fixed;
+      inset: auto;
+      margin: 0;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: block-start span-inline-end, block-end span-inline-start;
+      margin-block-start: var(--space-1);
+    }
+  }
+
+  @starting-style {
+    .abaabil-menu:popover-open {
+      opacity: 0;
+    }
+  }
+
+  .abaabil-menu:popover-open {
+    opacity: 1;
+    transition: opacity var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-menu:popover-open {
+      transition: none;
+    }
+
+    @starting-style {
+      .abaabil-menu:popover-open {
+        opacity: 1;
+      }
+    }
+  }
+}

@@ -22,6 +22,10 @@ const MUST_BE_CLIENT = [
   // show one panel at a time. Same reason combobox/index.js is here.
   'dist/tabs/index.js',
   'dist/tabs/a11y.js',
+  'dist/progress/a11y.js',
+  'dist/slider/a11y.js',
+  'dist/tooltip/a11y.js',
+  'dist/menu/a11y.js',
 ]
 
 // Components without hooks MUST NOT carry it: an accidental directive
@@ -61,6 +65,21 @@ const MUST_NOT_BE_CLIENT = [
   'dist/alert/index.js',
   'dist/alert/styled.js',
   'dist/alert/a11y.js',
+  'dist/progress/index.js',
+  'dist/progress/styled.js',
+  'dist/slider/index.js',
+  'dist/slider/styled.js',
+  // Breadcrumb is markup. All three tiers, a11y included.
+  'dist/breadcrumb/index.js',
+  'dist/breadcrumb/styled.js',
+  'dist/breadcrumb/a11y.js',
+  // Tooltip shows and hides in CSS, so only the tier that adds
+  // aria-describedby and Escape needs a client boundary.
+  'dist/tooltip/index.js',
+  'dist/tooltip/styled.js',
+  // Menu's lower tiers are the Popover API and two real elements.
+  'dist/menu/index.js',
+  'dist/menu/styled.js',
 ]
 
 const has = (f) => /^\s*['"]use client['"]/.test(readFileSync(join(root, f), 'utf8'))
