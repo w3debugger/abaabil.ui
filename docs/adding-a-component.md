@@ -216,7 +216,7 @@ goes missing from a table or a sentence:
 
 | file | what | what breaks |
 |---|---|---|
-| `src/lib/component-order.js` | the name, in purpose order | the component is absent from the `/why` table and every `/compare` page |
+| `src/lib/component-order.js` | the name, in purpose order | the component is absent from the homepage's comparison picker, the `/why` table and every `/compare` page |
 | `src/pages/Why.jsx` | the hand-written array in the CSS-weights table | absent from that table only |
 | `src/pages/Overview.jsx` | the lede, which names every component | the sentence quietly lists one fewer |
 | `src/pages/kitchen-sink-form.jsx` | only if it belongs in a form | the page's claim about what it composes goes stale |
