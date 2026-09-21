@@ -92,7 +92,7 @@
     "./alert.css": "./dist/alert/alert.css"
   },
   "scripts": {
-    "build": "node scripts/build-css.js && rollup -c && node scripts/check-directives.js && node scripts/measure.js",
+    "build": "node scripts/build-css.js && rollup -c && node scripts/check-directives.js && node scripts/check-complete.js && node scripts/measure.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build && node scripts/check-package.js"

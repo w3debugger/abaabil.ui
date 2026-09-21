@@ -13,6 +13,11 @@ const BUDGETS = {
   'dist/dialog/index.js': 300,
   'dist/dialog/styled.js': 350,
   'dist/dialog/a11y.js': 1500,
+  // Added when scripts/check-complete.js noticed these two had never had
+  // a budget at all: combobox was the first component built and only its
+  // a11y tier was ever listed.
+  'dist/combobox/index.js': 700,
+  'dist/combobox/styled.js': 150,
   'dist/combobox/a11y.js': 4000,
   'dist/input/index.js': 250,
   'dist/input/styled.js': 150,

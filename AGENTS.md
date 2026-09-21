@@ -7,7 +7,7 @@ For coding agents. `llms.txt` is the other file: that one is for agents
 
 ```bash
 npm install
-npm run build     # build-css, rollup, check-directives, measure
+npm run build     # build-css, rollup, check-directives, check-complete, measure
 npm test          # 383 tests
 ```
 
@@ -59,6 +59,15 @@ package root, on purpose.
   of this work, and a component that wraps one is the house style.
 
 ## Adding a component
+
+The full sequence spans this repo and the docs site, and the order
+matters because the site installs this library from npm. It is written
+out in [docs/adding-a-component.md](docs/adding-a-component.md). The
+steps below are just this repository's part of it.
+
+`npm run build` runs `scripts/check-complete.js`, which fails if a
+component is missing from any of the eight places it has to be
+registered, so you do not have to hold this list in your head.
 
 1. `src/<name>/{index,styled,a11y}.jsx` and `src/<name>/<name>.css`.
 2. Three entry points plus `./<name>.css` in `package.json` `exports`.
