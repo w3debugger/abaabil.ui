@@ -160,6 +160,21 @@ abaabil ships design tokens in `abaabil/theme.css`. Override the CSS custom prop
 }
 ```
 
+Setting `--color-primary` is enough. The hover shade and the focus ring are **derived** from it, so a purple theme gets a purple hover and a purple focus ring without naming either:
+
+| Token | Default | Follows `--color-primary`? |
+|---|---|---|
+| `--color-primary` | `#2563eb` | is it |
+| `--color-primary-hover` | `color-mix(in srgb, var(--color-primary) 85%, white)` | yes |
+| `--color-focus-ring` | `var(--color-primary)` | yes |
+| `--color-primary-fg` | `#ffffff` | **no**, see below |
+
+Override any of them individually if the derived value is not what you want.
+
+`--color-primary-fg` is the text and iconography drawn *on* the primary colour, and it does not derive, because deriving it needs a contrast decision CSS cannot make yet. It is white. If you set `--color-primary` to something light, set `--color-primary-fg` to something dark alongside it, or the text on your buttons will fail contrast.
+
+`--color-danger`, `--color-success` and `--color-warning` are independent on purpose: an error is red whatever your brand colour is.
+
 abaabil's own component rules live inside `@layer abaabil.components`. CSS layers give unlayered rules the higher priority by default, so any selector you write in your normal (unlayered) application CSS beats the library's layered styles automatically, with no `!important` needed:
 
 ```css

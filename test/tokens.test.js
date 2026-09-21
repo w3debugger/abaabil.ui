@@ -31,4 +31,39 @@ describe('token system', () => {
     expect(semantic).toContain('prefers-color-scheme: dark')
     expect(semantic).toContain(':root[data-theme="dark"]')
   })
+
+  it('derives every primary-related token from --color-primary', () => {
+    // The bug this guards: --color-primary-hover and --color-focus-ring
+    // pointed at blue primitives, so setting --color-primary to red gave
+    // a red button with a blue hover and a blue focus ring on every
+    // control. Re-theming is meant to be one declaration.
+    const semantic = read('semantic.css')
+    const value = (name) =>
+      (semantic.match(new RegExp(`^\\s*${name}:\\s*([^;]+);`, 'm')) || [])[1]?.trim()
+
+    for (const name of ['--color-primary-hover', '--color-focus-ring']) {
+      expect(value(name), `${name} is not declared`).toBeDefined()
+      expect(value(name), `${name} must follow --color-primary`).toMatch(/var\(--color-primary\)/)
+    }
+  })
+
+  it('lets only --color-primary reference a hue primitive', () => {
+    // Any other semantic token reaching straight for --abaabil-blue-*
+    // is a token that silently ignores a re-theme.
+    const semantic = read('semantic.css')
+    const offenders = [...semantic.matchAll(/^\s*(--color-[a-z-]+):\s*([^;]+);/gm)]
+      .filter(([, name, val]) => /--abaabil-blue/.test(val) && name !== '--color-primary')
+      .map(([, name]) => name)
+    expect(offenders).toEqual([])
+  })
+
+  it('declares no primitive that nothing uses', () => {
+    // A dead primitive is worse than no primitive: someone finds it,
+    // overrides it, and nothing happens.
+    const primitive = read('primitive.css')
+    const semantic = read('semantic.css')
+    const declared = [...primitive.matchAll(/^\s*(--abaabil-[a-z0-9-]+):/gm)].map((m) => m[1])
+    const unused = declared.filter((name) => !semantic.includes(`var(${name})`))
+    expect(unused).toEqual([])
+  })
 })

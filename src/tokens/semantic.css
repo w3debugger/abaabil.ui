@@ -1,7 +1,13 @@
 @layer abaabil.tokens {
   :root {
     --color-primary: var(--abaabil-blue-500);
-    --color-primary-hover: var(--abaabil-blue-400);
+    /* Derived from --color-primary, not pinned to a blue primitive.
+       Setting --color-primary to red used to give a red button with a
+       blue hover state, because this token still pointed at
+       --abaabil-blue-400 and nothing told you. Re-theming the library
+       is meant to be one declaration; anything that does not follow
+       from it is a bug. */
+    --color-primary-hover: color-mix(in srgb, var(--color-primary) 85%, white);
     --color-primary-fg: var(--abaabil-white);
     --color-surface: var(--abaabil-white);
     --color-text: var(--abaabil-gray-900);
@@ -10,7 +16,10 @@
     --color-danger: var(--abaabil-red-600);
     --color-success: var(--abaabil-green-600);
     --color-warning: var(--abaabil-amber-600);
-    --color-focus-ring: var(--abaabil-blue-500);
+    /* Same reason. This one happens to be the identical value to
+       --color-primary by default, so nothing about the stock theme
+       changes; it was simply not following an override. */
+    --color-focus-ring: var(--color-primary);
     --color-overlay: rgb(0 0 0 / 0.5);
     --color-text-muted: #6b7280;
     --color-placeholder: #9ca3af;

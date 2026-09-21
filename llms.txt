@@ -115,7 +115,13 @@ render inside a React Server Component tree.
 
 CSS custom properties only. No provider, no context, no JS theme object.
 Set `--color-primary`, `--radius-md`, `--control-height-md` and the rest on
-`:root` or on any scope element. Dark mode is the same tokens redefined
+`:root` or on any scope element.
+
+Setting `--color-primary` is enough: `--color-primary-hover` and
+`--color-focus-ring` are derived from it. `--color-primary-fg` is not, and
+is white, so if you set a light primary set a dark `--color-primary-fg`
+too or text on buttons fails contrast. `--color-danger`, `--color-success`
+and `--color-warning` are deliberately independent of the brand colour. Dark mode is the same tokens redefined
 under `prefers-color-scheme` and `[data-theme="dark"]`, both of which the
 shipped theme already handles.
 

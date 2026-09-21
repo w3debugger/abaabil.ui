@@ -55,6 +55,17 @@ Nine components are server-renderable at every tier, up from six.
 
 ### Fixed
 
+- **Re-theming only went halfway.** `--color-primary-hover` and
+  `--color-focus-ring` were pinned to blue primitives rather than
+  derived from `--color-primary`, so setting the primary colour to red
+  gave a red button with a blue hover state and a blue focus ring on
+  every control in the library, with nothing saying so. Both now follow
+  `--color-primary`. The stock theme is unchanged for the focus ring,
+  which was already the same value, and the default hover moves from
+  `#3b82f6` to `#467aee`, which is the same blue to look at.
+  `--abaabil-blue-400` existed only to feed the old hover and is
+  removed: a primitive nothing reads is one someone overrides expecting
+  a result, and gets none.
 - `pageWindow` emitted a gap where it stood in for exactly one page, so
   at page 4 of 12 an ellipsis replaced page 2: the same width as the
   number it hid, carrying less. Caught by its own test rather than by
