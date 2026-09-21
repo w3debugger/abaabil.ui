@@ -4,6 +4,29 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+Documentation only. No code in `dist/` changes, so the published 1.1.0 build
+is unaffected; these corrections reach npm with the next release.
+
+### Fixed
+
+- Corrected the headline size comparison in `README.md`. It claimed
+  `dialog/a11y` at 674 B against `@radix-ui/react-dialog` at 3,422 B. The
+  Radix figure was measured by importing only `Dialog.Root`, which renders
+  nothing; a dialog you can actually open needs `Root`, `Trigger`, `Portal`,
+  `Overlay`, `Content`, `Title` and `Close`, and costs 13,493 B. Both sides
+  are now measured the same way, at 580 B against 13,493 B. The correction
+  is less favourable to Radix, not more.
+- Regenerated the delivered-size table in `README.md`. It was still printing
+  1.0.0's figures in the 1.1.0 release, several of them out by more than
+  10% (`checkbox/a11y` read 600 B against an actual 534 B, `radio/a11y`
+  542 B against 444 B). The table is now generated from the published
+  package rather than copied by hand.
+- Noted in `README.md` that a `styled` entry can measure a byte or two below
+  its `normal` entry. That is compression noise: `styled` is `normal` plus a
+  CSS side-effect import, so the JavaScript is identical.
+
 ## [1.1.0] - 2026-09-21
 
 ### Added

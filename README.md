@@ -15,7 +15,9 @@ function Example() {
 
 Each component ships three tiers, `normal`, `styled`, `a11y`, so you only pay for what you use. Two facts worth knowing up front:
 
-- A fully accessible `dialog/a11y` is **674 B gzipped**, against `@radix-ui/react-dialog` at **3,422 B**, both measured the same way: the component imported alone, bundled with esbuild, `react`/`react-dom` external, minified, then gzipped. Both numbers are JS only; Radix ships no stylesheet of its own, and it also bundles its own positioning and portal logic and predates a usable native `<dialog>`, so it isn't attempting exactly what abaabil does. The difference is mostly what the platform now gives you for free, not a claim of doing more with less.
+- A fully accessible `dialog/a11y` is **580 B gzipped**, against `@radix-ui/react-dialog` at **13,493 B**. Both are measured the same way: a dialog you can actually open, imported with every part it needs, bundled with esbuild, `react`/`react-dom` external, minified, then gzipped. Both numbers are JS only; Radix ships no stylesheet of its own, and it also bundles its own positioning and portal logic and predates a usable native `<dialog>`, so it isn't attempting exactly what abaabil does. The difference is mostly what the platform now gives you for free, not a claim of doing more with less.
+
+  Earlier releases of this README compared 674 B against Radix at 3,422 B. That Radix figure was wrong: it was what you get importing only `Dialog.Root`, which renders nothing. The corrected comparison is less favourable to Radix, not more, which is why it is stated here rather than quietly changed.
 - `accordion/a11y` needs **no JavaScript at all**. Every tier of accordion, including `a11y`, is server-renderable, because it's built on native `<details>`/`<summary>` rather than a scripted widget.
 
 ## Install
@@ -38,34 +40,38 @@ The gzipped cost of importing each entry point on its own, React treated as exte
 
 | Entry | JS | CSS |
 |---|---:|---:|
-| `abaabil/button` | 189 B | - |
-| `abaabil/button/styled` | 200 B | 555 B |
-| `abaabil/button/a11y` | 559 B | 555 B |
-| `abaabil/dialog` | 161 B | - |
-| `abaabil/dialog/styled` | 171 B | 373 B |
-| `abaabil/dialog/a11y` | 572 B | 373 B |
-| `abaabil/combobox` | 454 B | - |
-| `abaabil/combobox/styled` | 456 B | 626 B |
-| `abaabil/combobox/a11y` | 1090 B | 626 B |
-| `abaabil/input` | 160 B | - |
-| `abaabil/input/styled` | 171 B | 500 B |
-| `abaabil/input/a11y` | 485 B | 500 B |
-| `abaabil/checkbox` | 161 B | - |
-| `abaabil/checkbox/styled` | 171 B | 636 B |
-| `abaabil/checkbox/a11y` | 600 B | 636 B |
-| `abaabil/radio` | 157 B | - |
-| `abaabil/radio/styled` | 168 B | 545 B |
-| `abaabil/radio/a11y` | 542 B | 545 B |
-| `abaabil/select` | 202 B | - |
-| `abaabil/select/styled` | 212 B | 769 B |
-| `abaabil/select/a11y` | 488 B | 769 B |
-| `abaabil/accordion` | 323 B | - |
-| `abaabil/accordion/styled` | 334 B | 533 B |
-| `abaabil/accordion/a11y` | 383 B | 533 B |
+| `abaabil/button` | 199 B | - |
+| `abaabil/button/styled` | 198 B | 551 B |
+| `abaabil/button/a11y` | 557 B | 551 B |
+| `abaabil/dialog` | 168 B | - |
+| `abaabil/dialog/styled` | 169 B | 371 B |
+| `abaabil/dialog/a11y` | 580 B | 371 B |
+| `abaabil/combobox` | 455 B | - |
+| `abaabil/combobox/styled` | 455 B | 615 B |
+| `abaabil/combobox/a11y` | 1,097 B | 615 B |
+| `abaabil/input` | 166 B | - |
+| `abaabil/input/styled` | 166 B | 497 B |
+| `abaabil/input/a11y` | 501 B | 497 B |
+| `abaabil/checkbox` | 168 B | - |
+| `abaabil/checkbox/styled` | 168 B | 651 B |
+| `abaabil/checkbox/a11y` | 534 B | 651 B |
+| `abaabil/radio` | 165 B | - |
+| `abaabil/radio/styled` | 166 B | 542 B |
+| `abaabil/radio/a11y` | 444 B | 542 B |
+| `abaabil/select` | 209 B | - |
+| `abaabil/select/styled` | 210 B | 771 B |
+| `abaabil/select/a11y` | 530 B | 771 B |
+| `abaabil/accordion` | 320 B | - |
+| `abaabil/accordion/styled` | 320 B | 528 B |
+| `abaabil/accordion/a11y` | 364 B | 528 B |
 
-Each entry point is bundled on its own with its full module graph (so, for example, `button/styled`'s cost already includes the `button` markup it imports) using Rollup (the same plugins as the real build: `@rollup/plugin-node-resolve` and `esbuild` in minify mode), `react`/`react-dom`/`*.css` external, then gzipped. The `styled` and `a11y` tiers also pull in their component's stylesheet as a side-effect import; the CSS column is that stylesheet's own gzipped size, separate from the JS number. `normal` tier entries have no CSS column because they import none.
+Measured against the published `abaabil@1.1.0`. Each entry point is bundled on its own with its full module graph (so `button/styled`'s cost already includes the `button` markup it imports) using esbuild, `react`/`react-dom` external, minified, then gzipped. The `styled` and `a11y` tiers also pull in their component's stylesheet as a side-effect import; the CSS column is that stylesheet's own gzipped size, separate from the JS number. `normal` tier entries have no CSS column because they import none.
 
-This is different from the per-file numbers in `SIZES.md`, which are produced with `preserveModules` and so under-count any tier that imports another module, such as `styled.js`, which shows only the bytes of its own file, not the `index.js` it re-exports. Re-run this yourself with the same setup (each entry bundled alone, React external, gzip the output) to reproduce these numbers.
+A `styled` entry sometimes measures a byte or two *below* its `normal` entry. That is compression noise, not a real difference: `styled` is `normal` plus a CSS side-effect import, so its JavaScript is the same code, and a byte of difference either way is gzip responding to a different module path. The CSS column is where the `styled` tier's actual cost is.
+
+This is different from the per-file numbers in `SIZES.md`, which are produced with `preserveModules` and so under-count any tier that imports another module: `styled.js` there shows only the bytes of its own file, not the `index.js` it re-exports.
+
+These figures are generated, not typed. The script lives in the docs site repo at `scripts/compare/delivered.mjs`, alongside the harness that measures abaabil against nine other libraries with one shared method. Earlier releases of this table were copied by hand and went stale: the 1.1.0 package shipped with 1.0.0's numbers still printed here, some of them out by more than 10%.
 
 Import the tier you need directly:
 
