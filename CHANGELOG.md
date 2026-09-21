@@ -4,6 +4,41 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.4.2] - 2026-09-21
+
+### Fixed
+
+- **The hover state of a filled button failed WCAG 1.4.3 in the stock
+  theme.** `--color-primary-hover` mixed `--color-primary` toward white.
+  The label on that fill is `--color-primary-fg`, which is also white,
+  so every step the fill took toward white took it closer to its own
+  text: the default blue hovered to `#467aee` and carried white at
+  **3.98:1**, under the 4.5 body text needs. Hovering is a state, and
+  1.4.3 does not stop applying during one.
+
+  The token now mixes toward black, so the fill moves away from the
+  label rather than toward it, and the stock blue reads 6.64:1 hovered.
+  Any accent dark enough to carry a white label at rest carries it
+  hovered too, which was not previously true of any accent at all.
+
+  In dark mode a hovered button now sits slightly closer to the page
+  than a resting one. That is the right trade: hover is a pointer
+  affordance, the resting state is what carries the 1.4.11 boundary
+  requirement, and a label nobody can read is not negotiable.
+
+  If you set `--color-primary-hover` yourself, nothing changes. If you
+  relied on the hover being lighter, it is now darker.
+
+### Added
+
+- Two pairings in `test/contrast.test.js`. The first asserts
+  `--color-primary-fg` against `--color-primary-hover`, which is the
+  check whose absence let the above ship: the resting pair sat at a
+  comfortable 5.17:1 and reported everything fine. The second asserts
+  the hover is still a *visible* change from the resting colour, between
+  1.1:1 and 2:1, because the first check on its own is satisfied by a
+  button that turns black.
+
 ## [1.4.1] - 2026-09-21
 
 A colour audit of all twenty-three components, in both themes, against

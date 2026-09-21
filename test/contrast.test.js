@@ -95,6 +95,13 @@ const PAIRS = [
   ['--color-success', '--color-surface', 4.5, 'success alert text'],
   ['--color-warning', '--color-surface', 4.5, 'warning alert text'],
   ['--color-primary-fg', '--color-primary', 4.5, 'label on a primary button'],
+  // The state the resting pair above does not cover, and the one that was
+  // actually broken. A filled button's label sits on the fill in every
+  // state, so hovering does not suspend 1.4.3. The hover shade used to mix
+  // toward white, carrying the white label with it, and the stock blue
+  // hovered to 3.98:1 while the resting pair sat at a comfortable 5.17 and
+  // reported everything fine.
+  ['--color-primary-fg', '--color-primary-hover', 4.5, 'label on a hovered primary button'],
   // Placeholder text is text. It fails silently, because the people who
   // can read it never find out that others cannot.
   ['--color-placeholder', '--color-surface', 4.5, 'placeholder text'],
@@ -156,6 +163,18 @@ describe('token contrast', () => {
         .sort()
     expect(mediaBlock).not.toBe('')
     expect(norm(mediaBlock)).toEqual(norm(darkBlock))
+  })
+
+  it('makes the hover state a visible change from the resting one', () => {
+    // The label check above is satisfied by a hover shade arbitrarily far
+    // from the resting colour, so on its own it would happily accept a
+    // button that turns black. A hover has to read as the same button in
+    // a different state: far enough to notice, near enough to recognise.
+    for (const [name, theme] of [['light', LIGHT], ['dark', DARK]]) {
+      const r = ratio(resolve('--color-primary', theme), resolve('--color-primary-hover', theme))
+      expect(r, `${name}: hover is indistinguishable from resting`).toBeGreaterThan(1.1)
+      expect(r, `${name}: hover looks like a different button, not a state`).toBeLessThan(2)
+    }
   })
 
   it('keeps the decorative border distinct from the control border', () => {
