@@ -1,0 +1,52 @@
+@layer abaabil.components {
+  .abaabil-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    /* No shadow. A border and a surface already say "separate object",
+       and a shadow on every card is the tell that a kit stamped one
+       elevation onto everything regardless of hierarchy. A consumer
+       who wants one sets box-shadow; a consumer who does not should
+       not have to unset it. */
+  }
+
+  .abaabil-card__header,
+  .abaabil-card__footer {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .abaabil-card__header {
+    border-block-end: 1px solid var(--color-border-subtle);
+  }
+
+  .abaabil-card__footer {
+    border-block-start: 1px solid var(--color-border-subtle);
+    /* The band a card's actions sit in, tinted so it reads as chrome
+       rather than as more content. */
+    background: var(--color-muted);
+    border-end-start-radius: inherit;
+    border-end-end-radius: inherit;
+  }
+
+  .abaabil-card__body {
+    padding: var(--space-4);
+    /* Takes the slack in a row of cards of differing content length,
+       so their footers line up. */
+    flex: 1 1 auto;
+  }
+
+  .abaabil-card__heading {
+    /* The heading element is chosen by the consumer for the outline,
+       which means its UA font-size is whatever h2 through h6 happens
+       to be. A card heading should look like a card heading at any
+       level, so the size is set here and the level carries only
+       meaning. */
+    margin: 0;
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.4;
+  }
+}

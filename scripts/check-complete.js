@@ -95,7 +95,7 @@ for (const c of components) {
 // The reverse direction: an exports entry with no source directory behind
 // it, which is how a deleted component leaves a broken entry point.
 for (const key of Object.keys(pkg.exports)) {
-  const m = /^\.\/([a-z]+)(\/(styled|a11y))?$/.exec(key)
+  const m = /^\.\/([a-z-]+)(\/(styled|a11y))?$/.exec(key)
   if (m && !components.includes(m[1])) gaps.push(`exports map has "${key}" but src/${m[1]}/ does not exist`)
 }
 

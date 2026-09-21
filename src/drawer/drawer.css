@@ -1,0 +1,116 @@
+@layer abaabil.components {
+  .abaabil-drawer {
+    --drawer-size: 20rem;
+    --drawer-padding: var(--space-4);
+
+    /* A <dialog> is centred by auto margins in the UA sheet. Pinning
+       it to an edge is a matter of overriding those, which is the
+       whole geometric difference between this and abaabil/dialog. */
+    padding: var(--drawer-padding);
+    border: 0;
+    background: var(--color-surface);
+    color: var(--color-text);
+    max-inline-size: none;
+    max-block-size: none;
+    overflow: auto;
+  }
+
+  .abaabil-drawer::backdrop {
+    background: var(--color-overlay);
+  }
+
+  /* Logical sides, so "end" is the right edge in English and the left
+     in Arabic with no second rule and no prop change. inset-inline-end
+     resolves per direction; a physical `right: 0` would put the drawer
+     on the wrong side of an RTL page. */
+  .abaabil-drawer[data-side="end"],
+  .abaabil-drawer[data-side="start"] {
+    inline-size: min(var(--drawer-size), calc(100vw - 3rem));
+    block-size: 100dvh;
+    inset-block: 0;
+    margin-block: 0;
+    border-inline-start: 1px solid var(--color-border);
+  }
+
+  .abaabil-drawer[data-side="end"] {
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    margin-inline: auto 0;
+  }
+
+  .abaabil-drawer[data-side="start"] {
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    margin-inline: 0 auto;
+    border-inline-start: 0;
+    border-inline-end: 1px solid var(--color-border);
+  }
+
+  .abaabil-drawer[data-side="top"],
+  .abaabil-drawer[data-side="bottom"] {
+    inline-size: 100vw;
+    max-block-size: min(var(--drawer-size), calc(100dvh - 3rem));
+    block-size: auto;
+    inset-inline: 0;
+    margin-inline: 0;
+  }
+
+  .abaabil-drawer[data-side="top"] {
+    inset-block-start: 0;
+    inset-block-end: auto;
+    margin-block: 0 auto;
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .abaabil-drawer[data-side="bottom"] {
+    inset-block-end: 0;
+    inset-block-start: auto;
+    margin-block: auto 0;
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .abaabil-drawer__title {
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* Slides in from its own edge. @starting-style is what makes this
+     possible without JavaScript: the drawer animates from a state that
+     only exists at the moment it enters the top layer, so nothing has
+     to hold a "is opening" flag. Browsers without it show the drawer
+     immediately, which is a fine degradation.
+
+     translate rather than transform, so a consumer setting transform
+     on the drawer does not silently cancel the entry. */
+  @starting-style {
+    .abaabil-drawer[data-side="end"][open] { translate: 100% 0; }
+    .abaabil-drawer[data-side="start"][open] { translate: -100% 0; }
+    .abaabil-drawer[data-side="top"][open] { translate: 0 -100%; }
+    .abaabil-drawer[data-side="bottom"][open] { translate: 0 100%; }
+  }
+
+  /* start and end are mirrored in an RTL document, so their entry
+     directions have to mirror too. */
+  [dir="rtl"] {
+    @starting-style {
+      .abaabil-drawer[data-side="end"][open] { translate: -100% 0; }
+      .abaabil-drawer[data-side="start"][open] { translate: 100% 0; }
+    }
+  }
+
+  .abaabil-drawer[open] {
+    translate: 0 0;
+    transition: translate var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-drawer[open] { transition: none; }
+    @starting-style {
+      .abaabil-drawer[data-side="end"][open],
+      .abaabil-drawer[data-side="start"][open],
+      .abaabil-drawer[data-side="top"][open],
+      .abaabil-drawer[data-side="bottom"][open] { translate: 0 0; }
+    }
+  }
+}

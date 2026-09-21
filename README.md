@@ -2,7 +2,7 @@
 
 Minimal, themeable, accessible React components. Zero dependencies.
 
-Twenty-three components: button, dialog, popover, menu, tooltip, combobox, input, textarea, file, checkbox, radio, switch, select, slider, accordion, tabs, toolbar, breadcrumb, pagination, progress, alert, avatar, badge.
+Thirty-two components: button, dialog, alert-dialog, drawer, popover, menu, tooltip, combobox, input, textarea, file, checkbox, radio, switch, select, slider, toggle, accordion, collapsible, tabs, toolbar, breadcrumb, pagination, progress, spinner, skeleton, alert, toast, avatar, badge, card, separator.
 
 ```js
 import Button from 'abaabil/button/a11y'
@@ -103,7 +103,7 @@ import Accordion from 'abaabil/accordion/a11y'
 
 ### Bundler required for `styled` and `a11y` tiers
 
-The `styled` and `a11y` entry points (all forty-six across the twenty-three components) import their
+The `styled` and `a11y` entry points (all sixty-four across the thirty-two components) import their
 component's CSS as a JS side effect (`import 'abaabil/button/button.css'` style, resolved
 relative to the package). That works in any bundler that understands CSS imports, which
 covers Next.js, Vite, and webpack. It does **not** work if you run the built file directly in
@@ -283,6 +283,33 @@ Only the entry points that need interactivity are marked `"use client"`. The res
 | `abaabil/badge` | no |
 | `abaabil/badge/styled` | no |
 | `abaabil/badge/a11y` | no |
+| `abaabil/alert-dialog` | no |
+| `abaabil/alert-dialog/styled` | no |
+| `abaabil/alert-dialog/a11y` | yes |
+| `abaabil/card` | no |
+| `abaabil/card/styled` | no |
+| `abaabil/card/a11y` | yes |
+| `abaabil/collapsible` | no |
+| `abaabil/collapsible/styled` | no |
+| `abaabil/collapsible/a11y` | no |
+| `abaabil/drawer` | no |
+| `abaabil/drawer/styled` | no |
+| `abaabil/drawer/a11y` | yes |
+| `abaabil/separator` | no |
+| `abaabil/separator/styled` | no |
+| `abaabil/separator/a11y` | no |
+| `abaabil/skeleton` | no |
+| `abaabil/skeleton/styled` | no |
+| `abaabil/skeleton/a11y` | no |
+| `abaabil/spinner` | no |
+| `abaabil/spinner/styled` | no |
+| `abaabil/spinner/a11y` | no |
+| `abaabil/toast` | no |
+| `abaabil/toast/styled` | no |
+| `abaabil/toast/a11y` | yes |
+| `abaabil/toggle` | no |
+| `abaabil/toggle/styled` | no |
+| `abaabil/toggle/a11y` | no |
 
 Fifty-one of the sixty-nine entry points carry no client directive and render from a Server Component with zero client JS.
 
@@ -862,3 +889,220 @@ Where the panel appears is a separate question from whether it works. Attaching 
 ## License
 
 MIT
+
+### Separator
+
+A rule between two things. An `<hr>`, which already carries
+`role="separator"`. Server-renderable at every tier.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Applied as `data-orientation`. |
+| `className` | `string` | - | |
+
+`a11y` fixes the one thing the element gets wrong and adds one thing it
+cannot know:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `decorative` | `boolean` | `false` | Hides it from assistive technology, for a rule that is only a visual device. |
+
+A vertical `<hr>` still reports an implicit `aria-orientation` of
+horizontal however it is rotated in CSS, so the `a11y` tier sets it
+explicitly. That, and being able to hide a purely decorative rule, is
+the whole reason this is a component rather than an element.
+
+### Spinner
+
+An indeterminate busy indicator. Server-renderable at every tier.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Applied as `data-size`. Scales with `font-size`. |
+| `className` | `string` | - | |
+
+| `a11y` prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | `'Loading'` | Announced through `role="status"` when the spinner appears. |
+| `decorative` | `boolean` | `false` | Hides it, for a spinner beside text that already says what is happening. |
+
+Under `prefers-reduced-motion` the ring stops and pulses instead. It
+still has to indicate that work is happening, so it does not simply
+freeze.
+
+### Skeleton
+
+A placeholder for content that has not arrived. Server-renderable at
+every tier.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `shape` | `'text' \| 'rect' \| 'circle'` | `'text'` | Applied as `data-shape`. |
+| `lines` | `number` | `1` | Draws several text bars, the last one short. |
+| `width` | `string` | - | Any CSS length, as `--skeleton-width`. |
+| `height` | `string` | - | Any CSS length, as `--skeleton-height`. |
+| `className` | `string` | - | |
+
+| `a11y` prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | - | Announced once through `role="status"`. Put it on one skeleton per loading region, not on each. |
+
+The `a11y` tier always hides the bars from assistive technology, with no
+way to opt out: they are a picture of a layout and read aloud they are
+noise. Set `aria-busy` on your own container, not on the skeleton.
+
+### Card
+
+A surface with optional header and footer bands.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `header` | `ReactNode` | - | Rendered in its own band above the body. |
+| `footer` | `ReactNode` | - | Rendered in its own band below it. |
+| `className` | `string` | - | |
+
+| `a11y` prop | Type | Default | Description |
+|---|---|---|---|
+| `heading` | `ReactNode` | - | Rendered as a real heading and used as the card's accessible name. |
+| `headingLevel` | `2 \| 3 \| 4 \| 5 \| 6` | - | Required alongside `heading`. |
+
+Passing `heading` makes the card a named `region` and puts it in the
+page's heading outline. Passing nothing leaves a plain `<div>`, because
+a page of twelve cards announced as twelve named regions is twelve extra
+stops on the way to the content.
+
+There is no default `headingLevel`. The right level depends on where the
+card sits in the document, which the component cannot know, and a page of
+`<h3>`s under no `<h2>` is a broken outline that looks fine. `a11y` uses
+`useId`, so it carries `'use client'` while the other two tiers do not.
+
+### Collapsible
+
+One section that opens and shuts. A native `<details>`/`<summary>` pair.
+Server-renderable at every tier, and ships no JavaScript at any of them.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `summary` | `ReactNode` | - | The always-visible trigger. |
+| `defaultOpen` | `boolean` | - | Maps to the native `open` attribute, which the browser then owns. |
+| `className` | `string` | - | |
+| `summaryClassName` | `string` | - | |
+
+This is `abaabil/accordion`'s `Disclosure` without the group. Use the
+accordion when several panels should close each other; use this when one
+section stands alone.
+
+The `a11y` tier re-exports it unchanged. `<summary>` already has the
+right role, the expanded state, the keyboard behaviour and a place in the
+tab order, and an author-supplied `aria-expanded` competes with the
+browser's own rather than reinforcing it.
+
+### Toggle
+
+A button that stays pressed, and a group of them.
+
+| `Toggle` prop | Type | Default | Description |
+|---|---|---|---|
+| `pressed` | `boolean` | `false` | Controlled. Applied as `data-pressed`. |
+| `className` | `string` | - | |
+
+| `ToggleGroup` prop | Type | Default | Description |
+|---|---|---|---|
+| `items` | `Array<{ value, label, disabled? }>` | - | |
+| `name` | `string` | - | Required. It is what makes a set of radios one group to the browser. |
+| `multiple` | `boolean` | `false` | Checkboxes instead of radios. |
+| `defaultValue` | `string \| string[]` | - | |
+| `className` | `string` | - | |
+
+| `a11y` prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | - | On `Toggle`, an accessible name for an icon-only button. On `ToggleGroup`, a `<legend>` naming the set. |
+
+The group is built from radio and checkbox inputs, not from buttons with
+`aria-pressed`. Arrow-key movement, wrapping at the ends, one tab stop
+for the whole set, skipping disabled members and form submission all
+arrive from the browser; roving tabindex is most of what a toggle group
+costs elsewhere. The inputs are clipped rather than hidden, because a
+hidden input is not focusable and every one of those behaviours would go
+with it.
+
+### Drawer
+
+A modal panel pinned to one edge. A native `<dialog>`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `side` | `'start' \| 'end' \| 'top' \| 'bottom'` | `'end'` | Logical: `end` is the right edge in English and the left in Arabic. |
+| `className` | `string` | - | |
+
+| `a11y` prop | Type | Default | Description |
+|---|---|---|---|
+| `open` | `boolean` | `false` | Drives `showModal()` and `close()`. |
+| `label` | `string` | - | Accessible name. The platform supplies none. |
+| `onClose` | `() => void` | - | Fires on Escape, backdrop click and `close()`. |
+
+A drawer is a modal dialog with different geometry, so it is one. Focus
+containment, the inert background, Escape and the top layer are all
+`showModal()`. The entry animation is `@starting-style` in CSS, so
+nothing here holds an "is opening" flag.
+
+### AlertDialog
+
+A dialog that interrupts and demands a decision.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `className` | `string` | - | Carries `role="alertdialog"` at every tier. |
+
+| `a11y` prop | Type | Default | Description |
+|---|---|---|---|
+| `open` | `boolean` | `false` | |
+| `label` | `string` | - | The question, rendered as a heading. |
+| `description` | `string` | - | What happens if they say yes. Announced immediately because of the role. |
+| `onClose` | `() => void` | - | Fires on Escape and `close()`. |
+
+Three things separate it from `abaabil/dialog`, and they are why it is a
+separate component rather than a variant. It requires a description,
+because the role announces one on open. It does not light-dismiss, so
+"delete everything?" cannot be dismissed by clicking beside it. And it
+moves focus to the element marked `data-safe-action`, because the
+platform focuses the first focusable child and a confirmation that opens
+with Delete focused is one Enter from deleting.
+
+### Toast
+
+A transient message, and the live region it lives in.
+
+| `Toast` prop | Type | Default | Description |
+|---|---|---|---|
+| `variant` | `'neutral' \| 'success' \| 'warning' \| 'danger'` | `'neutral'` | Applied as `data-variant`. |
+| `className` | `string` | - | |
+
+| `ToastRegion` prop | Type | Default | Description |
+|---|---|---|---|
+| `align` | `'start' \| 'end'` | `'end'` | |
+| `position` | `'top' \| 'bottom'` | `'bottom'` | |
+
+| `a11y` prop | Type | Default | Description |
+|---|---|---|---|
+| `duration` | `number \| null` | `6000` | Milliseconds before `onDismiss`, or `null` to stay. |
+| `onDismiss` | `() => void` | - | Remove the toast from your list here. Omitting it renders no close button. |
+| `closeLabel` | `string` | `'Dismiss'` | |
+| `action` | `ReactNode` | - | A button or link. Warns in development if combined with a duration. |
+| `label` (on `ToastRegion`) | `string` | `'Notifications'` | Names the landmark. |
+
+There is no `toast('Saved')` function. An imperative API needs a
+module-level store, a subscription and a root you must remember to mount,
+which is a state manager shipped inside a component library. You keep the
+list; this renders and announces it. If the imperative call is what you
+want, sonner and react-hot-toast do it well in about twenty kilobytes.
+
+Mount one `ToastRegion` near the root and leave it there, empty or not.
+A live region inserted together with its first message announces nothing
+in most screen readers, because there was no region to change. That is
+the single most common way this pattern breaks and it cannot be fixed
+from inside `Toast`.
+
+Politeness is derived from the variant, not left to the caller: `danger`
+is assertive, everything else is polite. The timer pauses on hover, on
+focus within, and while the tab is hidden.

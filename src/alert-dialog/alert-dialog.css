@@ -1,0 +1,47 @@
+@layer abaabil.components {
+  .abaabil-alert-dialog {
+    /* Narrower than a dialog. This holds a question and two buttons,
+       and a wide box for one sentence reads as a page rather than as
+       an interruption. */
+    --alert-dialog-width: 24rem;
+
+    width: min(var(--alert-dialog-width), calc(100vw - 2rem));
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .abaabil-alert-dialog::backdrop {
+    background: var(--color-overlay);
+  }
+
+  .abaabil-alert-dialog__title {
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .abaabil-alert-dialog__description {
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-muted);
+  }
+
+  @starting-style {
+    .abaabil-alert-dialog[open] { opacity: 0; transform: scale(0.97); }
+  }
+
+  .abaabil-alert-dialog[open] {
+    opacity: 1;
+    transform: none;
+    transition: opacity var(--duration-fast) ease, transform var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-alert-dialog[open] { transition: none; }
+    @starting-style {
+      .abaabil-alert-dialog[open] { opacity: 1; transform: none; }
+    }
+  }
+}

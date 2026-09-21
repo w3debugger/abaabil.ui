@@ -18,6 +18,7 @@ const COMPONENTS = [
   'textarea', 'switch', 'popover', 'tabs', 'alert',
   'progress', 'slider', 'breadcrumb', 'tooltip', 'menu',
   'pagination', 'file', 'toolbar', 'avatar', 'badge',
+  'alert-dialog', 'card', 'collapsible', 'drawer', 'separator', 'skeleton', 'spinner', 'toast', 'toggle',
 ]
 
 // Components whose normal tier carries one static role, because they have
@@ -27,7 +28,15 @@ const COMPONENTS = [
 // Everything dynamic (aria-selected, aria-describedby, aria-controls) is
 // still forbidden below the a11y tier, and the aria-* assertion below
 // still runs for these.
-const IDENTITY_ROLE = { switch: 'switch' }
+const IDENTITY_ROLE = {
+  switch: 'switch',
+  // role="alertdialog" on a <dialog> is identity in exactly this sense:
+  // it says the dialog is the interrupting kind, which is the whole
+  // difference between this component and abaabil/dialog. Moving it to
+  // the a11y tier would leave a normal tier byte-identical to dialog's
+  // and a component whose defining property is optional.
+  'alert-dialog': 'alertdialog',
+}
 
 const srcPath = (name, tier) => `../src/${name}/${tier}.jsx`
 
@@ -136,6 +145,23 @@ describe("tier boundary: 'use client' appears only where hooks are used", () => 
     // Toolbar's a11y tier manages a roving tabindex over its
     // descendants, which needs a ref and an effect.
     'toolbar/index': false, 'toolbar/styled': false, 'toolbar/a11y': true,
+    // 1.5.0. Five of the nine are hook-free at every tier: an <hr>, two
+    // divs, a <details> and a set of radios do not need one.
+    'separator/index': false, 'separator/styled': false, 'separator/a11y': false,
+    'spinner/index': false, 'spinner/styled': false, 'spinner/a11y': false,
+    'skeleton/index': false, 'skeleton/styled': false, 'skeleton/a11y': false,
+    'collapsible/index': false, 'collapsible/styled': false, 'collapsible/a11y': false,
+    'toggle/index': false, 'toggle/styled': false, 'toggle/a11y': false,
+    // Card's a11y tier needs useId to point aria-labelledby at the
+    // heading it renders. This row is what fails if someone reaches for
+    // a hook in the other two.
+    'card/index': false, 'card/styled': false, 'card/a11y': true,
+    // Drawer and alert-dialog drive a native <dialog>'s showModal and
+    // close from an effect, the same shape as dialog.
+    'drawer/index': false, 'drawer/styled': false, 'drawer/a11y': true,
+    'alert-dialog/index': false, 'alert-dialog/styled': false, 'alert-dialog/a11y': true,
+    // Toast's a11y tier owns the dismiss timer and its pause states.
+    'toast/index': false, 'toast/styled': false, 'toast/a11y': true,
   }
 
   const hasUseClient = (src) => /^\s*['"]use client['"]/m.test(src)

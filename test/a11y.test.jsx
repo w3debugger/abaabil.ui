@@ -26,6 +26,15 @@ import FileField from '../src/file/a11y.jsx'
 import ToolbarControl from '../src/toolbar/a11y.jsx'
 import AvatarControl from '../src/avatar/a11y.jsx'
 import BadgeControl from '../src/badge/a11y.jsx'
+import AlertDialog from '../src/alert-dialog/a11y.jsx'
+import Card from '../src/card/a11y.jsx'
+import Collapsible from '../src/collapsible/a11y.jsx'
+import Drawer from '../src/drawer/a11y.jsx'
+import SeparatorControl from '../src/separator/a11y.jsx'
+import SkeletonControl from '../src/skeleton/a11y.jsx'
+import SpinnerControl from '../src/spinner/a11y.jsx'
+import { Toast, ToastRegion, ToastLive } from '../src/toast/a11y.jsx'
+import { Toggle, ToggleGroup } from '../src/toggle/a11y.jsx'
 
 const LANGUAGES = [
   { value: 'ar', label: 'Arabic' },
@@ -237,6 +246,110 @@ describe('Cross-component axe sweep (a11y tier)', () => {
   it('badge: no violations with hidden context text', async () => {
     const { container } = render(
       <BadgeControl variant="danger" context="unread messages">3</BadgeControl>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('separator: no violations as a vertical rule', async () => {
+    const { container } = render(
+      <div style={{ display: 'flex' }}>
+        <span>Drafts</span>
+        <SeparatorControl orientation="vertical" />
+        <span>Sent</span>
+      </div>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('spinner: no violations with its status label', async () => {
+    const { container } = render(<SpinnerControl label="Loading results" />)
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('skeleton: no violations for a labelled block of lines', async () => {
+    const { container } = render(<SkeletonControl lines={3} label="Loading messages" />)
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('card: no violations as a named region', async () => {
+    const { container } = render(
+      <Card heading="Billing" headingLevel={2} footer={<button type="button">Manage</button>}>
+        <p>Your plan renews on the first of the month.</p>
+      </Card>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('collapsible: no violations when open', async () => {
+    const { container } = render(
+      <Collapsible summary="Shipping details" defaultOpen>
+        <p>Delivered within three working days.</p>
+      </Collapsible>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('toggle: no violations pressed and icon-only', async () => {
+    const { container } = render(
+      <Toggle pressed label="Bold">
+        <svg aria-hidden="true" />
+      </Toggle>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('toggle group: no violations as a named single-select set', async () => {
+    const { container } = render(
+      <ToggleGroup
+        name="align"
+        label="Text alignment"
+        defaultValue="left"
+        items={[
+          { value: 'left', label: 'Left' },
+          { value: 'center', label: 'Centre' },
+          { value: 'right', label: 'Right' },
+        ]}
+      />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('drawer: no violations while open', async () => {
+    const { container } = render(
+      <Drawer open label="Filters">
+        <p>Narrow the results below.</p>
+        <button type="button">Apply</button>
+      </Drawer>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('alert dialog: no violations while open', async () => {
+    const { container } = render(
+      <AlertDialog
+        open
+        label="Delete this project?"
+        description="Everything in it is removed permanently. This cannot be undone."
+      >
+        <button type="button" data-safe-action>Cancel</button>
+        <button type="button">Delete</button>
+      </AlertDialog>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('toast: no violations in its live region', async () => {
+    const { container } = render(
+      <ToastRegion>
+        <ToastLive
+          polite={
+            <Toast variant="success" duration={null} onDismiss={() => {}}>
+              Message sent
+            </Toast>
+          }
+          assertive={null}
+        />
+      </ToastRegion>
     )
     expect(await axe(container)).toHaveNoViolations()
   })

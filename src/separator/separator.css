@@ -1,0 +1,28 @@
+@layer abaabil.components {
+  .abaabil-separator {
+    /* The UA sheet gives <hr> a border on all four sides, a default
+       margin and an inherited colour that varies between browsers.
+       Reset to one line drawn with the token every other edge on the
+       page uses, so a rule beside a card border is the same grey. */
+    border: 0;
+    margin: 0;
+    flex-shrink: 0;
+    background: var(--color-border-subtle);
+  }
+
+  .abaabil-separator[data-orientation="horizontal"] {
+    block-size: 1px;
+    inline-size: 100%;
+  }
+
+  .abaabil-separator[data-orientation="vertical"] {
+    /* Stretches to the row it sits in rather than declaring a height,
+       so a rule between two toolbar buttons matches their height
+       without being told what that is. Falls back to 1em where there is
+       no stretch to inherit, which is the line box it sits on. */
+    block-size: auto;
+    align-self: stretch;
+    min-block-size: 1em;
+    inline-size: 1px;
+  }
+}

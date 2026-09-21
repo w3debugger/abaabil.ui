@@ -25,9 +25,9 @@ the thing is any good.
 
 Most of this library is small because the browser already does the
 work: `<dialog>` with a real top layer and focus trap, `<details name>`
-for exclusive accordions, the Popover API, native form controls. Eight
-of the twenty-three components need no client JavaScript at all for
-that reason.
+for exclusive accordions, the Popover API, native form controls.
+Thirteen of the thirty-two components need no client JavaScript at all
+for that reason.
 
 A component that reimplements something the platform ships is the one
 kind of addition that does not belong here.
@@ -227,7 +227,7 @@ goes missing from a table or a sentence:
 | `src/pages/Overview.jsx` | the lede, which names every component | the sentence quietly lists one fewer |
 | `src/pages/kitchen-sink-form.jsx` | only if it belongs in a form | the page's claim about what it composes goes stale |
 
-That is **four** hand-maintained lists of all twenty-three components,
+That is **four** hand-maintained lists of all thirty-two components,
 plus the two in `scripts/compare`. They must agree and nothing enforces
 it. If you are adding a component and have time for one improvement
 beyond it, make these derive from `component-order.js`.

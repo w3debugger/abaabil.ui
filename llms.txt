@@ -1,6 +1,6 @@
 # abaabil
 
-> A small React component library: twenty-three components, three import tiers
+> A small React component library: thirty-two components, three import tiers
 > each, plain CSS in cascade layers, zero runtime dependencies. React 19 is
 > the only peer dependency.
 
@@ -30,11 +30,14 @@ Every component has exactly three entry points:
 
 Each tier default-exports its main component. Components with extra parts
 also export them by name: `CheckboxGroup`, `RadioGroup`, `Disclosure`,
-`Accordion`, `PopoverTrigger`, `PopoverPanel`.
+`Accordion`, `PopoverTrigger`, `PopoverPanel`, `Toggle`, `ToggleGroup`,
+`Toast`, `ToastRegion`, `ToastLive`.
 
-Names: button, dialog, popover, menu, tooltip, combobox, input, textarea,
-file, checkbox, radio, switch, select, slider, accordion, tabs, toolbar,
-breadcrumb, pagination, progress, alert, avatar, badge.
+Names: button, dialog, alert-dialog, drawer, popover, menu, tooltip,
+combobox, input, textarea, file, checkbox, radio, switch, select, slider,
+toggle, accordion, collapsible, tabs, toolbar, breadcrumb, pagination,
+progress, spinner, skeleton, alert, toast, avatar, badge, card,
+separator.
 
 Stylesheets are also importable on their own as `abaabil/<name>.css`, and
 `abaabil/styles.css` is every component's CSS in one file.
@@ -97,14 +100,35 @@ Stylesheets are also importable on their own as `abaabil/<name>.css`, and
   **toolbar**) warn in development when given none. Pass
   `label`, or `aria-label`/`aria-labelledby`.
 
+- **toast** has no `toast()` function. Render `ToastRegion` once near
+  the root and keep the list of messages yourself; a live region
+  inserted along with its first message announces nothing, which is why
+  the region must be mounted empty and left there. Politeness comes from
+  the variant: `danger` is assertive, the rest polite.
+- **toggle**'s group is radio and checkbox inputs, not buttons. Pass
+  `name`; it is required, because that is what makes the set one group
+  to the browser. Arrow keys and one tab stop come from the platform.
+- **card**'s `a11y` tier needs `headingLevel` whenever `heading` is
+  given. There is no default, on purpose.
+- **alert-dialog** does not close on a backdrop click, unlike `dialog`.
+  Mark the non-destructive button with `data-safe-action` and it gets
+  focus on open instead of whichever button comes first.
+- **skeleton** is always `aria-hidden`. Put `label` on one per loading
+  region, not on each bar, and set `aria-busy` on your own container.
+- **drawer**'s `side` is logical: `end` is the right edge in English and
+  the left in Arabic.
+- **collapsible** is `accordion`'s Disclosure without the group. Its
+  `a11y` tier adds nothing, because `<summary>` is already correct.
+
 ## Server Components
 
-Fifty-one of the sixty-nine entry points carry no `"use client"` and
+Seventy-five of the ninety-six entry points carry no `"use client"` and
 render inside a React Server Component tree.
 
-- Server-safe at **every** tier: button, accordion, popover, alert,
-  breadcrumb, pagination, avatar, badge. Tooltip too at `normal` and
-  `styled`, because it shows and hides in CSS rather than JavaScript.
+- Server-safe at **every** tier: button, accordion, collapsible, popover,
+  alert, breadcrumb, pagination, avatar, badge, separator, spinner,
+  skeleton, toggle. Tooltip too at `normal` and `styled`, because it
+  shows and hides in CSS rather than JavaScript.
 - Client at **every** tier: combobox, tabs. Neither has a native element
   to build on, so both need state.
 - Everything else is server-safe at `normal` and `styled`, and a client

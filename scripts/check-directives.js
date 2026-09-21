@@ -28,6 +28,12 @@ const MUST_BE_CLIENT = [
   'dist/menu/a11y.js',
   'dist/file/a11y.js',
   'dist/toolbar/a11y.js',
+  // 1.5.0. card/a11y needs useId to tie its heading to the region it
+  // names; the other three drive a native element's own open/close.
+  'dist/alert-dialog/a11y.js',
+  'dist/card/a11y.js',
+  'dist/drawer/a11y.js',
+  'dist/toast/a11y.js',
 ]
 
 // Components without hooks MUST NOT carry it: an accidental directive
@@ -36,6 +42,34 @@ const MUST_BE_CLIENT = [
 // whose a11y tier is server-renderable, so this is what stops someone
 // casually adding a hook and silently destroying that property.
 const MUST_NOT_BE_CLIENT = [
+  // 1.5.0. Five of the nine added here are hook-free in all three
+  // tiers: separator, skeleton, spinner, collapsible and toggle are
+  // an <hr>, two divs, a <details> and a set of radios. Pinning them
+  // is what stops a hook creeping in and silently taking them out of
+  // the server tree.
+  'dist/alert-dialog/index.js',
+  'dist/alert-dialog/styled.js',
+  'dist/card/index.js',
+  'dist/card/styled.js',
+  'dist/collapsible/a11y.js',
+  'dist/collapsible/index.js',
+  'dist/collapsible/styled.js',
+  'dist/drawer/index.js',
+  'dist/drawer/styled.js',
+  'dist/separator/a11y.js',
+  'dist/separator/index.js',
+  'dist/separator/styled.js',
+  'dist/skeleton/a11y.js',
+  'dist/skeleton/index.js',
+  'dist/skeleton/styled.js',
+  'dist/spinner/a11y.js',
+  'dist/spinner/index.js',
+  'dist/spinner/styled.js',
+  'dist/toast/index.js',
+  'dist/toast/styled.js',
+  'dist/toggle/a11y.js',
+  'dist/toggle/index.js',
+  'dist/toggle/styled.js',
   'dist/button/index.js',
   'dist/button/styled.js',
   'dist/button/a11y.js',

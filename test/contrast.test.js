@@ -115,6 +115,12 @@ const PAIRS = [
   // against the rest of the track, so that boundary carries the state.
   // This is the pair --color-track exists for: sharing --color-muted put
   // it at 2.84:1 in dark mode.
+  // Also the spinner's arc against the rest of its ring, added in
+  // 1.5.0. That component first drew its ring in --color-border and
+  // the arc in the accent, which is 1.65:1 in light and 1.13:1 in
+  // dark: a spinner that spins and looks like a static circle. The
+  // fix was to reach for the token that already means "the empty
+  // part of a track", which this pairing was already guarding.
   ['--color-primary', '--color-track', 3, 'the filled part of a track against the empty part'],
   // A track is --color-track on --color-surface, near enough invisible in
   // both themes by design, so its border is the only thing showing how
@@ -137,6 +143,7 @@ const PAIRS = [
   // A focus ring nobody can see is a keyboard user with no cursor.
   ['--color-focus-ring', '--color-surface', 3, 'the focus ring'],
   ['--color-primary', '--color-surface', 3, 'a primary button against the page'],
+
 ]
 
 describe('token contrast', () => {
@@ -187,3 +194,4 @@ describe('token contrast', () => {
     }
   })
 })
+

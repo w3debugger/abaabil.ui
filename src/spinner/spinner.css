@@ -1,0 +1,67 @@
+@layer abaabil.components {
+  /* The wrapper the a11y tier adds around the ring and its hidden
+     label. Display contents would drop it out of layout entirely, but
+     that also drops the role in some engines, so it stays an inline
+     box that adds nothing. */
+  .abaabil-spinner-status {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .abaabil-spinner {
+    /* Sized in em so a spinner inside a button matches that button's
+       text without being told the button's size. */
+    --spinner-size: 1.25em;
+    --spinner-width: 2px;
+
+    display: inline-block;
+    inline-size: var(--spinner-size);
+    block-size: var(--spinner-size);
+    /* --color-track, not --color-border, and the difference is the
+       component working or not. This is the same relationship progress
+       and slider have: an empty track with a filled part moving over
+       it, and the filled part has to be distinguishable from the empty
+       one (WCAG 1.4.11). Against --color-border the accent is 1.65:1 in
+       light and 1.13:1 in dark, so the ring spun and looked static.
+       test/contrast.test.js guards the pair it uses now. */
+    border: var(--spinner-width) solid var(--color-track);
+    /* One side in the accent is what makes it read as rotating. A ring
+       of uniform colour spinning is indistinguishable from a ring. */
+    border-block-start-color: var(--color-primary);
+    border-radius: 50%;
+    animation: abaabil-spinner-spin 0.7s linear infinite;
+  }
+
+  .abaabil-spinner[data-size="sm"] {
+    --spinner-size: 1em;
+    --spinner-width: 1.5px;
+  }
+
+  .abaabil-spinner[data-size="lg"] {
+    --spinner-size: 2em;
+    --spinner-width: 3px;
+  }
+
+  @keyframes abaabil-spinner-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  @keyframes abaabil-spinner-pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-spinner {
+      /* Stopped, but not static. Someone who asked for less motion
+         still needs to know work is in progress, and a frozen ring
+         reads as a component that failed to start. A slow opacity
+         pulse is not vestibular motion. */
+      animation: abaabil-spinner-pulse 1.6s ease-in-out infinite;
+      border-block-start-color: var(--color-primary);
+    }
+  }
+}

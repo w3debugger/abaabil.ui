@@ -4,6 +4,112 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.5.0] - 2026-09-22
+
+### Added
+
+Nine components, taking the library from twenty-three to thirty-two.
+They were chosen by listing what the nine libraries in the comparison
+harness actually export and counting how many ship each thing abaabil
+does not, then keeping only the ones the browser mostly does already.
+Date pickers, data grids, trees, colour pickers, carousels and command
+palettes came out of that count too and are deliberately still absent.
+
+- **`abaabil/toast`** with `Toast`, `ToastRegion` and `ToastLive`.
+  Seven of the eight libraries scanned ship one, and outside them
+  `react-toastify` and `react-hot-toast` together pull nearly six
+  million weekly installs that no meta-framework is dragging in.
+
+  There is no `toast()` function. An imperative API needs a
+  module-level store, a subscription and a root you must remember to
+  mount, which is a state manager shipped inside a component library.
+  You keep the list; this renders and announces it.
+
+  The region must be mounted once, empty, and left there: a live region
+  inserted together with its first message announces nothing in most
+  screen readers, because there was no region to change. That is the
+  single most common way this pattern breaks and it cannot be fixed
+  from inside `Toast`. Politeness is derived from the variant rather
+  than left to the caller, because everything feels urgent to the
+  person writing it and a stream of assertive messages makes a page
+  unusable with a screen reader. The dismiss timer pauses on hover, on
+  focus within, and while the tab is hidden.
+
+- **`abaabil/drawer`**. A modal panel pinned to an edge, which is a
+  modal `<dialog>` with different geometry, so it is one. `side` is
+  logical, so `end` is the right edge in English and the left in
+  Arabic. The entry animation is `@starting-style`, so nothing holds an
+  "is opening" flag.
+
+- **`abaabil/alert-dialog`**. A `<dialog>` with `role="alertdialog"`.
+  Separate from `abaabil/dialog` rather than a variant of it because
+  the two differ in more than a role: it requires a description, it
+  does not light-dismiss, and it moves focus to the element marked
+  `data-safe-action`. The platform focuses the first focusable child,
+  and a confirmation that opens with Delete focused is one Enter from
+  deleting.
+
+- **`abaabil/toggle`** with `Toggle` and `ToggleGroup`. The group is
+  radio and checkbox inputs, not buttons with `aria-pressed`. Arrow-key
+  movement, wrapping, one tab stop for the set, skipping disabled
+  members and form submission all arrive from the browser; roving
+  tabindex is most of what a toggle group costs elsewhere. The inputs
+  are clipped rather than hidden, because a hidden input is not
+  focusable and every one of those behaviours would go with it.
+
+- **`abaabil/collapsible`**. `accordion`'s `Disclosure` without the
+  group, so one section does not require importing an accordion's
+  stylesheet. All three tiers ship no JavaScript.
+
+- **`abaabil/card`**. The thinnest component here and the one with the
+  weakest claim to being one. Its `a11y` tier requires `headingLevel`
+  alongside `heading` and refuses to guess: the right level depends on
+  where the card sits, and a page of `<h3>`s under no `<h2>` is a
+  broken outline that looks fine.
+
+- **`abaabil/separator`**. An `<hr>`. Worth a component because a
+  vertical one is announced as horizontal however it is rotated in CSS,
+  and because a purely decorative rule should be hidden rather than
+  read out between every row of a list.
+
+- **`abaabil/spinner`** and **`abaabil/skeleton`**. The spinner
+  announces through `role="status"`; the skeleton is always hidden from
+  assistive technology, with no opt-out, because grey bars read aloud
+  are noise. Under `prefers-reduced-motion` the spinner pulses rather
+  than freezing, since it still has to say work is happening, while the
+  skeleton simply stops, since it communicates by occupying space.
+
+Twenty-seven new entry points. Fifteen of them carry no `'use client'`:
+separator, spinner, skeleton, collapsible and toggle are server-safe at
+every tier.
+
+### Fixed
+
+- **The spinner's ring was invisible in dark mode when first written.**
+  It drew the track in `--color-border` and the moving arc in the
+  accent, which is 1.65:1 in light and 1.13:1 in dark, so the component
+  spun and looked like a static circle. Caught by adding the pairing to
+  `test/contrast.test.js` before shipping it. The fix was to use
+  `--color-track`, the token that already means "the empty part of a
+  track", whose pairing against the accent was already guarded.
+
+- **`scripts/check-complete.js` could not see hyphenated components.**
+  Its reverse check, which catches an exports entry with no source
+  directory behind it, matched `[a-z]+` only, so `./alert-dialog` would
+  have been skipped silently. Now `[a-z-]+`.
+
+- **`scripts/measure.js` derived nothing from the component list.** The
+  CSS budget was 7000 B against an actual 5231 B, and nine stylesheets
+  took it to about 6830 B. It was raised to 8000 rather than left to
+  fail on whatever was added next, which is a budget doing its job a
+  release late.
+
+### Added (tokens)
+
+- `--radius-sm`, for the parts that sit inside something already
+  rounded: a skeleton bar, a toggle inside a group. `--radius-md` on a
+  child of a `--radius-md` box reads as two corners fighting.
+
 ## [1.4.3] - 2026-09-21
 
 ### Fixed

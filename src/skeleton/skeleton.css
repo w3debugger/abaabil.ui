@@ -1,0 +1,79 @@
+@layer abaabil.components {
+  .abaabil-skeleton-status {
+    display: contents;
+  }
+
+  .abaabil-skeleton {
+    --skeleton-width: 100%;
+    --skeleton-height: 1em;
+
+    display: block;
+    inline-size: var(--skeleton-width);
+    block-size: var(--skeleton-height);
+    border-radius: var(--radius-sm);
+    background: var(--color-muted);
+    /* The sweep is a gradient moved across a wide background rather
+       than a pseudo-element translated under an overflow:hidden box:
+       one element, one animated property, and background-position is
+       cheap enough that a list of thirty of these does not cost a
+       frame. */
+    background-image: linear-gradient(
+      90deg,
+      var(--color-muted) 0%,
+      color-mix(in srgb, var(--color-muted) 45%, var(--color-surface)) 50%,
+      var(--color-muted) 100%
+    );
+    background-size: 200% 100%;
+    animation: abaabil-skeleton-sweep 1.4s ease-in-out infinite;
+  }
+
+  /* Text bars are the height of a line of text and rounded like one. */
+  .abaabil-skeleton[data-shape="text"] {
+    --skeleton-height: 0.8em;
+    border-radius: var(--radius-sm);
+    margin-block: 0.1em;
+  }
+
+  .abaabil-skeleton[data-shape="circle"] {
+    --skeleton-width: 2.5em;
+    --skeleton-height: 2.5em;
+    border-radius: 50%;
+  }
+
+  .abaabil-skeleton[data-shape="rect"] {
+    --skeleton-height: 6em;
+    border-radius: var(--radius-md);
+  }
+
+  .abaabil-skeleton-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45em;
+    inline-size: var(--skeleton-width, 100%);
+  }
+
+  /* A paragraph does not end flush with the margin. Without this the
+     block reads as a table, not as prose. */
+  .abaabil-skeleton-lines .abaabil-skeleton:last-child {
+    inline-size: 62%;
+  }
+
+  @keyframes abaabil-skeleton-sweep {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-skeleton {
+      /* Flat, and that is enough. Unlike the spinner, a skeleton says
+         "content is coming" by occupying the space content will, so it
+         still communicates with nothing moving. */
+      animation: none;
+      background-image: none;
+    }
+  }
+}

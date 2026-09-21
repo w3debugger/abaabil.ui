@@ -1,0 +1,142 @@
+@layer abaabil.components {
+  .abaabil-toast-region {
+    /* Fixed rather than in the top layer. A toast must not be modal,
+       and both the Popover API and <dialog> put their content above
+       everything including any dialog already open, which would let a
+       toast cover the thing it is commenting on. Fixed positioning
+       with a high stacking context is the correct weaker tool. */
+    position: fixed;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    inline-size: min(24rem, calc(100vw - 2rem));
+    /* The container spans the corner but must not swallow clicks in
+       the empty space above the stack. Only the toasts themselves
+       take pointer events. */
+    pointer-events: none;
+    padding: var(--space-4);
+    /* Clear of a phone's home indicator and notch. Zero everywhere
+       else. */
+    padding-block-end: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+  }
+
+  .abaabil-toast-region[data-position="bottom"] {
+    inset-block-end: 0;
+    /* Newest nearest the edge the eye is already on. */
+    flex-direction: column-reverse;
+  }
+
+  .abaabil-toast-region[data-position="top"] {
+    inset-block-start: 0;
+  }
+
+  .abaabil-toast-region[data-align="end"] {
+    inset-inline-end: 0;
+  }
+
+  .abaabil-toast-region[data-align="start"] {
+    inset-inline-start: 0;
+  }
+
+  /* The two live regions are structural, not visual. They have to be
+     in the document at all times for a screen reader to watch them,
+     so they must take no space while empty and add no box while
+     full. display:contents does both, and unlike visibility or
+     height:0 it does not remove their contents from the
+     accessibility tree, which would defeat the entire purpose. */
+  .abaabil-toast-live {
+    display: contents;
+  }
+
+  .abaabil-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+    pointer-events: auto;
+  }
+
+  /* The variant is a bar down the leading edge, not a tinted
+     background. A toast sits over arbitrary page content and has to
+     stay legible; a coloured wash behind body text is the usual way
+     that contrast quietly fails. The bar carries the same information
+     and touches no text. */
+  .abaabil-toast[data-variant="success"] {
+    border-inline-start: 4px solid var(--color-success);
+  }
+
+  .abaabil-toast[data-variant="warning"] {
+    border-inline-start: 4px solid var(--color-warning);
+  }
+
+  .abaabil-toast[data-variant="danger"] {
+    border-inline-start: 4px solid var(--color-danger);
+  }
+
+  .abaabil-toast__message {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .abaabil-toast__action {
+    flex-shrink: 0;
+  }
+
+  .abaabil-toast__close {
+    flex-shrink: 0;
+    /* A 24px target at minimum, which is WCAG 2.5.8, on a control
+       whose glyph is much smaller than that. */
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-text-muted);
+    font: inherit;
+    font-size: 1.125rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .abaabil-toast__close:hover {
+    background: var(--color-muted);
+    color: var(--color-text);
+  }
+
+  .abaabil-toast__close:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Entry only. There is no exit animation, because animating out
+     means this component would have to own the list and delay its own
+     unmount; see the note in a11y.jsx. */
+  @starting-style {
+    .abaabil-toast { opacity: 0; translate: 0 0.5rem; }
+  }
+
+  .abaabil-toast {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity var(--duration-fast) ease, translate var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-toast {
+      transition: none;
+    }
+    @starting-style {
+      .abaabil-toast { opacity: 1; translate: 0 0; }
+    }
+  }
+}

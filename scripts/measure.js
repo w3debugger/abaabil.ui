@@ -7,6 +7,34 @@ const root = fileURLToPath(new URL('..', import.meta.url))
 
 // bytes, gzipped
 const BUDGETS = {
+  // 1.5.0
+  'dist/alert-dialog/index.js': 250,
+  'dist/alert-dialog/styled.js': 150,
+  'dist/alert-dialog/a11y.js': 1000,
+  'dist/card/index.js': 300,
+  'dist/card/styled.js': 150,
+  'dist/card/a11y.js': 650,
+  'dist/collapsible/index.js': 350,
+  'dist/collapsible/styled.js': 150,
+  'dist/collapsible/a11y.js': 150,
+  'dist/drawer/index.js': 250,
+  'dist/drawer/styled.js': 150,
+  'dist/drawer/a11y.js': 850,
+  'dist/separator/index.js': 250,
+  'dist/separator/styled.js': 150,
+  'dist/separator/a11y.js': 300,
+  'dist/skeleton/index.js': 400,
+  'dist/skeleton/styled.js': 150,
+  'dist/skeleton/a11y.js': 300,
+  'dist/spinner/index.js': 250,
+  'dist/spinner/styled.js': 150,
+  'dist/spinner/a11y.js': 350,
+  'dist/toast/index.js': 350,
+  'dist/toast/styled.js': 150,
+  'dist/toast/a11y.js': 1150,
+  'dist/toggle/index.js': 550,
+  'dist/toggle/styled.js': 150,
+  'dist/toggle/a11y.js': 650,
   'dist/button/index.js': 300,
   'dist/button/styled.js': 350,
   'dist/button/a11y.js': 700,
@@ -80,10 +108,13 @@ const BUDGETS = {
   'dist/badge/styled.js': 150,
   'dist/badge/a11y.js': 350,
 }
-// 23 a11y entries now (was 18): raised from 16000 to keep comparable
+// 32 a11y entries now (was 23): raised from 20000 to keep comparable
 // headroom over the actual combined total.
-const COMBINED = { 'all a11y entries': { max: 20000, match: /a11y\.js$/ } }
-const CSS_BUDGET = 7000
+const COMBINED = { 'all a11y entries': { max: 22000, match: /a11y\.js$/ } }
+// Nine stylesheets in 1.5.0 took this from 5231 B to about 6830 B
+// gzipped, roughly 178 B each. The previous 7000 would have failed the
+// next component added, which is a budget doing its job a release late.
+const CSS_BUDGET = 8000
 
 const gz = (f) => gzipSync(readFileSync(join(root, f))).length
 const rows = []
