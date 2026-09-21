@@ -11,18 +11,41 @@
     --color-primary-fg: var(--abaabil-white);
     --color-surface: var(--abaabil-white);
     --color-text: var(--abaabil-gray-900);
-    --color-border: var(--abaabil-gray-300);
+    /* Control boundaries. WCAG 1.4.11 asks for 3:1 against what is
+       adjacent, and an input's border is the only thing marking it as an
+       input, because its background is the same colour as the page. The
+       old value was #d1d5db, a pleasant 1.47:1, which is to say
+       invisible to the people who need it to be visible. */
+    --color-border: var(--abaabil-gray-400);
+    /* Decorative rules only: dividers between accordion panels, a
+       toolbar separator, the edge of a fieldset. These carry no
+       information, so 1.4.11 does not apply and they stay quiet. Never
+       put this on the edge of something a person has to find. */
+    --color-border-subtle: var(--abaabil-gray-300);
     --color-muted: var(--abaabil-gray-100);
+    /* The empty part of a progress bar or slider groove. It is not
+       --color-muted, though it starts out the same value here: a hover
+       wash wants to sit a hair off the surface, while a track has to
+       stay 3:1 clear of the fill drawn over it. In dark mode those two
+       requirements pull opposite ways, and sharing one token put a blue
+       fill on a grey track at 2.84:1. */
+    --color-track: var(--abaabil-gray-100);
+    /* Each of these ends up as text somewhere, so each clears 4.5:1
+       against the surface behind it in both themes. Green needed
+       darkening for light mode; red and amber needed lightening for
+       dark, which the block below does. */
     --color-danger: var(--abaabil-red-600);
-    --color-success: var(--abaabil-green-600);
+    --color-success: var(--abaabil-green-700);
     --color-warning: var(--abaabil-amber-600);
     /* Same reason. This one happens to be the identical value to
        --color-primary by default, so nothing about the stock theme
        changes; it was simply not following an override. */
     --color-focus-ring: var(--color-primary);
     --color-overlay: rgb(0 0 0 / 0.5);
-    --color-text-muted: #6b7280;
-    --color-placeholder: #9ca3af;
+    --color-text-muted: var(--abaabil-gray-500);
+    /* Placeholder text is text. It was #9ca3af: 2.54:1, a clear
+       failure, unreadable for exactly the people who would rely on it. */
+    --color-placeholder: var(--abaabil-gray-500);
 
     --radius-md: 0.375rem;
     --space-1: 0.25rem;
@@ -36,23 +59,49 @@
     --duration-fast: 150ms;
   }
 
+  /* The dark palette is written once here and assigned by both blocks
+     below. It has to be applied twice, because one case lives inside a
+     media query and the other does not, and CSS offers no way to share
+     a declaration list across that boundary. Writing the values twice
+     is how the two quietly drift apart. */
+  :root {
+    --abaabil-dark-surface: #0b0f19;
+    --abaabil-dark-text: #e5e7eb;
+    --abaabil-dark-border: #5b6675;
+    --abaabil-dark-border-subtle: #374151;
+    --abaabil-dark-muted: #1f2937;
+    --abaabil-dark-track: #111827;
+    --abaabil-dark-text-muted: #9ca3af;
+    --abaabil-dark-placeholder: #9ca3af;
+  }
+
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --color-surface: #0b0f19;
-      --color-text: #e5e7eb;
-      --color-border: #374151;
-      --color-muted: #1f2937;
-      --color-text-muted: #9ca3af;
-      --color-placeholder: #6b7280;
+      --color-surface: var(--abaabil-dark-surface);
+      --color-text: var(--abaabil-dark-text);
+      --color-border: var(--abaabil-dark-border);
+      --color-border-subtle: var(--abaabil-dark-border-subtle);
+      --color-muted: var(--abaabil-dark-muted);
+      --color-track: var(--abaabil-dark-track);
+      --color-text-muted: var(--abaabil-dark-text-muted);
+      --color-placeholder: var(--abaabil-dark-placeholder);
+      --color-danger: var(--abaabil-red-400);
+      --color-success: var(--abaabil-green-600);
+      --color-warning: var(--abaabil-amber-500);
     }
   }
 
   :root[data-theme="dark"] {
-    --color-surface: #0b0f19;
-    --color-text: #e5e7eb;
-    --color-border: #374151;
-    --color-muted: #1f2937;
-    --color-text-muted: #9ca3af;
-    --color-placeholder: #6b7280;
+    --color-surface: var(--abaabil-dark-surface);
+    --color-text: var(--abaabil-dark-text);
+    --color-border: var(--abaabil-dark-border);
+    --color-border-subtle: var(--abaabil-dark-border-subtle);
+    --color-muted: var(--abaabil-dark-muted);
+    --color-track: var(--abaabil-dark-track);
+    --color-text-muted: var(--abaabil-dark-text-muted);
+    --color-placeholder: var(--abaabil-dark-placeholder);
+    --color-danger: var(--abaabil-red-400);
+    --color-success: var(--abaabil-green-600);
+    --color-warning: var(--abaabil-amber-500);
   }
 }

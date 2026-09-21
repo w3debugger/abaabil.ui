@@ -28,12 +28,32 @@
     background: transparent;
   }
 
-  .abaabil-popover__trigger {
-    /* Inherits nothing from abaabil/button on purpose: a popover trigger
-       is often not a button visually. Styling is left to the consumer
-       beyond making it a sane target. */
+  .abaabil-abaabil-popover__trigger {
+    /* Inheriting the page's text colour while leaving the browser's
+       own button background in place is how this read as light-on-light
+       in dark mode: 1.08:1, invisible. A trigger has to bring its whole
+       surface or none of it, so it brings none: transparent, with the
+       library's own text colour and focus ring. Compose it with
+       abaabil/button, or style it through `triggerProps`, if you want
+       it to look like a button. */
+    appearance: none;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text);
     font: inherit;
-    color: inherit;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+  }
+
+  .abaabil-abaabil-popover__trigger:hover {
+    background: var(--color-muted);
+  }
+
+  .abaabil-abaabil-popover__trigger:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
   }
 
   /* Progressive enhancement, exactly as the combobox does it. Where

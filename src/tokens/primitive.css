@@ -2,11 +2,16 @@
   :root {
     --abaabil-blue-500: #2563eb;
     --abaabil-gray-900: #111827;
+    --abaabil-gray-500: #6b7280;
+    --abaabil-gray-400: #8b929e;
     --abaabil-gray-300: #d1d5db;
     --abaabil-gray-100: #f3f4f6;
     --abaabil-white: #ffffff;
     --abaabil-red-600: #dc2626;
+    --abaabil-red-400: #ef4444;
+    --abaabil-green-700: #15803d;
     --abaabil-green-600: #16a34a;
     --abaabil-amber-600: #b45309;
+    --abaabil-amber-500: #d97706;
   }
 }

@@ -14,16 +14,26 @@
   /* Track and thumb need one rule per engine and cannot be combined into
      a selector list: a browser that does not understand one
      pseudo-element throws away the whole rule. */
+  /* The border is not decoration. --color-track is 1.07:1 against the
+     page, so without it the groove the thumb travels along is invisible
+     and only the thumb itself tells you a slider is there at all.
+     1.4.11 wants the parts that identify a control to reach 3:1, and
+     --color-border does. box-sizing keeps the groove the thickness it
+     already was. */
   .abaabil-slider::-webkit-slider-runnable-track {
+    box-sizing: border-box;
     block-size: var(--slider-track);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
-    background: var(--color-muted);
+    background: var(--color-track);
   }
 
   .abaabil-slider::-moz-range-track {
+    box-sizing: border-box;
     block-size: var(--slider-track);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
-    background: var(--color-muted);
+    background: var(--color-track);
   }
 
   .abaabil-slider::-webkit-slider-thumb {

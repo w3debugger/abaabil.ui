@@ -6,9 +6,17 @@
     display: block;
     inline-size: 100%;
     block-size: 0.5rem;
-    border: 0;
+    /* The track is the scale the fill is read against, so how far it
+       runs has to be visible. Unbordered the track was 1.07:1 against
+       the page, which meant a bar at 0% was nothing at
+       all on the page and a bar at 40% gave you a blue stripe with no
+       indication of what it was 40% of. WCAG 1.4.11 asks 3:1 of the
+       parts of a control that carry its state; the border supplies it,
+       since a fill light enough to sit under text is never going to. */
+    box-sizing: border-box;
+    border: 1px solid var(--color-border);
     border-radius: 999px;
-    background: var(--color-muted);
+    background: var(--color-track);
     color: var(--color-primary);
     overflow: hidden;
   }
@@ -17,7 +25,7 @@
      into a selector list: a browser that does not understand one
      pseudo-element discards the whole rule. */
   .abaabil-progress::-webkit-progress-bar {
-    background: var(--color-muted);
+    background: var(--color-track);
     border-radius: 999px;
   }
 
@@ -39,7 +47,7 @@
     background:
       linear-gradient(90deg, var(--color-primary) 0 35%, transparent 35% 100%)
       0 0 / 250% 100% no-repeat
-      var(--color-muted);
+      var(--color-track);
     animation: abaabil-progress-slide 1.4s linear infinite;
   }
 

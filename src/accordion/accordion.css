@@ -6,7 +6,8 @@
   }
 
   .abaabil-accordion-group .abaabil-accordion + .abaabil-accordion {
-    border-top: 1px solid var(--color-border);
+    /* A divider between panels, not the edge of a control. */
+    border-top: 1px solid var(--color-border-subtle);
   }
 
   .abaabil-accordion {

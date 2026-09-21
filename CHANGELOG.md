@@ -4,6 +4,81 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.4.1] - 2026-09-21
+
+A colour audit of all twenty-three components, in both themes, against
+WCAG 1.4.3 (text, 4.5:1) and 1.4.11 (controls and their states, 3:1).
+Nothing about the API changed; several things that were invisible now are
+not. If you have overridden any of these tokens, re-read the neutrals
+table in the README, because two of them have swapped jobs.
+
+### Fixed
+
+Text and control colours that did not meet their contrast floor:
+
+- `--color-border` was `#d1d5db`, **1.47:1** on the surface. It is the
+  only thing marking where an input is, since an input's background is
+  the same colour as the page, so at that ratio the field boundary was
+  not there for anyone who needed it. Now `#8b929e` (3.13:1) in light
+  and `#5b6675` (3.28:1) in dark.
+- `--color-placeholder` was **2.54:1**. Placeholder text is text.
+- `--color-success` was **3.30:1** as text in light mode;
+  `--color-danger` was **3.97:1** in dark, and `--color-warning`
+  likewise. Each is now at or above 4.5:1 in both themes.
+- The popover and menu triggers set `color: inherit` over the browser's
+  own button face and nothing else, which in dark mode was **1.08:1**:
+  dark grey text on a light grey UA button. Both now bring their own
+  surface, border, text colour and focus ring.
+- The unavailable step in a paginator was drawn at `opacity: 0.6`,
+  **2.32:1**. It is plain text, not a disabled control, so the 1.4.3
+  exemption does not cover it. Now 4.83:1.
+- A progress bar's track and a slider's groove had no boundary, so at
+  **1.07:1** against the page a bar at 0% was nothing at all and a bar
+  at 40% was a blue stripe with no indication of what it was 40% of.
+  Both now have a `--color-border` edge.
+- A switch's thumb is `--color-surface`, and its off state was
+  `--color-muted`: **1.08:1** in light, 1.31:1 in dark. The thumb's
+  position is the entire non-colour cue for on versus off, so the state
+  rested on hue alone. The off state is now `--color-border`.
+- The combobox's active option, where `aria-activedescendant` points and
+  the only thing telling a sighted keyboard user what Enter will choose,
+  shared the `:hover` rule and so was marked by a **1.07:1** wash. It is
+  now the primary fill with `--color-primary-fg` text, and it wins over
+  `:hover` so the pointer cannot override the keyboard position.
+
+### Added
+
+- **`--color-track`**, the empty part of a progress bar or slider
+  groove. It was `--color-muted`, which also serves as the hover wash,
+  and the two want opposite things: a wash sits a hair off the surface,
+  a track stays clear of the fill drawn over it. In dark mode that
+  conflict put a blue fill on a grey track at 2.84:1. The tokens share a
+  value in light mode and diverge in dark.
+- **`--color-border-subtle`**, for rules that carry no information:
+  accordion dividers, a toolbar separator. These kept the old quiet
+  `#d1d5db` so that raising `--color-border` to a visible weight did not
+  drag every decorative hairline up with it.
+- `test/contrast.test.js` - sixteen pairings per theme, each one that
+  actually occurs in a component, computed from the token sources and
+  asserted against the floor WCAG sets for it. The audit that found all
+  of the above was a browser sweep, which the suite cannot run; this
+  holds the fixed points it landed on, so a token edit that drops one
+  back under the line fails in milliseconds rather than surviving until
+  someone next thinks to open a browser. It also checks that the two
+  dark-mode blocks, which CSS forces to be written twice, still agree.
+
+### Changed
+
+- The dark palette is defined once as `--abaabil-dark-*` primitives and
+  assigned by both the `prefers-color-scheme` block and the
+  `[data-theme="dark"]` block, rather than written out twice. The values
+  had no way to stay in step before; now they cannot drift.
+- `Pagination`'s `label` prop is documented for the case a page has two
+  paginators, above and below a list. Both default to "Pagination", and
+  two navigation landmarks with one name is a real finding. Only the
+  page knows the second paginator is the same list again, so this is
+  guidance, not a fix the component can make.
+
 ## [1.4.0] - 2026-09-21
 
 ### Added

@@ -26,6 +26,11 @@ import { pageWindow, GAP } from './styled.jsx'
  * @param {(page: number) => string} props.href
  * @param {number} [props.siblings=1]
  * @param {string} [props.label='Pagination'] Accessible name for the nav.
+ *   Pass a distinct one to each paginator if a page has two of them, as
+ *   a list with controls above and below does. Two navigation landmarks
+ *   sharing a name is a real finding (axe reports landmark-unique), and
+ *   it is not one the component can fix from in here: only the page
+ *   knows that the second paginator is the same list again.
  * @param {(page: number) => string} [props.pageLabel] Names each number.
  *   Defaults to `Page ${n}`. Replace it to translate.
  * @param {string} [props.previousLabel='Previous page']

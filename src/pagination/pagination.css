@@ -70,8 +70,12 @@
      Not `disabled` styling borrowed from a button: there is no control
      here to be disabled, it is text. */
   .abaabil-pagination__step--unavailable {
+    /* No opacity. This is plain text, not an inactive control, so the
+       exemption in WCAG 1.4.3 does not cover it: at 0.6 it measured
+       2.32:1 and axe called it a serious violation. The muted colour
+       alone is 4.83:1 and still reads as unavailable, because it is the
+       one step with no border and no hover. */
     border-color: transparent;
     color: var(--color-text-muted);
-    opacity: 0.6;
   }
 }

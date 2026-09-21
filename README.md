@@ -175,6 +175,30 @@ Override any of them individually if the derived value is not what you want.
 
 `--color-danger`, `--color-success` and `--color-warning` are independent on purpose: an error is red whatever your brand colour is.
 
+### The neutrals, and which ones have to stay visible
+
+Four tokens look interchangeable and are not. Each has a contrast floor it
+is chosen to clear, and swapping one for another is how a control quietly
+stops being visible to the people who need it most.
+
+| Token | Default | Its job | Floor |
+|---|---|---|---|
+| `--color-border` | `#8b929e` | the edge of a control: an input, a select, a track, the off state of a switch | 3:1 on the surface |
+| `--color-border-subtle` | `#d1d5db` | decorative rules: accordion dividers, a toolbar separator | none, it carries nothing |
+| `--color-muted` | `#f3f4f6` | a hover wash, an avatar ground | none, hover is a pointer affordance |
+| `--color-track` | `#f3f4f6` | the empty part of a progress bar or slider groove | 3:1 against `--color-primary` |
+
+`--color-muted` and `--color-track` share a value in the light theme and
+part company in the dark one, which is the reason they are two tokens. A
+hover wash wants to sit a hair off the surface; a track has to stay clear
+of the fill drawn over it. Held together, the dark theme put a blue fill
+on a grey track at 2.84:1.
+
+If you re-theme, the pairs worth re-checking are `--color-border` against
+`--color-surface`, and `--color-primary` against both `--color-surface`
+and `--color-track`. The library's own test suite asserts these; yours
+should too if you change them.
+
 abaabil's own component rules live inside `@layer abaabil.components`. CSS layers give unlayered rules the higher priority by default, so any selector you write in your normal (unlayered) application CSS beats the library's layered styles automatically, with no `!important` needed:
 
 ```css
@@ -696,12 +720,23 @@ The gap is drawn in CSS, never rendered as text, so an ellipsis is never read ou
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `label` | `string` | `'Pagination'` | Names the `<nav>`. |
+| `label` | `string` | `'Pagination'` | Names the `<nav>`. See the note below if a page has two paginators. |
 | `pageLabel` | `(n) => string` | `` `Page ${n}` `` | Names each number. A link whose whole content is "7" is announced as "7", which in a list of links means nothing. Replace to translate. |
 | `previousLabel` | `string` | `'Previous page'` | |
 | `nextLabel` | `string` | `'Next page'` | |
 
 plus `aria-current="page"` on the current page. At either end, Previous and Next are not links at all, so nothing dead stays in the tab order.
+
+A page with a paginator above the list and another below it has two
+navigation landmarks with the same name, which screen reader users hear
+as "navigation, navigation" with nothing to tell them apart. Give the
+second one its own `label`. The component cannot do this for you: from
+inside a single paginator there is no way to know another exists.
+
+```jsx
+<Pagination label="Results, top" page={p} pageCount={n} href={href} />
+<Pagination label="Results, bottom" page={p} pageCount={n} href={href} />
+```
 
 ### File
 

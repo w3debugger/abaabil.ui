@@ -125,6 +125,16 @@ and `--color-warning` are deliberately independent of the brand colour. Dark mod
 under `prefers-color-scheme` and `[data-theme="dark"]`, both of which the
 shipped theme already handles.
 
+Four neutral tokens look interchangeable and are not. `--color-border` is
+the edge of a control (input, select, track, a switch's off state) and
+holds 3:1 against the surface. `--color-border-subtle` is for decorative
+rules only and carries no floor. `--color-muted` is a hover wash.
+`--color-track` is the empty part of a progress bar or slider groove and
+holds 3:1 against `--color-primary`. The last two share a value in light
+mode and diverge in dark, which is why they are separate tokens. If you
+re-theme, re-check `--color-border` on `--color-surface`, and
+`--color-primary` on both `--color-surface` and `--color-track`.
+
 Component CSS lives in the `abaabil.components` cascade layer, so ordinary
 unlayered CSS in your own app beats it without `!important`.
 

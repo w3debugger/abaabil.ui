@@ -72,9 +72,21 @@
     cursor: pointer;
   }
 
-  .abaabil-combobox__option:hover,
-  .abaabil-combobox__option[data-active="true"] {
+  /* Hover is a pointer affordance and can stay quiet: the cursor is
+     already telling you where you are. */
+  .abaabil-combobox__option:hover {
     background: var(--color-muted);
+  }
+
+  /* Active is not hover. It is where aria-activedescendant points, and
+     for a sighted keyboard user it is the only thing saying which option
+     Enter will choose. It shared the rule above and so was marked by a
+     1.07:1 wash. data-active wins over :hover by coming later, which is
+     right: the keyboard position should not be overridden by wherever
+     the pointer happens to be resting. */
+  .abaabil-combobox__option[data-active="true"] {
+    background: var(--color-primary);
+    color: var(--color-primary-fg);
   }
 
   /* Progressive enhancement only. Not Baseline: 84.1% support. */
