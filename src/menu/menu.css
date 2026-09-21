@@ -18,7 +18,7 @@
     background: transparent;
   }
 
-  .abaabil-abaabil-menu__trigger {
+  .abaabil-menu__trigger {
     /* Inheriting the page's text colour while leaving the browser's
        own button background in place is how this read as light-on-light
        in dark mode: 1.08:1, invisible. A trigger has to bring its whole
@@ -37,11 +37,11 @@
     cursor: pointer;
   }
 
-  .abaabil-abaabil-menu__trigger:hover {
+  .abaabil-menu__trigger:hover {
     background: var(--color-muted);
   }
 
-  .abaabil-abaabil-menu__trigger:focus-visible {
+  .abaabil-menu__trigger:focus-visible {
     outline: 2px solid var(--color-focus-ring);
     outline-offset: 2px;
   }

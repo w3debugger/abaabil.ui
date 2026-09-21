@@ -4,6 +4,38 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.4.3] - 2026-09-21
+
+### Fixed
+
+- **The popover and menu trigger styles never applied.** Both rules were
+  written `.abaabil-abaabil-popover__trigger` and
+  `.abaabil-abaabil-menu__trigger`, a doubled prefix, so they matched
+  nothing. The triggers rendered as raw browser buttons: a light grey
+  UA button face with black text, on a themed page, in either theme.
+
+  This was introduced by the contrast fix in 1.4.1, which means the
+  fix described there for those two components never took effect. The
+  irony is that breaking the selector also disabled the
+  `color: inherit` that caused the original 1.08:1 failure, so the
+  contrast was accidentally fine at 18.26:1 while the appearance was
+  wrong. The styles now apply as 1.4.1 intended.
+
+### Added
+
+- `test/css-selectors.test.js`: every class a component renders must
+  have a rule in its stylesheet, or be listed as a deliberate hook with
+  a reason.
+
+  A selector that matches nothing looks exactly like one that was never
+  written. No error, no warning, no failing test: the element simply
+  wears different styles than intended. This one shipped in a release,
+  then survived a browser audit and a contrast sweep, and was found by
+  eye by the project's owner looking at a different component. The
+  allowlist is explicit so that a rule which stops matching cannot hide
+  in it, and a second test fails if a class on that list turns out to
+  be styled after all.
+
 ## [1.4.2] - 2026-09-21
 
 ### Fixed
