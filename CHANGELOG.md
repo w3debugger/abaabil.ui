@@ -4,6 +4,52 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.5.1] - 2026-09-22
+
+### Fixed
+
+- **Every `styled` entry point shipped without its stylesheet.** The
+  tier whose entire purpose is "adds the component's CSS" did not add
+  it, in any Rollup or Vite build, for every component, since
+  `sideEffects` was introduced.
+
+  `package.json` declared `"sideEffects": ["*.css"]`, which is the
+  advice you find everywhere and is wrong for this package. It marks
+  every `.js` file in the library as free of side effects, and a
+  bundler is then entitled to delete any module whose exports it can
+  satisfy from elsewhere. Every `styled.js` is exactly that module: an
+  `import './x.css'` followed by a re-export of `index.js`. Rollup
+  dropped the file, rewrote the import to point straight at
+  `index.js`, and the stylesheet went with it.
+
+  Reproduced with a minimal Vite library build: `import Badge from
+  'abaabil/badge/styled'` emitted no CSS asset at all, and emitted one
+  as soon as the field was widened.
+
+  It went unseen for five releases because this library's own
+  documentation site imports the `a11y` tier everywhere, and those
+  contain real code, so the bundler keeps them. It surfaced only when
+  1.5.0 added `collapsible`, whose `a11y` tier is a pure re-export like
+  the styled ones, and the site's own build asserted that the
+  collapsible page rendered a component with none of its CSS.
+
+  `sideEffects` is now `["*.css", "./dist/*/styled.js",
+  "./dist/*/a11y.js"]`, which is the honest statement: a module that
+  imports a stylesheet has a side effect.
+
+  This is the third time an unstyled component has shipped here, after
+  the doubled `.abaabil-abaabil-popover__trigger` prefix in 1.4.1 and
+  the site's own code splitting. All three were invisible to the tests
+  that existed, because a component with no styles renders perfectly
+  and reports nothing.
+
+### Added
+
+- `test/side-effects.test.js`, which fails if any built module imports
+  a stylesheet without `sideEffects` covering it. Checked against the
+  old value before shipping: it fails on 64 of 97 files, which is all
+  32 styled tiers and all 32 a11y tiers.
+
 ## [1.5.0] - 2026-09-22
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "abaabil",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Minimal, themeable, accessible React components. Zero dependencies.",
   "license": "MIT",
   "repository": {
@@ -27,7 +27,9 @@
   ],
   "type": "module",
   "sideEffects": [
-    "*.css"
+    "*.css",
+    "./dist/*/styled.js",
+    "./dist/*/a11y.js"
   ],
   "files": [
     "dist",
