@@ -48,23 +48,40 @@ none fails, and so does a missing one.
 
 ## 1. Build it, in `abaabil.ui`
 
-Follow "Adding a component" in `AGENTS.md` for the mechanics. The
-component must be registered in **eight** places, each of which
-`scripts/check-complete.js` verifies by name:
+Follow "Adding a component" in `AGENTS.md` for the mechanics. Every
+file below was found by listing what an existing component touches, not
+from memory.
 
-| place | what |
+**Guarded** — `scripts/check-complete.js` fails the build naming what
+is missing:
+
+| file | what to add |
 |---|---|
-| `src/<name>/` | `index.jsx`, `styled.jsx`, `a11y.jsx`, `<name>.css` |
-| `package.json` | four `exports` entries: the three tiers and the CSS |
-| `scripts/check-directives.js` | the `'use client'` pins for each tier |
+| `src/<name>/index.jsx` | structure tier |
+| `src/<name>/styled.jsx` | + the stylesheet import |
+| `src/<name>/a11y.jsx` | + ARIA, keyboard, focus |
+| `src/<name>/<name>.css` | the styles |
+| `package.json` | four `exports` entries: three tiers and the CSS |
+| `scripts/check-directives.js` | the `'use client'` pin per tier |
 | `scripts/measure.js` | a size budget per entry point |
 | `test/tiers.test.jsx` | the name in `COMPONENTS` |
 | `test/<name>.test.jsx` | its own tests |
 | `test/a11y.test.jsx` | a case in the axe sweep |
-| `README.md` + `llms.txt` | a `### Name` props section, and the name |
+| `README.md` | component list, Server Components row, `### Name` props |
+| `llms.txt` | the name in the list |
+
+**Not guarded** — nothing will tell you:
+
+| file | when |
+|---|---|
+| `CHANGELOG.md` | always. `check-package.js` only checks it matches `package.json`, not that it describes anything. |
+| `src/tokens/semantic.css` | only if the component needs a token no other has. Adding one means adding its contrast pairing to `test/contrast.test.js`. |
+
+**Generated, leave alone**: `SIZES.md` (written by `scripts/measure.js`),
+`dist/`.
 
 ```bash
-npm run build     # the registration check names anything you missed
+npm run build     # registration check, then the size budgets
 npm test
 ```
 
@@ -79,12 +96,12 @@ explicit allowlist with a reason. A doubled prefix
 survived a browser audit and a contrast sweep.
 
 **Contrast fails in states nobody renders.** `test/contrast.test.js`
-holds a pairing per theme for every combination that actually occurs in
-a component, computed from the token sources. It covers hover, not just
+holds a pairing per theme for every combination that occurs in a
+component, computed from the token sources. It covers hover, not just
 resting: a filled button's label sits on the fill in every state, and
 the stock blue once passed at rest and failed at 3.98:1 hovered. If the
-new component introduces a colour pairing none of the existing ones
-have, add it there.
+new component introduces a pairing none of the existing ones have, add
+it.
 
 ---
 
@@ -136,7 +153,31 @@ listing, decides the version does not exist, and fails.
 ## 5. Re-measure
 
 Nothing on the site quotes a number a human typed. Two data files feed
-everything.
+everything, and both are written by the harness.
+
+Before running it, the harness needs the component in **two** lists:
+
+| file | what |
+|---|---|
+| `scripts/compare/delivered.mjs` | the name in `COMPONENTS` |
+| `scripts/compare/spec.mjs` | a row under **every** library, `null` where that library has no equivalent |
+
+Neither is checked before the fact. A component missing from
+`delivered.mjs` simply has no measured figure, and the site's
+registration check then fails with "no measured figure in
+comparison.json", one step later than the actual mistake.
+
+**Deciding what goes in each `spec.mjs` row** is research, not
+guesswork, and the rule is published on `/why` so it can be held to:
+
+- The library must ship a component *for that purpose*. A generic
+  layout primitive is not a toolbar: Ant Design's `Space`, Mantine's
+  and Chakra's `Group`, shadcn's `ToggleGroup` are not counted.
+- A generic input that accepts `type="file"` is not a file component.
+  That excludes Material UI and React Bootstrap as well as shadcn.
+
+Apply it to this library too. Four libraries were once credited with a
+toolbar none of them ships.
 
 ```bash
 cd scripts/compare
@@ -151,62 +192,74 @@ cp results.json ../../src/data/comparison.json
 cp delivered.json ../../src/data/delivered.json
 ```
 
-`delivered.mjs` needs the new component in its `COMPONENTS` list, and
-`spec.mjs` needs a row under **every** library, with `null` where that
-library has no equivalent. That row is what puts the component in the
-comparison table on `/why`.
-
-`measure.mjs` exits non-zero without writing if any build fails, so a
-partial measurement cannot reach the site. `check-complete.js` then
+`measure.mjs` exits non-zero **without writing** if any build fails, so
+a partial measurement cannot reach the site. `check-complete.js` then
 refuses a build where the recorded version differs from the installed
 one.
-
-**What counts as a library "having" a component** is a stated rule, not
-a judgement call, and it is published on `/why`: a generic layout
-primitive is not a toolbar, and a generic input that accepts
-`type="file"` is not a file component. Apply it to every library
-including this one.
 
 ---
 
 ## 6. Wire it into the site
 
-Six places, each verified by the site's own `check-complete.js`:
+**Guarded** — the site's `check-complete.js` names what is missing:
 
-| place | what |
+| file | what |
 |---|---|
 | `src/pages/components/<Name>.jsx` | specimen header, live example at the `a11y` tier, the three imports, a props table |
 | `src/pages.js` | an entry in `PAGES`, as a **dynamic** import |
-| `src/rail.jsx` | a link, positioned by what the component is for, not alphabetically |
+| `src/rail.jsx` | a link, positioned by purpose, not alphabetically |
 | `scripts/prerender.js` | an entry in `ROUTES`, description **under 160 characters**, byte figures via `gz()` |
 | `src/lib/weights.js` | a `SERVER_SAFE` entry — the one fact here that is not measured |
-| `scripts/compare/spec.mjs` | a row under every library |
+
+**Not guarded** — nothing will tell you, and the component silently
+goes missing from a table or a sentence:
+
+| file | what | what breaks |
+|---|---|---|
+| `src/lib/component-order.js` | the name, in purpose order | the component is absent from the `/why` table and every `/compare` page |
+| `src/pages/Why.jsx` | the hand-written array in the CSS-weights table | absent from that table only |
+| `src/pages/Overview.jsx` | the lede, which names every component | the sentence quietly lists one fewer |
+| `src/pages/kitchen-sink-form.jsx` | only if it belongs in a form | the page's claim about what it composes goes stale |
+
+That is **four** hand-maintained lists of all twenty-three components,
+plus the two in `scripts/compare`. They must agree and nothing enforces
+it. If you are adding a component and have time for one improvement
+beyond it, make these derive from `component-order.js`.
 
 ### Then decide whether the page needs a runtime
 
 Thirty of thirty-nine pages ship no JavaScript. A page gets the React
 runtime only if something on it must change after load in a way CSS and
 the platform cannot manage. The list is `NEEDS_RUNTIME` in
-`scripts/prerender.js`, and it is established by experiment, not
-opinion:
+`scripts/prerender.js`, established by experiment, not opinion:
 
 ```bash
 HYDRATE=none npm run build   # strip the runtime everywhere
 # then drive the new page and see whether its demo still works
 ```
 
-Components that work unaided: accordion (`<details>`), popover (Popover
-API), switch, select, slider, radio, input, file — native elements
-doing their own job. Components that need the runtime: dialog,
-combobox, tabs, menu, toolbar, checkbox, tooltip.
+Work unaided: accordion (`<details>`), popover (Popover API), switch,
+select, slider, radio, input, file — native elements doing their own
+job. Need the runtime: dialog, combobox, tabs, menu, toolbar, checkbox,
+tooltip.
 
 Add the route to `NEEDS_RUNTIME` only if the demo genuinely breaks
 without it. A demo that is not running the real component is not
 demoing the library.
 
 **Do not make the page import static.** That is what produced a single
-bundle carrying all thirty-one pages, so `/components/dialog`
-downloaded `/why`'s comparison tables to render a dialog.
+bundle carrying every page, so `/components/dialog` downloaded `/why`'s
+comparison tables to render a dialog.
+
+### Regenerate the share card
+
+The component count is on it, so a new component makes it wrong:
+
+```bash
+node scripts/og-image.js      # needs rsvg-convert: brew install librsvg
+```
+
+The build fails if you forget, naming the field that drifted.
 
 ---
 
