@@ -75,11 +75,22 @@ feed everything:
 
 ```bash
 cd scripts/compare
-npm install
+# Bump the abaabil pin in this directory's package.json first. It keeps
+# its own copy of the library, separate from the one the site builds
+# against, and a plain `npm install` here reinstalls whatever that pin
+# says. It sat at 1.1.0 for three releases, so the install silently
+# downgraded the library and the harness measured the wrong one.
+npm install --prefer-online
 npm run all
 cp results.json ../../src/data/comparison.json
 cp delivered.json ../../src/data/delivered.json
 ```
+
+`check-complete.js` in the site now compares the version the
+measurements recorded against the version actually installed, so a stale
+pin fails the build instead of publishing numbers for the wrong library.
+It cannot catch it before you run the harness, though, which is why the
+pin comes first.
 
 `delivered.mjs` needs the new component in its `COMPONENTS` list, and
 `spec.mjs` needs a row for it under **every** library, with `null` where
