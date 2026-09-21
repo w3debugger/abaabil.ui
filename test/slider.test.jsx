@@ -98,6 +98,14 @@ describe('Slider (a11y tier)', () => {
     expect(container.querySelector('output')).toHaveTextContent('100')
   })
 
+  it('clamps a defaultValue outside the range, so the output cannot disagree with the thumb', () => {
+    // A range input pins an out-of-range value to the nearest end. An
+    // unclamped copy of it printed "30" next to a thumb sitting at 11.
+    const { container } = render(<A11ySlider label="Volume" min={0} max={11} defaultValue={30} showValue />)
+    expect(screen.getByRole('slider')).toHaveValue('11')
+    expect(container.querySelector('output')).toHaveTextContent('11')
+  })
+
   it('follows the given value when controlled', () => {
     const { container } = render(
       <A11ySlider label="Volume" value={17} onChange={() => {}} showValue />

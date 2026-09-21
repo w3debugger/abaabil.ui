@@ -57,10 +57,16 @@ export default function Slider_a11y({
   // Midpoint, not min: an uncontrolled range input's own default is the
   // midpoint, so starting anywhere else here would make the rendered
   // output disagree with the thumb on first paint.
-  const [internal, setInternal] = useState(
-    defaultValue ?? Math.floor((Number(min) + Number(max)) / 2)
+  //
+  // Clamped for the same reason. A range input silently pins a value
+  // outside its range to the nearest end, so an unclamped copy here
+  // would print a number the control is not on: defaultValue={30} with
+  // max={11} showed "30" beside a thumb sitting at 11.
+  const clamp = (n) => Math.min(Math.max(Number(n), Number(min)), Number(max))
+  const [internal, setInternal] = useState(() =>
+    clamp(defaultValue ?? Math.floor((Number(min) + Number(max)) / 2))
   )
-  const current = controlled ? value : internal
+  const current = controlled ? clamp(value) : internal
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
