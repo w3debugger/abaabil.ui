@@ -1,6 +1,6 @@
 # abaabil
 
-> A small React component library: eighteen components, three import tiers
+> A small React component library: twenty-three components, three import tiers
 > each, plain CSS in cascade layers, zero runtime dependencies. React 19 is
 > the only peer dependency.
 
@@ -33,8 +33,8 @@ also export them by name: `CheckboxGroup`, `RadioGroup`, `Disclosure`,
 `Accordion`, `PopoverTrigger`, `PopoverPanel`.
 
 Names: button, dialog, popover, menu, tooltip, combobox, input, textarea,
-checkbox, radio, switch, select, slider, accordion, tabs, breadcrumb,
-progress, alert.
+file, checkbox, radio, switch, select, slider, accordion, tabs, toolbar,
+breadcrumb, pagination, progress, alert, avatar, badge.
 
 Stylesheets are also importable on their own as `abaabil/<name>.css`, and
 `abaabil/styles.css` is every component's CSS in one file.
@@ -76,20 +76,35 @@ Stylesheets are also importable on their own as `abaabil/<name>.css`, and
   number is not self-explanatory; it sets `aria-valuetext`.
 - **breadcrumb** renders the last item as text rather than a link, and
   marks it `aria-current="page"`. Pass items root first.
+- **pagination** takes `page`, `pageCount` and `href`, and renders real
+  links. Override `pageLabel`, `previousLabel` and `nextLabel` to
+  translate; every number is named "Page 7", not "7".
+- **toolbar** takes arbitrary children, not an items array, and
+  collapses them to one tab stop with arrow keys inside. It needs a
+  `label`.
+- **file** is a real `<input type="file">`. Pass a `description` saying
+  what you accept: `accept` filters the dialog silently and does not
+  apply to a dropped file.
+- **avatar** is decorative by default, which is right beside a visible
+  name. Pass `decorative={false}` when the avatar is the only thing
+  identifying someone, and give it a `name`.
+- **badge** takes `context` for the rest of the sentence: `<Badge
+  context="unread messages">3</Badge>` draws "3" and announces "3 unread
+  messages". Do not reach for `aria-label`; a span discards it.
 - Components needing an accessible name (**input**, **textarea**,
   **select**, **checkbox**, **radio**, **switch**, **combobox**,
-  **popover**, **tabs**, **progress**, **slider**) warn in development
-  when given none. Pass
+  **popover**, **tabs**, **progress**, **slider**, **file**,
+  **toolbar**) warn in development when given none. Pass
   `label`, or `aria-label`/`aria-labelledby`.
 
 ## Server Components
 
-Thirty-six of the fifty-four entry points carry no `"use client"` and
+Fifty-one of the sixty-nine entry points carry no `"use client"` and
 render inside a React Server Component tree.
 
 - Server-safe at **every** tier: button, accordion, popover, alert,
-  breadcrumb. Tooltip too at `normal` and `styled`, because it shows and
-  hides in CSS rather than JavaScript.
+  breadcrumb, pagination, avatar, badge. Tooltip too at `normal` and
+  `styled`, because it shows and hides in CSS rather than JavaScript.
 - Client at **every** tier: combobox, tabs. Neither has a native element
   to build on, so both need state.
 - Everything else is server-safe at `normal` and `styled`, and a client

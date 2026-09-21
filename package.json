@@ -1,6 +1,6 @@
 {
   "name": "abaabil",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Minimal, themeable, accessible React components. Zero dependencies.",
   "license": "MIT",
   "repository": {
@@ -90,6 +90,21 @@
     "./menu": "./dist/menu/index.js",
     "./menu/styled": "./dist/menu/styled.js",
     "./menu/a11y": "./dist/menu/a11y.js",
+    "./pagination": "./dist/pagination/index.js",
+    "./pagination/styled": "./dist/pagination/styled.js",
+    "./pagination/a11y": "./dist/pagination/a11y.js",
+    "./file": "./dist/file/index.js",
+    "./file/styled": "./dist/file/styled.js",
+    "./file/a11y": "./dist/file/a11y.js",
+    "./toolbar": "./dist/toolbar/index.js",
+    "./toolbar/styled": "./dist/toolbar/styled.js",
+    "./toolbar/a11y": "./dist/toolbar/a11y.js",
+    "./avatar": "./dist/avatar/index.js",
+    "./avatar/styled": "./dist/avatar/styled.js",
+    "./avatar/a11y": "./dist/avatar/a11y.js",
+    "./badge": "./dist/badge/index.js",
+    "./badge/styled": "./dist/badge/styled.js",
+    "./badge/a11y": "./dist/badge/a11y.js",
     "./theme.css": "./dist/theme.css",
     "./styles.css": "./dist/styles.css",
     "./button.css": "./dist/button/button.css",
@@ -109,7 +124,12 @@
     "./slider.css": "./dist/slider/slider.css",
     "./breadcrumb.css": "./dist/breadcrumb/breadcrumb.css",
     "./tooltip.css": "./dist/tooltip/tooltip.css",
-    "./menu.css": "./dist/menu/menu.css"
+    "./menu.css": "./dist/menu/menu.css",
+    "./pagination.css": "./dist/pagination/pagination.css",
+    "./file.css": "./dist/file/file.css",
+    "./toolbar.css": "./dist/toolbar/toolbar.css",
+    "./avatar.css": "./dist/avatar/avatar.css",
+    "./badge.css": "./dist/badge/badge.css"
   },
   "scripts": {
     "build": "node scripts/build-css.js && rollup -c && node scripts/check-directives.js && node scripts/check-complete.js && node scripts/measure.js",

@@ -1,0 +1,41 @@
+@layer abaabil.components {
+  .abaabil-avatar {
+    --avatar-size: 2.5rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--avatar-size);
+    block-size: var(--avatar-size);
+    flex: none;
+    border-radius: 50%;
+    background: var(--color-muted);
+    color: var(--color-text);
+    font-size: calc(var(--avatar-size) * 0.4);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+    /* The image is round; anything that overflows the circle is not
+       meant to be seen. clip rather than hidden so it never becomes a
+       scroll container. */
+    overflow: clip;
+    user-select: none;
+  }
+
+  .abaabil-avatar__image {
+    inline-size: 100%;
+    block-size: 100%;
+    /* cover, not contain: a portrait is cropped to the circle rather
+       than letterboxed inside it. */
+    object-fit: cover;
+    /* Faces sit in the upper half of most photographs, so a crop from
+       the top loses less than one from the centre. */
+    object-position: center 30%;
+  }
+
+  .abaabil-avatar__initials {
+    /* Digits and two-letter pairs in a circle only look centred when
+       the letter-spacing that follows the last glyph is removed. */
+    letter-spacing: 0.02em;
+    text-indent: 0.02em;
+  }
+}

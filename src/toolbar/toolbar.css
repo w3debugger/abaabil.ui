@@ -1,0 +1,37 @@
+@layer abaabil.components {
+  .abaabil-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+
+  .abaabil-toolbar[data-orientation="vertical"] {
+    flex-direction: column;
+    align-items: stretch;
+    inline-size: max-content;
+  }
+
+  /* A separator between groups. An <hr> inside a toolbar is the
+     semantic way to say "these are different groups", and it needs
+     turning from a horizontal rule into a vertical one. */
+  .abaabil-toolbar hr {
+    align-self: stretch;
+    inline-size: 1px;
+    block-size: auto;
+    margin-block: var(--space-1);
+    margin-inline: var(--space-1);
+    border: 0;
+    background: var(--color-border);
+  }
+
+  .abaabil-toolbar[data-orientation="vertical"] hr {
+    inline-size: auto;
+    block-size: 1px;
+    margin-block: var(--space-1);
+    margin-inline: var(--space-1);
+  }
+}

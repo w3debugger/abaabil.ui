@@ -1,0 +1,79 @@
+@layer abaabil.components {
+  .abaabil-file {
+    --file-border: var(--color-border);
+
+    display: block;
+    inline-size: 100%;
+    padding: var(--space-2);
+    border: 1px solid var(--file-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+  }
+
+  /* The real reason this component is a native input rather than a
+     button hiding one: the browser's own button is stylable. */
+  .abaabil-file::file-selector-button {
+    margin-inline-end: var(--space-3);
+    padding-block: var(--space-1);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-muted);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) ease;
+  }
+
+  .abaabil-file::file-selector-button:hover {
+    background: var(--color-border);
+  }
+
+  .abaabil-file:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .abaabil-file:disabled,
+  .abaabil-file:disabled::file-selector-button {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .abaabil-file[aria-invalid="true"] {
+    --file-border: var(--color-danger);
+  }
+
+  .abaabil-file-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .abaabil-file__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+  }
+
+  .abaabil-file__description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .abaabil-file__error {
+    font-size: var(--font-size-sm);
+    color: var(--color-danger);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-file::file-selector-button {
+      transition: none;
+    }
+  }
+}

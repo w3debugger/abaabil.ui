@@ -21,6 +21,11 @@ import Slider from '../src/slider/a11y.jsx'
 import Breadcrumb from '../src/breadcrumb/a11y.jsx'
 import TooltipControl from '../src/tooltip/a11y.jsx'
 import MenuControl from '../src/menu/a11y.jsx'
+import Pagination from '../src/pagination/a11y.jsx'
+import FileField from '../src/file/a11y.jsx'
+import ToolbarControl from '../src/toolbar/a11y.jsx'
+import AvatarControl from '../src/avatar/a11y.jsx'
+import BadgeControl from '../src/badge/a11y.jsx'
 
 const LANGUAGES = [
   { value: 'ar', label: 'Arabic' },
@@ -192,6 +197,46 @@ describe('Cross-component axe sweep (a11y tier)', () => {
         label="File actions"
         items={[{ label: 'Duplicate' }, { label: 'Delete' }]}
       />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('pagination: no violations mid-range, with gaps on both sides', async () => {
+    const { container } = render(
+      <Pagination page={10} pageCount={20} href={(p) => `?page=${p}`} />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('file: no violations while showing an error', async () => {
+    const { container } = render(
+      <FileField label="Attachment" description="PDF or PNG, under 5 MB." error="Too large." accept=".pdf,.png" />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('toolbar: no violations with a mixed set of controls', async () => {
+    const { container } = render(
+      <ToolbarControl label="Formatting">
+        <button type="button">Bold</button>
+        <button type="button">Italic</button>
+        <hr />
+        <button type="button" disabled>Strike</button>
+      </ToolbarControl>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('avatar: no violations decorative or meaningful', async () => {
+    const dec = render(<AvatarControl name="Fatima Ahmed" />)
+    expect(await axe(dec.container)).toHaveNoViolations()
+    const meaningful = render(<AvatarControl name="Fatima Ahmed" decorative={false} />)
+    expect(await axe(meaningful.container)).toHaveNoViolations()
+  })
+
+  it('badge: no violations with hidden context text', async () => {
+    const { container } = render(
+      <BadgeControl variant="danger" context="unread messages">3</BadgeControl>
     )
     expect(await axe(container)).toHaveNoViolations()
   })

@@ -2,7 +2,7 @@
 
 Minimal, themeable, accessible React components. Zero dependencies.
 
-Eighteen components: button, dialog, popover, menu, tooltip, combobox, input, textarea, checkbox, radio, switch, select, slider, accordion, tabs, breadcrumb, progress, alert.
+Twenty-three components: button, dialog, popover, menu, tooltip, combobox, input, textarea, file, checkbox, radio, switch, select, slider, accordion, tabs, toolbar, breadcrumb, pagination, progress, alert, avatar, badge.
 
 ```js
 import Button from 'abaabil/button/a11y'
@@ -103,7 +103,7 @@ import Accordion from 'abaabil/accordion/a11y'
 
 ### Bundler required for `styled` and `a11y` tiers
 
-The `styled` and `a11y` entry points (all thirty-six across the eighteen components) import their
+The `styled` and `a11y` entry points (all forty-six across the twenty-three components) import their
 component's CSS as a JS side effect (`import 'abaabil/button/button.css'` style, resolved
 relative to the package). That works in any bundler that understands CSS imports, which
 covers Next.js, Vite, and webpack. It does **not** work if you run the built file directly in
@@ -229,16 +229,32 @@ Only the entry points that need interactivity are marked `"use client"`. The res
 | `abaabil/menu` | no |
 | `abaabil/menu/styled` | no |
 | `abaabil/menu/a11y` | yes |
+| `abaabil/pagination` | no |
+| `abaabil/pagination/styled` | no |
+| `abaabil/pagination/a11y` | no |
+| `abaabil/file` | no |
+| `abaabil/file/styled` | no |
+| `abaabil/file/a11y` | yes |
+| `abaabil/toolbar` | no |
+| `abaabil/toolbar/styled` | no |
+| `abaabil/toolbar/a11y` | yes |
+| `abaabil/avatar` | no |
+| `abaabil/avatar/styled` | no |
+| `abaabil/avatar/a11y` | no |
+| `abaabil/badge` | no |
+| `abaabil/badge/styled` | no |
+| `abaabil/badge/a11y` | no |
 
-Thirty-six of the fifty-four entry points carry no client directive and render from a Server Component with zero client JS.
+Fifty-one of the sixty-nine entry points carry no client directive and render from a Server Component with zero client JS.
 
-Six components are server-renderable at **every** tier, `a11y` included, because they need no JavaScript at all:
+Nine components are server-renderable at **every** tier, `a11y` included, because they need no JavaScript at all:
 
 - **button**, which attaches handlers only when you actually pass one (see the note at the end of this section).
 - **accordion**, where exclusive open/close comes from the native `name` attribute on `<details>`.
 - **popover**, where the trigger, the top layer, light-dismiss and Escape all come from the native Popover API.
 - **alert**, which is a live region and a border.
-- **breadcrumb**, which is a `<nav>` and an ordered list.
+- **breadcrumb** and **pagination**, which are a `<nav>` and an ordered list.
+- **avatar** and **badge**, which are markup and CSS.
 - **progress** and **slider** at `normal` and `styled`; their `a11y` tiers need `useId`.
 
 **tooltip** is the interesting case: it shows and hides on `:hover` and `:focus-within`, which are selectors, so its `normal` and `styled` tiers need no JavaScript to work at all. Only the tier that adds `aria-describedby` and Escape is a client component.
@@ -647,6 +663,111 @@ Like popover, `id` is required rather than generated.
 
 plus `aria-haspopup`, a live `aria-expanded` kept in step with the panel's own `toggle` event, `role="menu"`/`role="menuitem"`, a roving tabindex, Up/Down with wrapping, Home/End, multi-character typeahead, Tab to close, and focus moving to the first item on open and back to the trigger on close.
 
+### Pagination
+
+A `<nav>` around an ordered list of real links, so each page is a URL you can open in a new tab, bookmark and share. A paginator built from buttons takes all of that away for nothing. Server-renderable at every tier.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `page` | `number` | - | Current page, 1-based. |
+| `pageCount` | `number` | - | Total pages. |
+| `href` | `(page) => string` | - | Builds each page's URL. |
+| `siblings` | `number` | `1` | Pages shown either side of the current one before the list collapses. |
+| `className` | `string` | - | |
+
+The gap is drawn in CSS, never rendered as text, so an ellipsis is never read out between numbers. It also only ever appears when it stands in for **two or more** pages: a gap replacing a single number takes the same room and says less.
+
+`a11y` adds the four things a hand-rolled paginator usually misses:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | `'Pagination'` | Names the `<nav>`. |
+| `pageLabel` | `(n) => string` | `` `Page ${n}` `` | Names each number. A link whose whole content is "7" is announced as "7", which in a list of links means nothing. Replace to translate. |
+| `previousLabel` | `string` | `'Previous page'` | |
+| `nextLabel` | `string` | `'Next page'` | |
+
+plus `aria-current="page"` on the current page. At either end, Previous and Next are not links at all, so nothing dead stays in the tab order.
+
+### File
+
+A native `<input type="file">`, not a `<button>` with a hidden input behind it. That pattern has to reimplement the label association, the keyboard activation and the announcement of the chosen file, and usually manages one of the three. The real control does all three, and it is stylable: `::file-selector-button` is a real pseudo-element.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `className` | `string` | - | Merged with the base class. |
+
+`a11y` adds the same label, description and error wiring as `input`:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | - | Rendered as a real `<label>`. |
+| `hideLabel` | `boolean` | `false` | |
+| `description` | `string` | - | Wired into `aria-describedby`. |
+| `error` | `string` | - | Sets `aria-invalid` and joins `aria-describedby`. |
+| `required` | `boolean` | `false` | |
+
+It also warns when you pass `accept` without a `description`. `accept` filters the file dialog silently: it is never announced, and it does not apply to a file dropped onto the control. Say what you take in words.
+
+### Toolbar
+
+The W3C APG toolbar pattern. The point of it is the tab sequence: a row of eight buttons is eight stops on the way to the rest of the page, and as a toolbar it is one, with the arrow keys moving between the controls inside. A toolbar that does not do that is a `<div>` with a role on it.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Chooses the arrow pair. |
+| `className` | `string` | - | |
+
+`a11y` adds `role="toolbar"`, `aria-orientation`, a roving tabindex, arrow keys following the orientation, and Home/End:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `label` | `string` | - | Accessible name. An unnamed toolbar is announced as "toolbar" and nothing else. |
+| `labelledBy` | `string` | - | Id of an element naming it. |
+
+It takes arbitrary children rather than an `items` array, because a toolbar's contents are heterogeneous by definition, and manages `tabindex` on its focusable descendants directly: cloning would only reach the top level. A control that needs the arrows itself, such as a `<select>` or a text field, keeps them.
+
+### Avatar
+
+An image when there is one, initials when there is not. There is no fallback-on-load-error, which would need state and make every tier a client component for a case the server usually already knows about: pass no `src` and you get initials.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `src` | `string` | - | Omit for initials. |
+| `name` | `string` | - | Used for the initials. |
+| `alt` | `string` | `''` | Empty by default, which is right more often than not. |
+| `className` | `string` | - | |
+
+`a11y` asks the question the component cannot answer for you:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `decorative` | `boolean` | `true` | Whether the avatar repeats something already on screen. |
+
+Beside a visible name an avatar is **decorative**: it says nothing the text does not, and naming it means hearing the person twice. Alone, in a stack of collaborators or a comment with no byline, it is the only thing identifying someone and needs a name, so pass `decorative={false}`.
+
+The initials are never the accessible name. "FA" read aloud is not a person: when meaningful, the letters are hidden and the name is carried by a `role="img"` that can hold one.
+
+### Badge
+
+A small piece of status text. Server-renderable at every tier.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `variant` | `'neutral' \| 'info' \| 'success' \| 'warning' \| 'danger'` | `'neutral'` | Applied as `data-variant`. |
+| `className` | `string` | - | |
+
+`a11y` adds the one thing that makes a badge worth a component:
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `context` | `string` | - | The rest of the sentence, announced but not drawn. |
+
+A badge is shorthand that only means something beside what it is attached to. "3" next to an inbox icon, read out on its own in a list of everything on the page, is noise: the user hears "three" with no way to know three of what. `context` supplies the rest as visually hidden text, so the badge still draws "3" and announces "3 unread messages".
+
+It is hidden text rather than `aria-label`, deliberately. A badge is a `<span>`, a span has no role, and `aria-label` is prohibited on a generic element: set it there and it is discarded, leaving the badge as unlabelled as before while looking fixed. That exact mistake shipped in this library's own popover, and is why this component does it the other way.
+
+A badge is not a live region. A count that changes while the page is open does not announce itself, and this does not make it do so; wrap it in `abaabil/alert` if the change is worth interrupting for, which for an unread count it usually is not.
+
 ## Combobox: uncontrolled in 1.x
 
 The combobox is uncontrolled in this release: it does not accept a `value` prop. Observe the selected value through the `onChange` callback instead of driving it from external state.
@@ -681,6 +802,11 @@ Where the panel appears is a separate question from whether it works. Attaching 
 - Progress accepts `valueText`, because a bar whose number is not a percentage is otherwise announced as one.
 - Slider is a native range input, so its keyboard support is the platform's rather than a reimplementation; `formatValue` sets `aria-valuetext` for values that are not self-explanatory.
 - Breadcrumb names its `<nav>` and marks the current page with `aria-current`, and draws its separators in CSS so they are never read aloud.
+- Toolbar implements the [WAI-ARIA Authoring Practices Guide toolbar pattern](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/), collapsing a row of controls to one tab stop with arrow-key movement inside.
+- Pagination names its `<nav>`, gives every number a real name rather than a bare digit, marks the current page with `aria-current`, and draws its gap in CSS so it is never read aloud.
+- File warns when `accept` is set with nothing explaining it in words, because `accept` is never announced and does not apply to a dropped file.
+- Avatar treats decorative and meaningful as different cases, and never uses the initials as the accessible name.
+- Badge carries its context as visually hidden text rather than `aria-label`, which a `<span>` discards.
 - `a11y` tiers are the recommended default for production use; `normal` and `styled` tiers exist for cases where you want to compose your own accessibility behavior.
 
 ## License

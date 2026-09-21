@@ -4,6 +4,62 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.4.0] - 2026-09-21
+
+### Added
+
+Five components, taking the library from eighteen to twenty-three. Two
+carry real accessibility work, one wraps a native element that is
+genuinely painful to do by hand, and two are the presentational pieces a
+design system is expected to have, each with a trap worth encoding.
+
+- **`abaabil/pagination`** - a `<nav>` around an ordered list of real
+  links, so a page is a URL you can open in a new tab and share; a
+  paginator built from buttons gives that up for nothing. Server
+  renderable at every tier. The gap is drawn in CSS so an ellipsis is
+  never read out between numbers, and it only appears when it stands in
+  for two or more pages. Every number is named "Page 7" rather than
+  announced as a bare "7", and all four labels are replaceable for
+  translation.
+- **`abaabil/file`** - a real `<input type="file">`, not a button with a
+  hidden input behind it. That pattern reimplements the label
+  association, the keyboard activation and the announcement of the
+  chosen file, and usually manages one of the three;
+  `::file-selector-button` means the real control can be styled
+  instead. Warns when `accept` is set with nothing explaining it in
+  words, because `accept` is never announced and does not apply to a
+  dropped file.
+- **`abaabil/toolbar`** - the APG toolbar pattern. The point is the tab
+  sequence: eight buttons are eight stops on the way past them, and as
+  a toolbar they are one. Takes arbitrary children rather than an items
+  array, since a toolbar's contents are heterogeneous by definition,
+  and manages `tabindex` on its focusable descendants directly because
+  cloning only reaches the top level. A control that needs the arrows
+  itself keeps them.
+- **`abaabil/avatar`** - an image, or initials when there is none. No
+  fallback-on-load-error: that needs state, and would make every tier a
+  client component for a case the server usually already knows about.
+  The a11y tier asks whether the avatar repeats something already on
+  screen, because the answer changes per use and the component cannot
+  guess. The initials are never the accessible name; "FA" read aloud is
+  not a person.
+- **`abaabil/badge`** - shorthand that only means something beside what
+  it is attached to. `context` supplies the rest of the sentence as
+  hidden text, so a badge draws "3" and announces "3 unread messages".
+  Hidden text rather than `aria-label`, because a `<span>` has no role
+  and discards it. That is not hypothetical: it is the bug found in
+  this library's own popover one release ago.
+
+Fifty-one of the sixty-nine entry points carry no client directive.
+Nine components are server-renderable at every tier, up from six.
+
+### Fixed
+
+- `pageWindow` emitted a gap where it stood in for exactly one page, so
+  at page 4 of 12 an ellipsis replaced page 2: the same width as the
+  number it hid, carrying less. Caught by its own test rather than by
+  looking at it.
+
 ## [1.3.0] - 2026-09-21
 
 ### Added

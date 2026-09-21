@@ -1,0 +1,42 @@
+@layer abaabil.components {
+  .abaabil-badge {
+    /* One rule for every variant: the accent is swapped by the data
+       attribute below and the surface is mixed from it, so background
+       and border follow the accent and the theme at once. Same
+       arrangement as alert, and dark mode needs no override because
+       --color-surface already flips. */
+    --badge-accent: var(--color-text-muted);
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding-block: 0.1em;
+    padding-inline: var(--space-2);
+    border: 1px solid color-mix(in srgb, var(--badge-accent) 35%, var(--color-surface));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--badge-accent) 12%, var(--color-surface));
+    color: var(--color-text);
+    /* Smaller than its surroundings, but floored so it cannot inherit
+       its way down to something unreadable inside small print. */
+    font-size: max(0.75rem, 0.8em);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .abaabil-badge[data-variant="info"] {
+    --badge-accent: var(--color-primary);
+  }
+
+  .abaabil-badge[data-variant="success"] {
+    --badge-accent: var(--color-success);
+  }
+
+  .abaabil-badge[data-variant="warning"] {
+    --badge-accent: var(--color-warning);
+  }
+
+  .abaabil-badge[data-variant="danger"] {
+    --badge-accent: var(--color-danger);
+  }
+}

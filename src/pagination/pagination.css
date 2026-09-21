@@ -1,0 +1,77 @@
+@layer abaabil.components {
+  .abaabil-pagination__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--font-size-sm);
+  }
+
+  .abaabil-pagination__link,
+  .abaabil-pagination__current,
+  .abaabil-pagination__step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--control-height-md);
+    block-size: var(--control-height-md);
+    padding-inline: var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+    text-decoration: none;
+  }
+
+  .abaabil-pagination__link:hover {
+    background: var(--color-muted);
+  }
+
+  .abaabil-pagination__link:focus-visible,
+  .abaabil-pagination__step:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .abaabil-pagination__current {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-primary-fg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* The gap's glyph is drawn rather than rendered, so it is seen and
+     never heard. Same reasoning as breadcrumb's separators. */
+  .abaabil-pagination__gap::before {
+    content: "\2026";
+  }
+
+  .abaabil-pagination__gap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--control-height-md);
+    block-size: var(--control-height-md);
+    color: var(--color-text-muted);
+  }
+
+  .abaabil-pagination__step {
+    border-color: var(--color-border);
+  }
+
+  .abaabil-pagination__step:hover {
+    background: var(--color-muted);
+  }
+
+  /* At either end the step is not a link, so it must not look like one.
+     Not `disabled` styling borrowed from a button: there is no control
+     here to be disabled, it is text. */
+  .abaabil-pagination__step--unavailable {
+    border-color: transparent;
+    color: var(--color-text-muted);
+    opacity: 0.6;
+  }
+}

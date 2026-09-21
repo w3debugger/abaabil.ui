@@ -17,6 +17,7 @@ const COMPONENTS = [
   'button', 'dialog', 'combobox', 'input', 'checkbox', 'radio', 'select', 'accordion',
   'textarea', 'switch', 'popover', 'tabs', 'alert',
   'progress', 'slider', 'breadcrumb', 'tooltip', 'menu',
+  'pagination', 'file', 'toolbar', 'avatar', 'badge',
 ]
 
 // Components whose normal tier carries one static role, because they have
@@ -127,6 +128,14 @@ describe("tier boundary: 'use client' appears only where hooks are used", () => 
     // Menu's lower tiers are the Popover API and two real elements; the
     // a11y tier adds the APG menu semantics and keyboard.
     'menu/index': false, 'menu/styled': false, 'menu/a11y': true,
+    // Pagination, avatar and badge are markup at every tier.
+    'pagination/index': false, 'pagination/styled': false, 'pagination/a11y': false,
+    'avatar/index': false, 'avatar/styled': false, 'avatar/a11y': false,
+    'badge/index': false, 'badge/styled': false, 'badge/a11y': false,
+    'file/index': false, 'file/styled': false, 'file/a11y': true,
+    // Toolbar's a11y tier manages a roving tabindex over its
+    // descendants, which needs a ref and an effect.
+    'toolbar/index': false, 'toolbar/styled': false, 'toolbar/a11y': true,
   }
 
   const hasUseClient = (src) => /^\s*['"]use client['"]/m.test(src)

@@ -26,6 +26,8 @@ const MUST_BE_CLIENT = [
   'dist/slider/a11y.js',
   'dist/tooltip/a11y.js',
   'dist/menu/a11y.js',
+  'dist/file/a11y.js',
+  'dist/toolbar/a11y.js',
 ]
 
 // Components without hooks MUST NOT carry it: an accidental directive
@@ -80,6 +82,20 @@ const MUST_NOT_BE_CLIENT = [
   // Menu's lower tiers are the Popover API and two real elements.
   'dist/menu/index.js',
   'dist/menu/styled.js',
+  // Pagination, avatar and badge are markup. All three tiers each.
+  'dist/pagination/index.js',
+  'dist/pagination/styled.js',
+  'dist/pagination/a11y.js',
+  'dist/avatar/index.js',
+  'dist/avatar/styled.js',
+  'dist/avatar/a11y.js',
+  'dist/badge/index.js',
+  'dist/badge/styled.js',
+  'dist/badge/a11y.js',
+  'dist/file/index.js',
+  'dist/file/styled.js',
+  'dist/toolbar/index.js',
+  'dist/toolbar/styled.js',
 ]
 
 const has = (f) => /^\s*['"]use client['"]/.test(readFileSync(join(root, f), 'utf8'))
