@@ -1,0 +1,50 @@
+@layer abaabil.components {
+  .abaabil-alert {
+    /* One rule serves every variant: the accent colour is swapped by the
+       data attribute below, and the surface is mixed from it, so the
+       background follows the accent and the theme at once. No per-variant
+       background token to keep in sync, and dark mode needs no override
+       because --color-surface already flips. */
+    --alert-accent: var(--color-primary);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1px solid color-mix(in srgb, var(--alert-accent) 35%, var(--color-surface));
+    border-inline-start: 3px solid var(--alert-accent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--alert-accent) 8%, var(--color-surface));
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+  }
+
+  .abaabil-alert[data-variant="success"] {
+    --alert-accent: var(--color-success);
+  }
+
+  .abaabil-alert[data-variant="warning"] {
+    --alert-accent: var(--color-warning);
+  }
+
+  .abaabil-alert[data-variant="danger"] {
+    --alert-accent: var(--color-danger);
+  }
+
+  .abaabil-alert__title {
+    font-weight: var(--font-weight-semibold);
+    /* Not a colour of its own: colouring the title to match the accent
+       reads as decoration and, on the low-contrast variants, fails
+       contrast against the tinted ground. */
+    color: var(--color-text);
+  }
+
+  /* An alert rendered empty on purpose, so the live region exists in the
+     DOM before it has anything to announce (see alert/a11y.jsx), must not
+     paint an empty coloured box while it waits. */
+  .abaabil-alert:empty {
+    display: none;
+  }
+}

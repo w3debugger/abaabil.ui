@@ -1,6 +1,6 @@
 {
   "name": "abaabil",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Minimal, themeable, accessible React components. Zero dependencies.",
   "license": "MIT",
   "repository": {
@@ -59,6 +59,21 @@
     "./accordion": "./dist/accordion/index.js",
     "./accordion/styled": "./dist/accordion/styled.js",
     "./accordion/a11y": "./dist/accordion/a11y.js",
+    "./textarea": "./dist/textarea/index.js",
+    "./textarea/styled": "./dist/textarea/styled.js",
+    "./textarea/a11y": "./dist/textarea/a11y.js",
+    "./switch": "./dist/switch/index.js",
+    "./switch/styled": "./dist/switch/styled.js",
+    "./switch/a11y": "./dist/switch/a11y.js",
+    "./popover": "./dist/popover/index.js",
+    "./popover/styled": "./dist/popover/styled.js",
+    "./popover/a11y": "./dist/popover/a11y.js",
+    "./tabs": "./dist/tabs/index.js",
+    "./tabs/styled": "./dist/tabs/styled.js",
+    "./tabs/a11y": "./dist/tabs/a11y.js",
+    "./alert": "./dist/alert/index.js",
+    "./alert/styled": "./dist/alert/styled.js",
+    "./alert/a11y": "./dist/alert/a11y.js",
     "./theme.css": "./dist/theme.css",
     "./styles.css": "./dist/styles.css",
     "./button.css": "./dist/button/button.css",
@@ -68,7 +83,12 @@
     "./checkbox.css": "./dist/checkbox/checkbox.css",
     "./radio.css": "./dist/radio/radio.css",
     "./select.css": "./dist/select/select.css",
-    "./accordion.css": "./dist/accordion/accordion.css"
+    "./accordion.css": "./dist/accordion/accordion.css",
+    "./textarea.css": "./dist/textarea/textarea.css",
+    "./switch.css": "./dist/switch/switch.css",
+    "./popover.css": "./dist/popover/popover.css",
+    "./tabs.css": "./dist/tabs/tabs.css",
+    "./alert.css": "./dist/alert/alert.css"
   },
   "scripts": {
     "build": "node scripts/build-css.js && rollup -c && node scripts/check-directives.js && node scripts/measure.js",

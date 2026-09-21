@@ -36,7 +36,20 @@ check(
   `sideEffects: ${JSON.stringify(pkg.sideEffects)}`
 )
 
-check('version is exactly 1.1.0', pkg.version === '1.1.0', `version: ${pkg.version}`)
+// Was a hardcoded `=== '1.1.0'`, which had to be hand-edited every
+// release and so only ever caught the release where someone forgot to
+// edit it. Checking the version against the newest CHANGELOG heading
+// catches the mistake actually worth catching: publishing a version that
+// nothing documents.
+const changelogVersion = (
+  readFileSync(join(root, 'CHANGELOG.md'), 'utf8').match(/^## \[(\d+\.\d+\.\d+)\]/m) || []
+)[1]
+
+check(
+  'version matches the newest CHANGELOG entry',
+  pkg.version === changelogVersion,
+  `package.json: ${pkg.version}, CHANGELOG: ${changelogVersion ?? 'none found'}`
+)
 
 const exportEntries = Object.entries(pkg.exports ?? {})
 const missing = exportEntries.filter(([, target]) => !existsSync(join(root, target)))

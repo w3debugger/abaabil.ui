@@ -11,6 +11,11 @@ import Checkbox, { CheckboxGroup } from '../src/checkbox/a11y.jsx'
 import Radio, { RadioGroup } from '../src/radio/a11y.jsx'
 import Select from '../src/select/a11y.jsx'
 import { Accordion_a11y } from '../src/accordion/a11y.jsx'
+import Textarea from '../src/textarea/a11y.jsx'
+import SwitchControl from '../src/switch/a11y.jsx'
+import Popover from '../src/popover/a11y.jsx'
+import Tabs from '../src/tabs/a11y.jsx'
+import Alert from '../src/alert/a11y.jsx'
 
 const LANGUAGES = [
   { value: 'ar', label: 'Arabic' },
@@ -95,6 +100,50 @@ describe('Cross-component axe sweep (a11y tier)', () => {
     // Toggle the native <details> directly: reliable regardless of jsdom's
     // click-to-toggle support, and it is the same observable open state.
     container.querySelector('details').open = true
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('textarea: no violations while showing an error', async () => {
+    const { container } = render(
+      <Textarea label="Bio" description="Max 200 characters." error="Too short." />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('switch: no violations with a label and description', async () => {
+    const { container } = render(
+      <SwitchControl label="Email notifications" description="Only for replies to you." />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('popover: no violations with a named panel', async () => {
+    // jsdom has no Popover API, so the panel is inert here and axe sees it
+    // in its closed-but-rendered state. That is still the state worth
+    // checking: it is where the name and the button wiring live.
+    const { container } = render(
+      <Popover id="display-options" trigger="Options" label="Display options">
+        <p>Choose how results are shown.</p>
+      </Popover>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('tabs: no violations, and still none after moving to another tab', async () => {
+    const items = [
+      { key: 'a', label: 'Overview', children: <p>Overview panel.</p> },
+      { key: 'b', label: 'Pricing', children: <p>Pricing panel.</p> },
+    ]
+    const { container } = render(<Tabs items={items} label="Product" />)
+    expect(await axe(container)).toHaveNoViolations()
+    await userEvent.click(screen.getByRole('tab', { name: 'Pricing' }))
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('alert: no violations for the interrupting variant', async () => {
+    const { container } = render(
+      <Alert variant="danger" title="Could not save">Check your connection.</Alert>
+    )
     expect(await axe(container)).toHaveNoViolations()
   })
 })

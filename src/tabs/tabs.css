@@ -1,0 +1,87 @@
+@layer abaabil.components {
+  .abaabil-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .abaabil-tabs__list {
+    display: flex;
+    gap: var(--space-1);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .abaabil-tabs__tab {
+    appearance: none;
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 0;
+    /* Sits on top of the list's own border so the selected tab's marker
+       replaces that segment of it rather than stacking under it. */
+    margin-block-end: -1px;
+    border-block-end: 2px solid transparent;
+    background: none;
+    color: var(--color-text-muted);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.3;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
+  }
+
+  .abaabil-tabs__tab:hover {
+    color: var(--color-text);
+  }
+
+  .abaabil-tabs__tab[data-selected="true"] {
+    color: var(--color-text);
+    border-block-end-color: var(--color-primary);
+  }
+
+  .abaabil-tabs__tab:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  .abaabil-tabs__tab:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Vertical tabs put the marker on the inline-start edge, which is the
+     side the reading direction starts from in both LTR and RTL. */
+  .abaabil-tabs__list[data-orientation="vertical"] {
+    flex-direction: column;
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--color-border);
+  }
+
+  .abaabil-tabs__list[data-orientation="vertical"] .abaabil-tabs__tab {
+    margin-block-end: 0;
+    margin-inline-end: -1px;
+    border-block-end: 0;
+    border-inline-end: 2px solid transparent;
+    text-align: start;
+  }
+
+  .abaabil-tabs__list[data-orientation="vertical"] .abaabil-tabs__tab[data-selected="true"] {
+    border-inline-end-color: var(--color-primary);
+  }
+
+  /* The panel is focusable (see tabs/a11y.jsx), so it needs a focus ring
+     of its own or keyboard users land somewhere invisible. */
+  .abaabil-tabs__panel:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-tabs__tab {
+      transition: none;
+    }
+  }
+}

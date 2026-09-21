@@ -1,0 +1,85 @@
+@layer abaabil.components {
+  .abaabil-switch {
+    --switch-width: 2.25rem;
+    --switch-height: 1.25rem;
+    --switch-gap: 2px;
+    --switch-thumb: calc(var(--switch-height) - (var(--switch-gap) * 2));
+
+    appearance: none;
+    position: relative;
+    flex-shrink: 0;
+    inline-size: var(--switch-width);
+    block-size: var(--switch-height);
+    margin: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-muted);
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
+  }
+
+  /* The thumb. Its position is animated with inset-inline-start rather
+     than a translate, so it travels towards the inline-end edge in both
+     writing directions and RTL needs no override at all. A translate
+     would always move it to the right. */
+  .abaabil-switch::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: var(--switch-gap);
+    inline-size: var(--switch-thumb);
+    block-size: var(--switch-thumb);
+    border-radius: 50%;
+    background: var(--color-surface);
+    translate: 0 -50%;
+    transition: inset-inline-start var(--duration-fast) ease;
+  }
+
+  .abaabil-switch:checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .abaabil-switch:checked::before {
+    inset-inline-start: calc(100% - var(--switch-thumb) - var(--switch-gap));
+  }
+
+  .abaabil-switch:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .abaabil-switch:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .abaabil-switch__wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .abaabil-switch__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .abaabil-switch__description {
+    display: block;
+    flex-basis: 100%;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-switch,
+    .abaabil-switch::before {
+      transition: none;
+    }
+  }
+}

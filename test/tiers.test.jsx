@@ -13,24 +13,53 @@ import { describe, it, expect } from 'vitest'
 const HERE = import.meta.url
 const read = (relPath) => readFileSync(new URL(relPath, HERE), 'utf8')
 
-const COMPONENTS = ['button', 'dialog', 'combobox', 'input', 'checkbox', 'radio', 'select', 'accordion']
+const COMPONENTS = [
+  'button', 'dialog', 'combobox', 'input', 'checkbox', 'radio', 'select', 'accordion',
+  'textarea', 'switch', 'popover', 'tabs', 'alert',
+]
+
+// Components whose normal tier carries one static role, because they have
+// no native element to carry it for them. This is an allowance for
+// identity, not for wiring: the role says what the component *is*, the
+// way <dialog> and <details> say it for the components built on them.
+// Everything dynamic (aria-selected, aria-describedby, aria-controls) is
+// still forbidden below the a11y tier, and the aria-* assertion below
+// still runs for these.
+const IDENTITY_ROLE = { switch: 'switch' }
 
 const srcPath = (name, tier) => `../src/${name}/${tier}.jsx`
 
+// Every guard below reads source text, so every guard has to ignore
+// comments. Leaving them in is not cosmetic: the check-directives
+// cross-check reads quoted strings out of an array literal, and a comment
+// containing an apostrophe or a quoted filename silently added phantom
+// entries to the list it was checking.
+const stripComments = (src) =>
+  src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+
 describe('tier boundary: normal tier has no ARIA', () => {
-  it.each(COMPONENTS)('src/%s/index.jsx contains no aria-* attribute and no role=', (name) => {
-    const src = read(srcPath(name, 'index'))
-    expect(src).not.toMatch(/\baria-[a-zA-Z]+\s*[:=]/)
-    expect(src).not.toMatch(/\brole\s*[:=]/)
+  it.each(COMPONENTS)('src/%s/index.jsx contains no aria-* attribute', (name) => {
+    expect(stripComments(read(srcPath(name, 'index')))).not.toMatch(/\baria-[a-zA-Z]+\s*[:=]/)
   })
+
+  it.each(COMPONENTS.filter((name) => !IDENTITY_ROLE[name]))(
+    'src/%s/index.jsx sets no role=',
+    (name) => {
+      expect(stripComments(read(srcPath(name, 'index')))).not.toMatch(/\brole\s*[:=]/)
+    }
+  )
+
+  it.each(Object.entries(IDENTITY_ROLE))(
+    'src/%s/index.jsx sets exactly one role, "%s", and no other',
+    (name, role) => {
+      const src = stripComments(read(srcPath(name, 'index')))
+      const roles = [...src.matchAll(/\brole\s*=\s*["']([^"']+)["']/g)].map((m) => m[1])
+      expect(roles).toEqual([role])
+    }
+  )
 })
 
 describe('tier boundary: styled.jsx is a pure two-line pass-through', () => {
-  const stripComments = (src) =>
-    src
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .replace(/^\s*\/\/.*$/gm, '')
-
   it.each(COMPONENTS)('src/%s/styled.jsx is exactly two lines after stripping comments', (name) => {
     const src = stripComments(read(srcPath(name, 'styled')))
     const lines = src.split('\n').map((l) => l.trim()).filter(Boolean)
@@ -65,7 +94,7 @@ describe('tier boundary: no forwardRef anywhere', () => {
 
 describe("tier boundary: 'use client' appears only where hooks are used", () => {
   // Ground truth, read directly from each source file. `styled.jsx` is
-  // included for all eight components, including combobox: its styled
+  // included for every component, including combobox: its styled
   // tier only re-exports index.jsx (which already carries the directive),
   // so it needs none of its own.
   const EXPECTED = {
@@ -77,6 +106,16 @@ describe("tier boundary: 'use client' appears only where hooks are used", () => 
     'radio/index': false, 'radio/styled': false, 'radio/a11y': true,
     'select/index': false, 'select/styled': false, 'select/a11y': true,
     'accordion/index': false, 'accordion/styled': false, 'accordion/a11y': false,
+    'textarea/index': false, 'textarea/styled': false, 'textarea/a11y': true,
+    'switch/index': false, 'switch/styled': false, 'switch/a11y': true,
+    // All three popover tiers are server-renderable. The Popover API does
+    // the work in the browser, so nothing here needs a hook. This row is
+    // what fails if someone reaches for useId to generate the panel id.
+    'popover/index': false, 'popover/styled': false, 'popover/a11y': false,
+    // Tabs have no native element, so even the normal tier needs state to
+    // show one panel at a time. Same reason combobox/index is true.
+    'tabs/index': true, 'tabs/styled': false, 'tabs/a11y': true,
+    'alert/index': false, 'alert/styled': false, 'alert/a11y': false,
   }
 
   const hasUseClient = (src) => /^\s*['"]use client['"]/m.test(src)
@@ -88,7 +127,7 @@ describe("tier boundary: 'use client' appears only where hooks are used", () => 
   })
 
   it("agrees with scripts/check-directives.js's declared lists", () => {
-    const scriptSrc = read('../scripts/check-directives.js')
+    const scriptSrc = stripComments(read('../scripts/check-directives.js'))
 
     const extractArray = (varName) => {
       const match = scriptSrc.match(new RegExp(`${varName}\\s*=\\s*\\[([\\s\\S]*?)\\]`))

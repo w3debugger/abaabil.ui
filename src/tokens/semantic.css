@@ -8,6 +8,8 @@
     --color-border: var(--abaabil-gray-300);
     --color-muted: var(--abaabil-gray-100);
     --color-danger: var(--abaabil-red-600);
+    --color-success: var(--abaabil-green-600);
+    --color-warning: var(--abaabil-amber-600);
     --color-focus-ring: var(--abaabil-blue-500);
     --color-overlay: rgb(0 0 0 / 0.5);
     --color-text-muted: #6b7280;

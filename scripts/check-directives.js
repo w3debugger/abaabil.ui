@@ -16,6 +16,12 @@ const MUST_BE_CLIENT = [
   'dist/checkbox/a11y.js',
   'dist/radio/a11y.js',
   'dist/select/a11y.js',
+  'dist/textarea/a11y.js',
+  'dist/switch/a11y.js',
+  // Tabs have no native element behind them, so every tier needs state to
+  // show one panel at a time. Same reason combobox/index.js is here.
+  'dist/tabs/index.js',
+  'dist/tabs/a11y.js',
 ]
 
 // Components without hooks MUST NOT carry it: an accidental directive
@@ -40,6 +46,21 @@ const MUST_NOT_BE_CLIENT = [
   'dist/accordion/index.js',
   'dist/accordion/styled.js',
   'dist/accordion/a11y.js',
+  'dist/textarea/index.js',
+  'dist/textarea/styled.js',
+  'dist/switch/index.js',
+  'dist/switch/styled.js',
+  // Every popover tier, a11y included. The Popover API does the work in
+  // the browser, so there is nothing here to need a hook. This is the
+  // line that fails if someone later reaches for useId to generate the
+  // panel id and quietly turns the library's one zero-JavaScript
+  // interactive component into a client component.
+  'dist/popover/index.js',
+  'dist/popover/styled.js',
+  'dist/popover/a11y.js',
+  'dist/alert/index.js',
+  'dist/alert/styled.js',
+  'dist/alert/a11y.js',
 ]
 
 const has = (f) => /^\s*['"]use client['"]/.test(readFileSync(join(root, f), 'utf8'))

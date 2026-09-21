@@ -1,0 +1,77 @@
+@layer abaabil.components {
+  .abaabil-popover {
+    /* The UA stylesheet gives a popover `inset: 0` and `margin: auto`,
+       which centres it in the viewport. That is the fallback everywhere
+       CSS anchor positioning is missing, and it is deliberate: without
+       anchor positioning there is no way to place a panel next to its
+       trigger without measuring the DOM in JavaScript, and shipping that
+       JavaScript would cost this component the property that makes it
+       worth having. A centred panel is the honest degradation. */
+    inline-size: max-content;
+    max-inline-size: min(22rem, calc(100vw - 2rem));
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+  }
+
+  .abaabil-popover:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* No dimming. A popover is not a modal: the page behind it stays live
+     and interactive, and darkening it would say otherwise. */
+  .abaabil-popover::backdrop {
+    background: transparent;
+  }
+
+  .abaabil-popover__trigger {
+    /* Inherits nothing from abaabil/button on purpose: a popover trigger
+       is often not a button visually. Styling is left to the consumer
+       beyond making it a sane target. */
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Progressive enhancement, exactly as the combobox does it. Where
+     anchor positioning exists the panel attaches under its trigger and
+     flips above when there is no room; where it does not, the rule never
+     applies and the centred fallback above stands. Not yet Baseline, so
+     nothing here may depend on it. */
+  @supports (anchor-name: --x) {
+    .abaabil-popover {
+      position: fixed;
+      inset: auto;
+      margin: 0;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: block-start span-inline-end, block-end span-inline-start;
+      margin-block-start: var(--space-1);
+    }
+  }
+
+  @starting-style {
+    .abaabil-popover:popover-open {
+      opacity: 0;
+    }
+  }
+
+  .abaabil-popover:popover-open {
+    opacity: 1;
+    transition: opacity var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-popover:popover-open {
+      transition: none;
+    }
+
+    @starting-style {
+      .abaabil-popover:popover-open {
+        opacity: 1;
+      }
+    }
+  }
+}
