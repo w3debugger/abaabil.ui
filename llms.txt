@@ -1,0 +1,102 @@
+# abaabil
+
+> A small React component library: thirteen components, three import tiers
+> each, plain CSS in cascade layers, zero runtime dependencies. React 19 is
+> the only peer dependency.
+
+This file is for language models and coding agents. It is the short version
+of README.md: the rules you need to write correct code with this library,
+and the mistakes that are easy to make. Full docs: https://www.abaabil.com
+and https://www.abaabil.com/llms-full.txt
+
+## The three rules that matter most
+
+1. **There is no root export.** `import { Button } from 'abaabil'` throws.
+   Import the entry point: `import Button from 'abaabil/button/a11y'`.
+2. **Import `abaabil/theme.css` once, at your app root.** Without it the
+   components render unthemed, because every stylesheet reads custom
+   properties that file defines.
+3. **Use the `a11y` tier** unless you have a specific reason not to. The
+   other two exist so you can opt out of CSS or ARIA deliberately, not
+   because they are lighter defaults.
+
+## Import shape
+
+Every component has exactly three entry points:
+
+    abaabil/<name>          structure only, no CSS, no ARIA
+    abaabil/<name>/styled   + the component's stylesheet
+    abaabil/<name>/a11y     + labels, ARIA wiring, keyboard behaviour
+
+Each tier default-exports its main component. Components with extra parts
+also export them by name: `CheckboxGroup`, `RadioGroup`, `Disclosure`,
+`Accordion`, `PopoverTrigger`, `PopoverPanel`.
+
+Names: button, dialog, popover, combobox, input, textarea, checkbox, radio,
+switch, select, accordion, tabs, alert.
+
+Stylesheets are also importable on their own as `abaabil/<name>.css`, and
+`abaabil/styles.css` is every component's CSS in one file.
+
+## Per-component notes an agent will otherwise get wrong
+
+- **popover** requires an explicit `id` prop. It is not generated, because
+  generating it would need `useId` and that would make the component a
+  client component. `<Popover id="menu" trigger="Options" label="...">`.
+- **alert** is a live region. It is announced when its *contents change*,
+  so render it empty from the start and fill it in. Mounting the whole
+  component at the moment you have a message often announces nothing.
+  Its role follows `variant`: info/success are polite, warning/danger
+  interrupt.
+- **switch** carries `role="switch"` at every tier, including `normal`.
+  Use it for a setting that applies immediately; use `checkbox` for a
+  value the form submits later.
+- **combobox** and **tabs** are uncontrolled. There is no `value` or
+  `selectedIndex` prop; observe changes through `onChange`.
+- **accordion** exclusivity comes from the native `name` attribute on
+  `<details>`, which defaults to a shared value. Pass `name={undefined}`
+  to allow several panels open at once.
+- **checkbox** takes `indeterminate` as a prop because the DOM property
+  has no HTML attribute.
+- **dialog** is the native `<dialog>` with `showModal()`. Do not add a
+  focus trap; the browser already contains focus.
+- Components needing an accessible name (**input**, **textarea**,
+  **select**, **checkbox**, **radio**, **switch**, **combobox**,
+  **popover**, **tabs**) warn in development when given none. Pass
+  `label`, or `aria-label`/`aria-labelledby`.
+
+## Server Components
+
+Twenty-six of the thirty-nine entry points carry no `"use client"` and
+render inside a React Server Component tree.
+
+- Server-safe at **every** tier: button, accordion, popover, alert.
+- Client at **every** tier: combobox, tabs. Neither has a native element
+  to build on, so both need state.
+- Everything else is server-safe at `normal` and `styled`, and a client
+  component at `a11y`, where `useId` mints the ids that tie labels to
+  controls.
+
+## Theming
+
+CSS custom properties only. No provider, no context, no JS theme object.
+Set `--color-primary`, `--radius-md`, `--control-height-md` and the rest on
+`:root` or on any scope element. Dark mode is the same tokens redefined
+under `prefers-color-scheme` and `[data-theme="dark"]`, both of which the
+shipped theme already handles.
+
+Component CSS lives in the `abaabil.components` cascade layer, so ordinary
+unlayered CSS in your own app beats it without `!important`.
+
+## Browser floor
+
+Chrome 99, Firefox 98, Safari 15.4, set by `@layer` and `<dialog>`.
+`abaabil/popover` is the exception: the Popover API needs Chrome 114,
+Firefox 125, Safari 17. Below that the panel renders as an always-visible
+block instead of opening and closing.
+
+## What this library deliberately does not do
+
+No focus trap, no layout or spacing utilities, no theming runtime, no
+`headingLevel` on accordion, no controlled combobox or tabs. Each is a
+decision with a reason, documented at https://www.abaabil.com/why.md

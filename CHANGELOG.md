@@ -4,6 +4,21 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+
+- `llms.txt`, shipped inside the package. It is the short version of the
+  README written for coding agents: the rules that are easy to get wrong
+  (no root export, import `theme.css` once, prefer the `a11y` tier) and
+  the per-component traps (popover needs an explicit `id`, alert has to
+  exist before it has a message, combobox and tabs are uncontrolled). An
+  agent with `node_modules` can read it without the network. It reaches
+  npm with the next release.
+- `AGENTS.md` at the repository root, for agents changing the library
+  rather than using it: the enforced architecture rules, the conventions,
+  and the seven steps for adding a component.
+
 ## [1.2.0] - 2026-09-21
 
 ### Added

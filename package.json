@@ -31,7 +31,8 @@
   ],
   "files": [
     "dist",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "llms.txt"
   ],
   "exports": {
     "./package.json": "./package.json",
