@@ -1,0 +1,85 @@
+@layer abaabil.components {
+  /* The region is focusable at the a11y tier (Shift+F10 needs somewhere
+     to land), and a focusable thing needs a visible ring. */
+  .abaabil-context-menu:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* The popover UA style centres a panel with inset:0 and margin:auto.
+     This one sits at the pointer, written as inline left/top by
+     index.jsx, so both are cleared here. */
+  .abaabil-context-menu__panel {
+    position: fixed;
+    inset: unset;
+    margin: 0;
+    inline-size: max-content;
+    min-inline-size: 10rem;
+    max-inline-size: min(18rem, calc(100vw - 2rem));
+    padding: var(--space-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .abaabil-context-menu__panel::backdrop {
+    background: transparent;
+  }
+
+  /* Same metrics as abaabil/menu so the two read as one family, plus a
+     44px minimum block size: this menu is opened by a thumb. */
+  .abaabil-context-menu__item {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    inline-size: 100%;
+    min-block-size: 2.75rem;
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    text-align: start;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .abaabil-context-menu__item:hover,
+  .abaabil-context-menu__item:focus-visible {
+    background: var(--color-muted);
+  }
+
+  /* Inside the item, not around it: the panel clips at its padding. */
+  .abaabil-context-menu__item:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  .abaabil-context-menu__item:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: none;
+  }
+
+  @starting-style {
+    .abaabil-context-menu__panel:popover-open {
+      opacity: 0;
+    }
+  }
+
+  .abaabil-context-menu__panel:popover-open {
+    opacity: 1;
+    transition: opacity var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-context-menu__panel:popover-open {
+      transition: none;
+    }
+  }
+}

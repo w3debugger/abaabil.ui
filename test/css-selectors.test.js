@@ -37,6 +37,8 @@ const INTENTIONALLY_UNSTYLED = {
     'abaabil-pagination__step--prev',
     'abaabil-pagination__step--next',
   ],
+  // The <nav> around the list. Semantic, not visual, same as breadcrumb.
+  'navigation-menu': ['abaabil-navigation-menu'],
 }
 
 const sharedCss = SHARED.filter((f) => existsSync(new URL(f, src)))

@@ -1,0 +1,77 @@
+@layer abaabil.components {
+  /* One input drawn as N boxes. Each character owns a cell of box plus
+     gap: letter-spacing pads the glyph out to the cell and the start
+     padding centres the first glyph in its box. The boxes are three
+     repeating gradients (top line, bottom line, both sides) with a period
+     of one cell, painted once at exactly the strip's width so no partial
+     box appears after the last one. The caret after the final character
+     lands one full cell past the last glyph, so the content box is one
+     whole cell per character: any shorter and the browser scrolls the
+     text to keep the caret in view, sliding every glyph out of its box. */
+  .abaabil-otp {
+    --otp-box-size: var(--control-height-md);
+    --otp-gap: var(--space-2);
+    --otp-border: var(--color-border);
+    --otp-cell: calc(var(--otp-box-size) + var(--otp-gap));
+    --otp-strip: calc(var(--otp-length, 6) * var(--otp-cell) - var(--otp-gap));
+    --otp-pad: calc((var(--otp-box-size) - 1ch) / 2);
+    --otp-line: repeating-linear-gradient(to right, var(--otp-border) 0 var(--otp-box-size), transparent 0 var(--otp-cell));
+
+    box-sizing: border-box;
+    display: block;
+    inline-size: calc(var(--otp-length, 6) * var(--otp-cell) + var(--otp-pad));
+    block-size: var(--otp-box-size);
+    padding-inline: var(--otp-pad) 0;
+    border: 0;
+    background-color: transparent;
+    background-image:
+      var(--otp-line),
+      var(--otp-line),
+      repeating-linear-gradient(to right, var(--otp-border) 0 1px, transparent 0 calc(var(--otp-box-size) - 1px), var(--otp-border) 0 var(--otp-box-size), transparent 0 var(--otp-cell));
+    background-size: var(--otp-strip) 1px, var(--otp-strip) 1px, var(--otp-strip) 100%;
+    background-position: 0 0, 0 100%, 0 0;
+    background-repeat: no-repeat;
+    color: var(--color-text);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: var(--font-size-lg);
+    letter-spacing: calc(var(--otp-cell) - 1ch);
+  }
+
+  /* A code is digits and Latin letters, which read left to right in
+     every locale. Bidi would otherwise render the run one cell in from
+     the end edge on a right-to-left page, out of step with the boxes. */
+  .abaabil-otp {
+    direction: ltr;
+  }
+
+  /* :focus-visible only, so mouse users never see the ring */
+  .abaabil-otp:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .abaabil-otp:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .abaabil-otp[aria-invalid="true"] {
+    --otp-border: var(--color-danger);
+  }
+
+  .abaabil-otp-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .abaabil-otp__label,
+  .abaabil-otp__description,
+  .abaabil-otp__error {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+  }
+
+  .abaabil-otp__description { color: var(--color-text-muted); }
+  .abaabil-otp__error { color: var(--color-danger); }
+}

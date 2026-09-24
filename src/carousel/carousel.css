@@ -1,0 +1,93 @@
+@layer abaabil.components {
+  .abaabil-carousel {
+    position: relative;
+  }
+
+  /* The track is the component: an overflow container the browser
+     already drags, flings, snaps and mirrors. The scrollbar is hidden
+     because the buttons and the snap points are the affordance. */
+  .abaabil-carousel__track {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  /* One slide per view unless the consumer sets --carousel-per-view. */
+  .abaabil-carousel__slide {
+    flex: 0 0 calc(100% / var(--carousel-per-view, 1));
+    scroll-snap-align: start;
+  }
+
+  /* 44px: the touch target floor. Border, surface and hover match the
+     toggle so a carousel beside a toolbar reads as one system. */
+  .abaabil-carousel__prev,
+  .abaabil-carousel__next {
+    position: absolute;
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 44px;
+    block-size: 44px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--font-size-lg);
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .abaabil-carousel__prev {
+    inset-inline-start: var(--space-2);
+  }
+
+  .abaabil-carousel__next {
+    inset-inline-end: var(--space-2);
+  }
+
+  /* The glyphs are drawn, not rendered, so the hidden label is the only
+     text. Both are Bidi_Mirrored, so they flip on a right-to-left page. */
+  .abaabil-carousel__prev::before {
+    content: "\2039";
+  }
+
+  .abaabil-carousel__next::before {
+    content: "\203A";
+  }
+
+  .abaabil-carousel__prev:hover,
+  .abaabil-carousel__next:hover {
+    background: var(--color-muted);
+  }
+
+  .abaabil-carousel__track:focus-visible,
+  .abaabil-carousel__prev:focus-visible,
+  .abaabil-carousel__next:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* aria-disabled, not disabled: the button stays in the tab order, as
+     APG asks, and the step is a no-op at the edge. */
+  .abaabil-carousel__prev[aria-disabled="true"],
+  .abaabil-carousel__next[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-carousel__track {
+      scroll-behavior: auto;
+    }
+  }
+}

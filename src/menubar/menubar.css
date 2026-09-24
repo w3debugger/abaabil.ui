@@ -1,0 +1,29 @@
+@layer abaabil.components {
+  .abaabil-menubar {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-1);
+    /* 44px tall so each trigger, stretched to the bar, is a full touch
+       target without any block padding eating into it. */
+    block-size: 44px;
+    padding-inline: var(--space-1);
+    background: var(--color-surface);
+    border-block-end: 1px solid var(--color-border-subtle);
+  }
+
+  /* Cross-component on purpose. A menubar exists only to hold menus, so
+     the menu's trigger is the one thing it has any business restyling:
+     each trigger brings a border from menu.css, and a row of boxed
+     buttons reads as a toolbar, not a menu bar. The border goes
+     transparent rather than to 0 so nothing shifts. */
+  .abaabil-menubar .abaabil-menu__trigger {
+    border-color: transparent;
+    border-radius: var(--radius-sm);
+  }
+
+  /* The open menu is marked on the trigger, not only by the panel under
+     it, so which menu is open is visible without hover. */
+  .abaabil-menubar .abaabil-menu__trigger[aria-expanded="true"] {
+    background: var(--color-muted);
+  }
+}

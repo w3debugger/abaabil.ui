@@ -1,0 +1,92 @@
+@layer abaabil.components {
+  /* Top third, not the centre: the list grows and shrinks with every
+     keystroke, and a centred box would jump around its midpoint. */
+  .abaabil-command {
+    inline-size: min(36rem, calc(100vw - 2rem));
+    max-block-size: 60vh;
+    margin-block: 20vh auto;
+    margin-inline: auto;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .abaabil-command::backdrop { background: var(--color-overlay); }
+
+  .abaabil-command__form { display: flex; flex-direction: column; max-block-size: inherit; }
+
+  .abaabil-command__input {
+    block-size: 2.75rem;
+    padding-inline: var(--space-4);
+    border: 0;
+    border-block-end: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+  }
+
+  .abaabil-command__input::placeholder { color: var(--color-placeholder); }
+
+  /* Inset ring: the input is flush with the dialog edge, so a ring
+     outside it would sit on the backdrop rather than the control. */
+  .abaabil-command__input:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  .abaabil-command__list,
+  .abaabil-command__options { margin: 0; padding: 0; list-style: none; }
+
+  .abaabil-command__list { padding: var(--space-1); overflow: auto; overscroll-behavior: contain; }
+
+  .abaabil-command__group + .abaabil-command__group { margin-block-start: var(--space-1); }
+
+  .abaabil-command__heading {
+    padding: var(--space-2) var(--space-3) var(--space-1);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  /* 44px rows for fingers. The transparent start border reserves the
+     active marker's width so rows do not shift when it appears. */
+  .abaabil-command__option {
+    display: flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    padding-inline: var(--space-3);
+    border-inline-start: 3px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .abaabil-command__option:hover { background: var(--color-muted); }
+
+  /* Active is where aria-activedescendant points. The bar is the
+     colour-independent half of the signal (WCAG 1.4.1). */
+  .abaabil-command__option[data-active="true"] {
+    background: var(--color-muted);
+    border-inline-start-color: var(--color-primary);
+  }
+
+  .abaabil-command__option[data-disabled] { opacity: 0.5; cursor: not-allowed; }
+
+  .abaabil-command__link { flex: 1; color: inherit; text-decoration: none; }
+
+  /* Never a blank box: the empty text stands in for the list. */
+  .abaabil-command__empty { margin: 0; padding: var(--space-4); color: var(--color-text-muted); text-align: center; }
+
+  @starting-style {
+    .abaabil-command[open] { opacity: 0; transform: translateY(-0.5rem); }
+  }
+
+  .abaabil-command[open] {
+    transition: opacity var(--duration-fast) ease, transform var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-command[open] { transition: none; }
+  }
+}

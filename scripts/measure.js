@@ -7,6 +7,31 @@ const root = fileURLToPath(new URL('..', import.meta.url))
 
 // bytes, gzipped
 const BUDGETS = {
+  // 1.6.0
+  'dist/field/index.js': 700,
+  'dist/field/styled.js': 150,
+  'dist/field/a11y.js': 1050,
+  'dist/otp/index.js': 350,
+  'dist/otp/styled.js': 150,
+  'dist/otp/a11y.js': 850,
+  'dist/command/index.js': 900,
+  'dist/command/styled.js': 150,
+  'dist/command/a11y.js': 1850,
+  'dist/table/index.js': 500,
+  'dist/table/styled.js': 150,
+  'dist/table/a11y.js': 1100,
+  'dist/navigation-menu/index.js': 600,
+  'dist/navigation-menu/styled.js': 200,
+  'dist/navigation-menu/a11y.js': 1250,
+  'dist/context-menu/index.js': 650,
+  'dist/context-menu/styled.js': 200,
+  'dist/context-menu/a11y.js': 1400,
+  'dist/menubar/index.js': 200,
+  'dist/menubar/styled.js': 200,
+  'dist/menubar/a11y.js': 950,
+  'dist/carousel/index.js': 700,
+  'dist/carousel/styled.js': 150,
+  'dist/carousel/a11y.js': 1200,
   // 1.5.0
   'dist/alert-dialog/index.js': 250,
   'dist/alert-dialog/styled.js': 150,
@@ -108,13 +133,15 @@ const BUDGETS = {
   'dist/badge/styled.js': 150,
   'dist/badge/a11y.js': 350,
 }
-// 32 a11y entries now (was 23): raised from 20000 to keep comparable
-// headroom over the actual combined total.
-const COMBINED = { 'all a11y entries': { max: 22000, match: /a11y\.js$/ } }
+// 40 a11y entries in 1.6.0 (was 32): the eight new tiers add about
+// 7900 B, so 22000 went to 28000 to keep the same headroom.
+const COMBINED = { 'all a11y entries': { max: 28000, match: /a11y\.js$/ } }
 // Nine stylesheets in 1.5.0 took this from 5231 B to about 6830 B
 // gzipped, roughly 178 B each. The previous 7000 would have failed the
 // next component added, which is a budget doing its job a release late.
-const CSS_BUDGET = 8000
+// Eight more stylesheets in 1.6.0 took it from about 6830 B to about
+// 8500 B, so 8000 became 10000 for the same reason.
+const CSS_BUDGET = 10000
 
 const gz = (f) => gzipSync(readFileSync(join(root, f))).length
 const rows = []

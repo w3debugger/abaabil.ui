@@ -19,6 +19,7 @@ const COMPONENTS = [
   'progress', 'slider', 'breadcrumb', 'tooltip', 'menu',
   'pagination', 'file', 'toolbar', 'avatar', 'badge',
   'alert-dialog', 'card', 'collapsible', 'drawer', 'separator', 'skeleton', 'spinner', 'toast', 'toggle',
+  'field', 'otp', 'command', 'table', 'navigation-menu', 'context-menu', 'menubar', 'carousel',
 ]
 
 // Components whose normal tier carries one static role, because they have
@@ -162,6 +163,23 @@ describe("tier boundary: 'use client' appears only where hooks are used", () => 
     'alert-dialog/index': false, 'alert-dialog/styled': false, 'alert-dialog/a11y': true,
     // Toast's a11y tier owns the dismiss timer and its pause states.
     'toast/index': false, 'toast/styled': false, 'toast/a11y': true,
+    // 1.6.0.
+    // Field's a11y tier needs useId so `id` can be optional; the other two take one.
+    'field/index': false, 'field/styled': false, 'field/a11y': true,
+    // Otp is one native input; only the a11y tier mints label ids.
+    'otp/index': false, 'otp/styled': false, 'otp/a11y': true,
+    // Command filters a list as you type, so even the normal tier holds the query in state, the same reason as tabs and combobox. Its styled tier only re-exports index and so carries no directive of its own.
+    'command/index': true, 'command/styled': false, 'command/a11y': true,
+    // Table's a11y tier owns uncontrolled sort state and the caption id.
+    'table/index': false, 'table/styled': false, 'table/a11y': true,
+    // Navigation-menu's lower tiers are the Popover API on real elements; a11y tracks aria-expanded from the panels' toggle events.
+    'navigation-menu/index': false, 'navigation-menu/styled': false, 'navigation-menu/a11y': true,
+    // Context-menu's normal tier is an event handler on a div (no hook); a11y ports menu's roving tabindex.
+    'context-menu/index': false, 'context-menu/styled': false, 'context-menu/a11y': true,
+    // Menubar is a div at the normal tier; a11y runs a roving tabindex over the menu triggers, as toolbar does.
+    'menubar/index': false, 'menubar/styled': false, 'menubar/a11y': true,
+    // Carousel's buttons call scrollBy from a click handler; a11y adds the live 'Slide n of N' region and edge state, which need an effect.
+    'carousel/index': false, 'carousel/styled': false, 'carousel/a11y': true,
   }
 
   const hasUseClient = (src) => /^\s*['"]use client['"]/m.test(src)
@@ -200,5 +218,8 @@ describe("tier boundary: 'use client' appears only where hooks are used", () => 
     // updating the comment/reasoning.
     expect(mustBeClient).not.toContain('combobox/styled')
     expect(mustNotBeClient).not.toContain('combobox/styled')
+    // command/styled is the same shape: it re-exports a client index.
+    expect(mustBeClient).not.toContain('command/styled')
+    expect(mustNotBeClient).not.toContain('command/styled')
   })
 })

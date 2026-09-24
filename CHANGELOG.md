@@ -4,6 +4,24 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.6.0] - 2026-09-25
+
+### Added
+
+Eight components, each wrapping what the platform already ships rather
+than reimplementing it. Field, otp, table, navigation-menu, context-menu,
+menubar and carousel are server-renderable at `normal` and `styled`;
+command is a client component at every tier, like tabs and combobox.
+
+- **Added `field`** with `Field`, `Fieldset` and `Label`: the label, description and error wrapper that input, textarea, select and combobox carry inside their a11y tiers, available for any control including a consumer's own; the child is cloned with the ids or called as a function, and the required mark is drawn from the control's own attribute.
+- **Added `otp`**, a one-time code field built from a single `<input>` with `autoComplete="one-time-code"`, `inputMode` and `pattern`, drawn as boxes in CSS, so paste, backspace and SMS autofill come from the browser instead of the focus-juggling that per-digit inputs need.
+- **Added `command`**, a command palette built as an APG combobox inside a native `<dialog>`: substring filtering over label and keywords, grouped options, arrow keys that wrap and skip disabled items, a live result count, and an optional Meta/Ctrl shortcut, with `showModal()` supplying the modal behaviour.
+- Added `table`: a styled, accessible `<table>` with caption, scoped column headers, custom cells, a keyboard-reachable scroll region, and uncontrolled sortable columns with `aria-sort` at the a11y tier.
+- **Added `navigation-menu`**: site navigation as a `<nav>` of links whose dropdown entries are Popover API panels anchored by CSS; the a11y tier adds the nav name, `aria-current`, a live `aria-expanded` and the disclosure keyboard model, with no `role="menu"` at any tier.
+- **Added `context-menu`**: a right-click, long-press and Shift+F10 menu over a region, built on the Popover API and positioned at the pointer with two inline properties; the a11y tier ports menu's APG keyboard handling and returns focus on close.
+- **Added `menubar`**, the APG menubar pattern as a container for the consumer's own `Menu` elements: `role="menubar"`, one tab stop, Left/Right with wrapping, Home/End, ArrowDown to open, and sideways movement that closes the open menu and opens its neighbour, with no second implementation of the menu.
+- **Added `carousel`**, a CSS scroll-snap track with previous and next buttons that call `scrollBy`, loop, reduced-motion handling, and an `a11y` tier with the APG carousel region, slide groups, `aria-controls`, edge `aria-disabled` and a "Slide n of N" live region.
+
 ## [1.5.1] - 2026-09-22
 
 ### Fixed

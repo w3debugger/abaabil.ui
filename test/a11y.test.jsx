@@ -35,6 +35,14 @@ import SkeletonControl from '../src/skeleton/a11y.jsx'
 import SpinnerControl from '../src/spinner/a11y.jsx'
 import { Toast, ToastRegion, ToastLive } from '../src/toast/a11y.jsx'
 import { Toggle, ToggleGroup } from '../src/toggle/a11y.jsx'
+import Field from '../src/field/a11y.jsx'
+import Otp from '../src/otp/a11y.jsx'
+import CommandPalette from '../src/command/a11y.jsx'
+import Table from '../src/table/a11y.jsx'
+import NavigationMenu from '../src/navigation-menu/a11y.jsx'
+import ContextMenuControl from '../src/context-menu/a11y.jsx'
+import MenubarControl from '../src/menubar/a11y.jsx'
+import Carousel from '../src/carousel/a11y.jsx'
 
 const LANGUAGES = [
   { value: 'ar', label: 'Arabic' },
@@ -350,6 +358,100 @@ describe('Cross-component axe sweep (a11y tier)', () => {
           assertive={null}
         />
       </ToastRegion>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('field: no violations around an input with an error', async () => {
+    const { container } = render(
+      <Field label="Email" description="Work address" error="Enter a valid email address.">
+        <input type="email" />
+      </Field>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('otp: no violations with a label and an error', async () => {
+    const { container } = render(
+      <Otp label="Verification code" description="Sent by SMS" error="That code has expired" />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('command: no violations while open with results', async () => {
+    const { container } = render(
+      <CommandPalette
+        id="cmd"
+        open
+        label="Commands"
+        items={[
+          { label: 'New file', group: 'File', keywords: ['create'] },
+          { label: 'Open file', group: 'File' },
+          { label: 'Settings', disabled: true },
+        ]}
+      />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('table: no violations with a sortable column', async () => {
+    const { container } = render(
+      <Table
+        caption="Groceries"
+        columns={[
+          { key: 'name', header: 'Name', sortable: true },
+          { key: 'price', header: 'Price', align: 'end' },
+        ]}
+        rows={[
+          { id: 1, name: 'Apples', price: 5 },
+          { id: 2, name: 'Bread', price: 3 },
+        ]}
+      />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('navigation-menu: no violations', async () => {
+    const { container } = render(
+      <NavigationMenu
+        id="site-nav"
+        label="Main"
+        items={[
+          { label: 'Home', href: '/', current: true },
+          { label: 'Products', items: [{ label: 'Editor', href: '/editor', description: 'Write and publish.' }] },
+          { label: 'Pricing', href: '/pricing' },
+        ]}
+      />
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('context-menu: no violations with the panel rendered', async () => {
+    const { container } = render(
+      <ContextMenuControl id="axe-context-menu" label="File actions" items={[{ label: 'Duplicate' }, { label: 'Delete' }]}>
+        <p>Right-click here</p>
+      </ContextMenuControl>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('menubar: no violations for a row of menus', async () => {
+    const { container } = render(
+      <MenubarControl label="Application">
+        <MenuControl id="axe-mb-file" trigger="File" items={[{ label: 'New' }, { label: 'Open' }]} />
+        <MenuControl id="axe-mb-edit" trigger="Edit" items={[{ label: 'Undo' }]} />
+      </MenubarControl>
+    )
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('carousel: no violations as a named region with three slides', async () => {
+    const { container } = render(
+      <Carousel label="Featured">
+        <img alt="One" />
+        <img alt="Two" />
+        <img alt="Three" />
+      </Carousel>
     )
     expect(await axe(container)).toHaveNoViolations()
   })

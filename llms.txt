@@ -1,6 +1,6 @@
 # abaabil
 
-> A small React component library: thirty-two components, three import tiers
+> A small React component library: forty components, three import tiers
 > each, plain CSS in cascade layers, zero runtime dependencies. React 19 is
 > the only peer dependency.
 
@@ -37,7 +37,8 @@ Names: button, dialog, alert-dialog, drawer, popover, menu, tooltip,
 combobox, input, textarea, file, checkbox, radio, switch, select, slider,
 toggle, accordion, collapsible, tabs, toolbar, breadcrumb, pagination,
 progress, spinner, skeleton, alert, toast, avatar, badge, card,
-separator.
+separator, field, otp, command, table, navigation-menu, context-menu,
+menubar, carousel.
 
 Stylesheets are also importable on their own as `abaabil/<name>.css`, and
 `abaabil/styles.css` is every component's CSS in one file.
@@ -119,18 +120,26 @@ Stylesheets are also importable on their own as `abaabil/<name>.css`, and
   the left in Arabic.
 - **collapsible** is `accordion`'s Disclosure without the group. Its
   `a11y` tier adds nothing, because `<summary>` is already correct.
+- **field** never renders a control. Give it one child: an element (cloned with `id`) or a function. `id` is required below the `a11y` tier. The a11y tier's function child receives one spreadable props object, spread it onto the control as-is.
+- **otp** is one `<input>`, not one per digit. Do not split the value, move focus or handle paste; pass `length` and, on the a11y tier, `onComplete`. It is uncontrolled: read the value from `onComplete` or the form.
+- **command** requires an explicit `id`, like popover and menu. The `normal`/`styled` tiers render `open` as the native attribute, so the palette is non-modal there; only `a11y` calls `showModal()`. At `a11y`, an item's `href` is followed on Enter or click rather than rendered as a link (a link inside `role="option"` is a nested interactive control), so use `onSelect` with your router when you need client-side navigation.
+- **table** sorting is uncontrolled and happens inside the component: there is no `sort` prop, rows are reordered client-side from `rows` as passed, and `onSort` only reports `{ key, direction }`. For server-side sorting, pass rows already ordered and mark no column `sortable`.
+- **navigation-menu** requires an explicit `id` like popover; panel ids are `${id}-${index}`. It is a disclosure navigation of links, never `role="menu"`: use `menu` for actions. `label` is an `a11y`-tier prop only (the normal tier sets no ARIA).
+- **context-menu** attaches an event handler at every tier, so even the undirected `normal`/`styled` tiers must be rendered from a client component. iOS Safari never fires `contextmenu` on long-press; provide another route to the actions there.
+- **menubar** takes `Menu` elements as children, not an `items` array, and only enhances them at the `a11y` tier by reading the trigger class `abaabil-menu__trigger` from the DOM; put `Menu` from `abaabil/menu/a11y` inside `Menubar` from `abaabil/menubar/a11y`, and give each Menu its own `id`.
+- **carousel** has no autoplay and no `index`/`onChange`: the scroll position is the state and the browser owns it. Move it with `scrollBy` on `.abaabil-carousel__track`, or let the user. Show several slides at once with the `--carousel-per-view` custom property, not a prop.
 
 ## Server Components
 
-Seventy-five of the ninety-six entry points carry no `"use client"` and
+Eighty-nine of the hundred and twenty entry points carry no `"use client"` and
 render inside a React Server Component tree.
 
 - Server-safe at **every** tier: button, accordion, collapsible, popover,
   alert, breadcrumb, pagination, avatar, badge, separator, spinner,
   skeleton, toggle. Tooltip too at `normal` and `styled`, because it
   shows and hides in CSS rather than JavaScript.
-- Client at **every** tier: combobox, tabs. Neither has a native element
-  to build on, so both need state.
+- Client at **every** tier: combobox, tabs, command. None has a native
+  element to build on for the part that changes, so each needs state.
 - Everything else is server-safe at `normal` and `styled`, and a client
   component at `a11y`, where `useId` mints the ids that tie labels to
   controls.

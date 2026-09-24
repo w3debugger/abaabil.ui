@@ -1,0 +1,140 @@
+@layer abaabil.components {
+  .abaabil-navigation-menu__list,
+  .abaabil-navigation-menu__panel-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .abaabil-navigation-menu__panel-list {
+    flex-direction: column;
+  }
+
+  /* One box for every control so the row lines up. 2.75rem is 44px,
+     the touch target floor, a little over --control-height-md. */
+  .abaabil-navigation-menu__link,
+  .abaabil-navigation-menu__trigger,
+  .abaabil-navigation-menu__panel-link {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.75rem;
+    padding: var(--space-1) var(--space-3);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--color-text);
+    font: inherit;
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .abaabil-navigation-menu__link:hover,
+  .abaabil-navigation-menu__trigger:hover,
+  .abaabil-navigation-menu__panel-link:hover {
+    background: var(--color-muted);
+  }
+
+  .abaabil-navigation-menu__link:focus-visible,
+  .abaabil-navigation-menu__trigger:focus-visible,
+  .abaabil-navigation-menu__panel-link:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Where you are is an underline, not a tint: it survives colour
+     blindness and forced-colours mode, where a background wash does not. */
+  .abaabil-navigation-menu__link[data-current] {
+    text-decoration: underline 2px var(--color-primary);
+    text-underline-offset: 0.35em;
+  }
+
+  /* The chevron is drawn, not an SVG, and turns over while the panel
+     beside its trigger is open. */
+  .abaabil-navigation-menu__trigger::after {
+    content: "";
+    inline-size: 0.4rem;
+    block-size: 0.4rem;
+    border-block-end: 1.5px solid currentColor;
+    border-inline-end: 1.5px solid currentColor;
+    rotate: 45deg;
+    translate: 0 -0.1rem;
+    transition: rotate var(--duration-fast) ease;
+  }
+
+  .abaabil-navigation-menu__trigger:has(+ :popover-open)::after {
+    rotate: 225deg;
+    translate: 0 0.1rem;
+  }
+
+  /* Same fallback as popover and menu: without anchor positioning the UA
+     centres a popover in the viewport. A top-layer element's containing
+     block is the viewport, so absolute positioning under the trigger is
+     not available without measuring in JavaScript. */
+  .abaabil-navigation-menu__panel {
+    inline-size: max-content;
+    min-inline-size: 14rem;
+    max-inline-size: min(24rem, calc(100vw - 2rem));
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .abaabil-navigation-menu__panel::backdrop {
+    background: transparent;
+  }
+
+  .abaabil-navigation-menu__panel-link {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .abaabil-navigation-menu__description {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: normal;
+  }
+
+  @supports (anchor-name: --x) {
+    .abaabil-navigation-menu__panel {
+      position: fixed;
+      inset: auto;
+      margin: var(--space-1) 0 0;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: block-end span-inline-start, block-start span-inline-end;
+    }
+  }
+
+  @starting-style {
+    .abaabil-navigation-menu__panel:popover-open {
+      opacity: 0;
+    }
+  }
+
+  .abaabil-navigation-menu__panel:popover-open {
+    opacity: 1;
+    transition: opacity var(--duration-fast) ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abaabil-navigation-menu__panel:popover-open,
+    .abaabil-navigation-menu__trigger::after {
+      transition: none;
+    }
+
+    @starting-style {
+      .abaabil-navigation-menu__panel:popover-open {
+        opacity: 1;
+      }
+    }
+  }
+}

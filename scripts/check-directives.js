@@ -34,6 +34,19 @@ const MUST_BE_CLIENT = [
   'dist/card/a11y.js',
   'dist/drawer/a11y.js',
   'dist/toast/a11y.js',
+  // 1.6.0. command/index holds the filter query in state, so it is a
+  // client tier like tabs/index; its styled tier is deliberately absent,
+  // same as combobox/styled. Every other new component is client only
+  // at a11y.
+  'dist/field/a11y.js',
+  'dist/otp/a11y.js',
+  'dist/command/index.js',
+  'dist/command/a11y.js',
+  'dist/table/a11y.js',
+  'dist/navigation-menu/a11y.js',
+  'dist/context-menu/a11y.js',
+  'dist/menubar/a11y.js',
+  'dist/carousel/a11y.js',
 ]
 
 // Components without hooks MUST NOT carry it: an accidental directive
@@ -42,6 +55,21 @@ const MUST_BE_CLIENT = [
 // whose a11y tier is server-renderable, so this is what stops someone
 // casually adding a hook and silently destroying that property.
 const MUST_NOT_BE_CLIENT = [
+  // 1.6.0.
+  'dist/field/index.js',
+  'dist/field/styled.js',
+  'dist/otp/index.js',
+  'dist/otp/styled.js',
+  'dist/table/index.js',
+  'dist/table/styled.js',
+  'dist/navigation-menu/index.js',
+  'dist/navigation-menu/styled.js',
+  'dist/context-menu/index.js',
+  'dist/context-menu/styled.js',
+  'dist/menubar/index.js',
+  'dist/menubar/styled.js',
+  'dist/carousel/index.js',
+  'dist/carousel/styled.js',
   // 1.5.0. Five of the nine added here are hook-free in all three
   // tiers: separator, skeleton, spinner, collapsible and toggle are
   // an <hr>, two divs, a <details> and a set of radios. Pinning them

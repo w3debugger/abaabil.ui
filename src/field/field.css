@@ -1,0 +1,51 @@
+@layer abaabil.components {
+  /* Same metrics as input.css's group, label, description and error,
+     so a Field around a consumer's own control sits flush beside an
+     abaabil input. */
+  .abaabil-field,
+  .abaabil-fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  /* A fieldset's UA border and padding would draw a box around a group
+     that is meant to read as a stack of fields. */
+  .abaabil-fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
+
+  .abaabil-field__label,
+  .abaabil-fieldset__legend {
+    padding: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+  }
+
+  /* The mark follows the control's own attribute, not a prop, so it
+     cannot say "required" over a control that is not. Empty alt text
+     keeps the asterisk out of the accessible name: the attribute
+     already tells assistive tech. */
+  .abaabil-field:has(:required) > .abaabil-field__label::after,
+  .abaabil-fieldset:has(:required) > .abaabil-fieldset__legend::after {
+    content: " *" / "";
+    color: var(--color-danger);
+  }
+
+  .abaabil-field__description,
+  .abaabil-field__error {
+    margin: 0;
+    font-size: var(--font-size-sm);
+  }
+
+  .abaabil-field__description {
+    color: var(--color-text-muted);
+  }
+
+  .abaabil-field__error {
+    color: var(--color-danger);
+  }
+}

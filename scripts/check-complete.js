@@ -33,7 +33,7 @@ const llms = read('llms.txt')
 // gate deliberately does not pin it. See the comment on MUST_BE_CLIENT in
 // scripts/check-directives.js. Listing them here rather than skipping all
 // styled tiers keeps the check honest for the other eleven.
-const STYLED_NEEDS_NO_DIRECTIVE = new Set(['combobox', 'tabs'])
+const STYLED_NEEDS_NO_DIRECTIVE = new Set(['combobox', 'tabs', 'command'])
 
 const gaps = []
 const need = (ok, component, what) => { if (!ok) gaps.push(`${component}: ${what}`) }
