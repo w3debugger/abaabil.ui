@@ -12,7 +12,13 @@ const RadioGroupContext = createContext(null)
  * `name` is picked up from context automatically. A radio group without a
  * shared `name` renders fine but is not actually one group: arrow-key
  * navigation and single-selection both key off it, and nothing visual shows
- * the breakage.
+ * the breakage. *
+ * DOM shape: the <label> wraps the control and its text, so the whole
+ * row, gap included, is the hit target (2.5.8 asks for 24px and the box
+ * is 18). The description is a sibling of the label, not a child, so it
+ * stays out of the accessible name and reaches assistive tech only
+ * through aria-describedby. The description id derives from the control
+ * id, so a consumer `id="terms"` gives `terms-description`.
  *
  * @param {object} props
  * @param {string} props.label Accessible name. The platform does not supply one.
@@ -34,7 +40,7 @@ export default function Radio_a11y({
   const group = useContext(RadioGroupContext)
   const baseId = useId()
   const inputId = id ?? baseId
-  const descId = `${baseId}-description`
+  const descId = `${inputId}-description`
   const describedBy = [ariaDescribedBy, description ? descId : null].filter(Boolean).join(' ') || undefined
 
   // A control named with aria-label or aria-labelledby is correctly named.
@@ -43,26 +49,32 @@ export default function Radio_a11y({
     label || props['aria-label'] || props['aria-labelledby']
   )
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/radio: no `label` given, so the radio has no accessible name ' +
         'and screen readers announce it as unnamed.'
     )
   }
 
+  const control = (
+    <Radio
+      {...props}
+      id={inputId}
+      name={name ?? group?.name}
+      aria-describedby={describedBy}
+    />
+  )
+
   return (
     <span className="abaabil-radio__wrapper">
-      <Radio
-        {...props}
-        id={inputId}
-        name={name ?? group?.name}
-        aria-describedby={describedBy}
-      />
       {label ? (
         <label htmlFor={inputId} className="abaabil-radio__label">
+          {control}
           {label}
         </label>
-      ) : null}
+      ) : (
+        control
+      )}
       {description ? (
         <span id={descId} className="abaabil-radio__description">
           {description}

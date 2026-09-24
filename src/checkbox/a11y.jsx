@@ -13,7 +13,13 @@ import Checkbox from './styled.jsx'
  *
  * A consumer-supplied `ref` composes with this component's own (both are
  * pulled out of `...props` and merged explicitly), so passing one does not
- * silently break `indeterminate`.
+ * silently break `indeterminate`. *
+ * DOM shape: the <label> wraps the control and its text, so the whole
+ * row, gap included, is the hit target (2.5.8 asks for 24px and the box
+ * is 18). The description is a sibling of the label, not a child, so it
+ * stays out of the accessible name and reaches assistive tech only
+ * through aria-describedby. The description id derives from the control
+ * id, so a consumer `id="terms"` gives `terms-description`.
  *
  * @param {object} props
  * @param {string} props.label Accessible name. The platform does not supply one.
@@ -36,7 +42,7 @@ export default function Checkbox_a11y({
   const ref = useRef(null)
   const baseId = useId()
   const inputId = id ?? baseId
-  const descId = `${baseId}-description`
+  const descId = `${inputId}-description`
   const describedBy = [ariaDescribedBy, description ? descId : null].filter(Boolean).join(' ') || undefined
 
   const setRef = useCallback(
@@ -54,7 +60,7 @@ export default function Checkbox_a11y({
     label || props['aria-label'] || props['aria-labelledby']
   )
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/checkbox: no `label` given, so the checkbox has no accessible name ' +
         'and screen readers announce it as unnamed.'
@@ -65,20 +71,26 @@ export default function Checkbox_a11y({
     if (ref.current) ref.current.indeterminate = indeterminate
   }, [indeterminate])
 
+  const control = (
+    <Checkbox
+      {...props}
+      ref={setRef}
+      id={inputId}
+      aria-describedby={describedBy}
+      aria-checked={indeterminate ? 'mixed' : undefined}
+    />
+  )
+
   return (
     <span className="abaabil-checkbox__wrapper">
-      <Checkbox
-        {...props}
-        ref={setRef}
-        id={inputId}
-        aria-describedby={describedBy}
-        aria-checked={indeterminate ? 'mixed' : undefined}
-      />
       {label ? (
         <label htmlFor={inputId} className="abaabil-checkbox__label">
+          {control}
           {label}
         </label>
-      ) : null}
+      ) : (
+        control
+      )}
       {description ? (
         <span id={descId} className="abaabil-checkbox__description">
           {description}

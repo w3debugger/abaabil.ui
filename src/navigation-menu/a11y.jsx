@@ -18,10 +18,12 @@ import { anchorNameFor } from './styled.jsx'
  *
  * Keyboard: Tab walks the links and triggers in order and, inside an
  * open panel, its links. ArrowDown on a trigger opens the panel and
- * focuses its first link; ArrowUp or Escape inside a panel closes it and
- * returns focus to the trigger. That is the whole model. There is no
- * roving tabindex and no arrow movement along the top row: these are
- * links, and the APG reserves that behaviour for menubars of actions.
+ * focuses its first link. Inside a panel, ArrowDown and ArrowUp move
+ * between its links; ArrowUp on the first link, and Escape anywhere in
+ * the panel, close it and return focus to the trigger. That is the
+ * whole model. There is no roving tabindex and no arrow movement along
+ * the top row: these are links, and the APG reserves that behaviour for
+ * menubars of actions.
  *
  * `aria-haspopup` is deliberately absent. Its default value is "menu",
  * which is exactly the widget this is not.
@@ -48,7 +50,7 @@ export default function NavigationMenu_a11y({
   const cls = className ? `abaabil-navigation-menu ${className}` : 'abaabil-navigation-menu'
 
   const named = Boolean(label || props['aria-label'] || props['aria-labelledby'])
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !named) {
+  if (process.env.NODE_ENV !== 'production' && !named) {
     console.warn(
       'abaabil/navigation-menu: no `label` given. That is fine on a page ' +
         'with one <nav>; with several, screen readers announce each as ' +
@@ -70,22 +72,34 @@ export default function NavigationMenu_a11y({
     return () => nav.removeEventListener('toggle', onToggle, true)
   }, [])
 
+  // The hover timer must not outlive the nav: showPopover() on an element
+  // that is no longer connected throws, from a timer, after unmount.
+  useEffect(() => () => clearTimeout(timer.current), [])
+
   function handleKeyDown(event) {
     const el = event.target
-    if (event.key === 'ArrowDown' && el.classList.contains('abaabil-navigation-menu__trigger')) {
+    const { key } = event
+    if (key === 'ArrowDown' && el.classList.contains('abaabil-navigation-menu__trigger')) {
       event.preventDefault()
       const panel = el.nextElementSibling
       panel.showPopover()
       panel.querySelector('a')?.focus()
       return
     }
-    if (event.key === 'ArrowUp' || event.key === 'Escape') {
-      const panel = el.closest('.abaabil-navigation-menu__panel')
-      if (!panel) return
+    const panel = el.closest('.abaabil-navigation-menu__panel')
+    if (!panel) return
+    const sibling =
+      key === 'ArrowDown' ? 'nextElementSibling' : key === 'ArrowUp' ? 'previousElementSibling' : null
+    if (sibling) {
       event.preventDefault()
-      panel.hidePopover()
-      panel.previousElementSibling.focus()
-    }
+      const link = el.closest('li')?.[sibling]?.querySelector('a')
+      if (link) return link.focus()
+      // Down on the last link stays put; Up on the first link leaves.
+      if (key === 'ArrowDown') return
+    } else if (key !== 'Escape') return
+    event.preventDefault()
+    panel.hidePopover()
+    panel.previousElementSibling.focus()
   }
 
   // Not on touch: there, pointerenter and click arrive together, and a

@@ -3,9 +3,10 @@
     display: flex;
     align-items: stretch;
     gap: var(--space-1);
-    /* 44px tall so each trigger, stretched to the bar, is a full touch
-       target without any block padding eating into it. */
-    block-size: 44px;
+    /* 2.75rem is 44px at the default font size, so each trigger,
+       stretched to the bar, is a full touch target without any block
+       padding eating into it, and the bar grows with the user's text. */
+    block-size: 2.75rem;
     padding-inline: var(--space-1);
     background: var(--color-surface);
     border-block-end: 1px solid var(--color-border-subtle);
@@ -22,7 +23,15 @@
   }
 
   /* The open menu is marked on the trigger, not only by the panel under
-     it, so which menu is open is visible without hover. */
+     it, so which menu is open is visible without hover. The panel is the
+     trigger's next sibling at every tier; aria-expanded is only written
+     at the a11y tier, so it is the fallback where :has() is missing.
+     Two rules, not one list: an unsupported :has() invalidates the
+     whole selector list it sits in. */
+  .abaabil-menubar .abaabil-menu__trigger:has(+ :popover-open) {
+    background: var(--color-muted);
+  }
+
   .abaabil-menubar .abaabil-menu__trigger[aria-expanded="true"] {
     background: var(--color-muted);
   }

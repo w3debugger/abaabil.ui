@@ -1,7 +1,6 @@
 @layer abaabil.components {
   .abaabil-radio {
     appearance: none;
-    -webkit-appearance: none;
     width: 1.125rem;
     height: 1.125rem;
     margin: 0;
@@ -45,23 +44,28 @@
     cursor: not-allowed;
   }
 
+  /* A column: the label row (dot and text) above the description. */
   .abaabil-radio__wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  /* The label wraps the dot, so the row and its gap are all clickable. */
+  .abaabil-radio__label {
     display: inline-flex;
     align-items: flex-start;
     gap: var(--space-2);
-  }
-
-  .abaabil-radio__label {
     font-size: var(--font-size-sm);
     color: var(--color-text);
     cursor: pointer;
   }
 
+  /* Indented past the dot and the row gap, so it sits under the text. */
   .abaabil-radio__description {
-    display: block;
+    padding-inline-start: calc(1.125rem + var(--space-2));
     font-size: var(--font-size-sm);
-    color: var(--color-text);
-    opacity: 0.75;
+    color: var(--color-text-muted);
   }
 
   .abaabil-radio-group {
@@ -81,6 +85,14 @@
     .abaabil-radio,
     .abaabil-radio::before {
       transition: none;
+    }
+  }
+
+  /* Forced colours flatten every background to Canvas, which erases a
+     dot drawn as a fill. A text system colour survives the override. */
+  @media (forced-colors: active) {
+    .abaabil-radio::before {
+      background: CanvasText;
     }
   }
 }

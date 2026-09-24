@@ -59,8 +59,8 @@ Stylesheets are also importable on their own as `abaabil/<name>.css`, and
 - **combobox** and **tabs** are uncontrolled. There is no `value` or
   `selectedIndex` prop; observe changes through `onChange`.
 - **accordion** exclusivity comes from the native `name` attribute on
-  `<details>`, which defaults to a shared value. Pass `name={undefined}`
-  to allow several panels open at once.
+  `<details>`. It has no default: pass a `name` unique on the page for
+  exclusive open, or omit it to allow several panels open at once.
 - **checkbox** takes `indeterminate` as a prop because the DOM property
   has no HTML attribute.
 - **dialog** is the native `<dialog>` with `showModal()`. Do not add a
@@ -104,8 +104,9 @@ Stylesheets are also importable on their own as `abaabil/<name>.css`, and
 - **toast** has no `toast()` function. Render `ToastRegion` once near
   the root and keep the list of messages yourself; a live region
   inserted along with its first message announces nothing, which is why
-  the region must be mounted empty and left there. Politeness comes from
-  the variant: `danger` is assertive, the rest polite.
+  the region must be mounted empty and left there. Render toasts as
+  children of `ToastLive` and politeness comes from the variant: `danger`
+  is assertive, the rest polite.
 - **toggle**'s group is radio and checkbox inputs, not buttons. Pass
   `name`; it is required, because that is what makes the set one group
   to the browser. Arrow keys and one tab stop come from the platform.

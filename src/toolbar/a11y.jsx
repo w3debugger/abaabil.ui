@@ -1,20 +1,25 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import './toolbar.css'
 
 // Everything that can hold focus in a toolbar. :not([disabled]) because
-// a disabled control is not a stop, and the negative-tabindex exclusion
-// keeps our own roving tabindex from counting as a reason to include
-// something that was deliberately taken out of the sequence.
+// a disabled control is not a stop, and that applies to the tabindex
+// clause too, since every control here carries one of ours. No sign
+// check on it: the roving tabindex writes -1 onto every control but
+// one, so excluding negative values orphaned any custom focusable (a
+// div with tabindex="0" and a role) after the first render.
 const FOCUSABLE = [
   'button:not([disabled])',
   'a[href]',
   'input:not([disabled]):not([type="hidden"])',
   'select:not([disabled])',
   'textarea:not([disabled])',
-  '[tabindex]:not([tabindex^="-"])',
+  '[tabindex]:not([disabled])',
 ].join(',')
+
+// The missing-name warning fires once per page load, not once per render.
+let warned
 
 /**
  * Toolbar, a11y tier. The W3C APG toolbar pattern.
@@ -37,6 +42,16 @@ const FOCUSABLE = [
  * controls appearing, disappearing or becoming disabled are picked up
  * without anything having to tell us.
  *
+ * The one stop follows the user: a click or a programmatic focus on a
+ * control makes it the stop, so Shift+Tab leaves the toolbar and the
+ * next Tab in returns to the last used control (APG). A control that
+ * disables itself from its own state is caught by a MutationObserver
+ * on `disabled`, so the stop moves off it without the toolbar having
+ * to re-render.
+ *
+ * Right-to-left: the arrows follow the visual direction, read from the
+ * toolbar's computed `direction` at keydown.
+ *
  * @param {object} props
  * @param {string} [props.label] Accessible name. A toolbar with no name
  *   is announced as "toolbar" and nothing else.
@@ -51,45 +66,56 @@ export default function Toolbar_a11y({
   orientation = 'horizontal',
   className,
   children,
+  onKeyDown,
+  onFocus,
   ...props
 }) {
   const ref = useRef(null)
   const cls = className ? `abaabil-toolbar ${className}` : 'abaabil-toolbar'
 
   if (
-    typeof process !== 'undefined' &&
     process.env.NODE_ENV !== 'production' &&
+    !warned &&
     !(label || labelledBy || props['aria-label'] || props['aria-labelledby'])
   ) {
+    warned = true
     console.warn(
       'abaabil/toolbar: no `label` or `labelledBy` given, so the toolbar has no ' +
         'accessible name and is announced as an unnamed toolbar.'
     )
   }
 
-  const items = useCallback(
-    () => (ref.current ? [...ref.current.querySelectorAll(FOCUSABLE)] : []),
-    []
-  )
+  const items = () => (ref.current ? [...ref.current.querySelectorAll(FOCUSABLE)] : [])
 
-  // Exactly one control is in the tab sequence. Re-applied after every
-  // render, because children can change: a control that appears while
-  // the toolbar is on screen would otherwise arrive with the default
-  // tabindex and quietly add a second stop.
-  useEffect(() => {
+  // Exactly one control is in the tab sequence: `chosen` when it is a
+  // focusable in the toolbar, else whichever already holds the stop,
+  // else the first.
+  function sync(chosen) {
     const list = items()
     if (!list.length) return
-    const alreadyIn = list.find((el) => el.tabIndex === 0)
-    const chosen = alreadyIn ?? list[0]
+    if (!list.includes(chosen)) chosen = list.find((el) => el.tabIndex === 0) ?? list[0]
     for (const el of list) el.tabIndex = el === chosen ? 0 : -1
-  })
+  }
+
+  // Re-applied after every render, because children can change: a
+  // control that appears while the toolbar is on screen would otherwise
+  // arrive with the default tabindex and quietly add a second stop.
+  useEffect(sync)
+
+  // And when a control disables itself without a toolbar render, so the
+  // stop never sits on a control that Tab would skip.
+  useEffect(() => {
+    const observer = new MutationObserver(() => sync())
+    observer.observe(ref.current, { attributes: true, attributeFilter: ['disabled'], subtree: true })
+    return () => observer.disconnect()
+  }, [])
 
   function move(to) {
     const list = items()
     if (!list.length) return
-    const index = Math.max(0, Math.min(to, list.length - 1))
-    for (const el of list) el.tabIndex = el === list[index] ? 0 : -1
-    list[index].focus()
+    const target = list[Math.max(0, Math.min(to, list.length - 1))]
+    sync(target)
+    target.focus()
   }
 
   function handleKeyDown(event) {
@@ -108,8 +134,10 @@ export default function Toolbar_a11y({
     const at = list.indexOf(el)
     if (at === -1) return
 
-    const next = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight'
-    const prev = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft'
+    const vertical = orientation === 'vertical'
+    const rtl = !vertical && getComputedStyle(event.currentTarget).direction === 'rtl'
+    const next = vertical ? 'ArrowDown' : rtl ? 'ArrowLeft' : 'ArrowRight'
+    const prev = vertical ? 'ArrowUp' : rtl ? 'ArrowRight' : 'ArrowLeft'
 
     let target = null
     if (event.key === next) target = at === list.length - 1 ? 0 : at + 1
@@ -133,8 +161,15 @@ export default function Toolbar_a11y({
       aria-orientation={orientation}
       data-orientation={orientation}
       className={cls}
-      onKeyDown={handleKeyDown}
       {...props}
+      onKeyDown={(event) => {
+        onKeyDown?.(event)
+        handleKeyDown(event)
+      }}
+      onFocus={(event) => {
+        onFocus?.(event)
+        sync(event.target)
+      }}
     >
       {children}
     </div>

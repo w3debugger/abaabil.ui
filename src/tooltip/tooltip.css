@@ -25,12 +25,12 @@
     opacity: 0;
     visibility: hidden;
 
-    /* The fade is on the hidden state, not the shown one, so showing is
-       instant and can never depend on a transition having run. That is
-       not a style preference: whenever transitions do not advance, the
-       bubble was left at opacity 0 while every selector said it should
-       be visible, which is a tooltip that silently never appears.
-       Showing instantly is also the better behaviour for a tooltip.
+    /* The fade is on the hidden state, not the shown one, so showing on
+       focus is instant and can never depend on a transition having run.
+       That is not a style preference: whenever transitions do not
+       advance, the bubble was left at opacity 0 while every selector
+       said it should be visible, which is a tooltip that silently never
+       appears. Hover is the one place a delay is wanted (see below).
 
        visibility is stepped at the end of the fade rather than
        interpolated, so the bubble stays hittable by nothing and
@@ -44,7 +44,12 @@
        invites putting interactive content inside, which is unreachable. */
     pointer-events: none;
 
-    inset-inline-start: 50%;
+    /* Physical, on purpose. translate is physical, so the inset it
+       centres against has to be too: a logical inset-inline-start in
+       RTL put the right edge at the centre and then shifted left,
+       landing the bubble a full width off its trigger. Centring is
+       symmetric, so `left` is correct in both directions. */
+    left: 50%;
     translate: -50% 0;
   }
 
@@ -56,12 +61,23 @@
     inset-block-start: calc(100% + var(--space-1));
   }
 
-  /* The whole show/hide mechanism, in two selectors. Hover and focus are
+  /* The whole show/hide mechanism, in two rules. Hover and focus are
      the two events that should reveal a tooltip and both are expressible
      as state in CSS, which is why the normal and styled tiers need no
      JavaScript. :focus-within rather than :focus so the trigger can be
-     any focusable element inside the wrapper. */
-  .abaabil-tooltip:hover .abaabil-tooltip__bubble,
+     any focusable element inside the wrapper.
+
+     Hover waits 300ms before showing, so sweeping the pointer across a
+     toolbar does not flash every tooltip on the way; leaving before then
+     hands back to the hidden state's fade with nothing to fade. Focus
+     shows instantly, and its rule comes second so it wins when both
+     apply. */
+  .abaabil-tooltip:hover .abaabil-tooltip__bubble {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0s 300ms, visibility 0s 300ms;
+  }
+
   .abaabil-tooltip:focus-within .abaabil-tooltip__bubble {
     opacity: 1;
     visibility: visible;

@@ -142,6 +142,13 @@ const PAIRS = [
   // page behind it, not from its own interior.
   // A focus ring nobody can see is a keyboard user with no cursor.
   ['--color-focus-ring', '--color-surface', 3, 'the focus ring'],
+  // Menu and context-menu items drop their muted fill while focused, so
+  // the inset ring sits on the surface: the ring on --color-muted is
+  // 2.84:1 in dark mode.
+  ['--color-focus-ring', '--color-surface', 3, 'the inset ring on a focused menu item'],
+  // The command palette's active marker bar, and the nav-menu description
+  // on a hovered panel link (which inherits the link colour while hovered).
+  ['--color-text', '--color-muted', 4.5, 'the command active marker and a hovered nav-menu description'],
   ['--color-primary', '--color-surface', 3, 'a primary button against the page'],
 
 ]

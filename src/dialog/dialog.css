@@ -15,28 +15,45 @@
     background: var(--color-overlay);
   }
 
+  /* Scroll lock. :modal is true only while showModal() holds the dialog
+     open, so the lock follows the platform's own state. scrollbar-gutter
+     keeps the space the scrollbar took, so the page does not jump
+     sideways on open and back on close. */
+  html:has(.abaabil-dialog:modal) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+
   .abaabil-dialog__title {
     margin: 0 0 var(--space-3);
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
   }
 
-  /* Entry animation. @starting-style is Baseline low; browsers without it
-     simply show the dialog immediately, which is a fine degradation. */
-  @starting-style {
-    .abaabil-dialog[open] { opacity: 0; transform: translateY(0.5rem); }
+  /* Entry and exit. @starting-style gives the entry a state to animate
+     from; display and overlay with allow-discrete keep the dialog painted
+     and in the top layer until the exit has run. Browsers without either
+     simply show and hide the dialog immediately, a fine degradation. */
+  .abaabil-dialog {
+    opacity: 0;
+    transform: translateY(0.5rem);
+    transition:
+      opacity var(--duration-fast) ease,
+      transform var(--duration-fast) ease,
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
   }
 
   .abaabil-dialog[open] {
     opacity: 1;
     transform: none;
-    transition: opacity var(--duration-fast) ease, transform var(--duration-fast) ease;
+  }
+
+  @starting-style {
+    .abaabil-dialog[open] { opacity: 0; transform: translateY(0.5rem); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .abaabil-dialog[open] { transition: none; }
-    @starting-style {
-      .abaabil-dialog[open] { opacity: 1; transform: none; }
-    }
+    .abaabil-dialog { transition: none; }
   }
 }

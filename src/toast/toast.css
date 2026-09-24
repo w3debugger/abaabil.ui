@@ -21,10 +21,13 @@
     padding-block-end: max(var(--space-4), env(safe-area-inset-bottom, 0px));
   }
 
+  /* A plain column in both positions. The region hugs its edge and
+     grows away from it, so the last child (the newest, when the list
+     is appended to) is nearest the bottom edge already, and Tab order
+     matches what is seen. column-reverse here put the newest furthest
+     from the edge and ran Tab bottom to top. */
   .abaabil-toast-region[data-position="bottom"] {
     inset-block-end: 0;
-    /* Newest nearest the edge the eye is already on. */
-    flex-direction: column-reverse;
   }
 
   .abaabil-toast-region[data-position="top"] {
@@ -90,8 +93,10 @@
 
   .abaabil-toast__close {
     flex-shrink: 0;
-    /* A 24px target at minimum, which is WCAG 2.5.8, on a control
-       whose glyph is much smaller than that. */
+    /* 24px drawn, 44px hit. The ::before below extends the target
+       0.625rem past every edge without changing what is seen, which
+       takes the button from the WCAG 2.5.8 minimum to the 2.5.5 size. */
+    position: relative;
     inline-size: 1.5rem;
     block-size: 1.5rem;
     display: inline-flex;
@@ -106,6 +111,12 @@
     font-size: 1.125rem;
     line-height: 1;
     cursor: pointer;
+  }
+
+  .abaabil-toast__close::before {
+    content: '';
+    position: absolute;
+    inset: -0.625rem;
   }
 
   .abaabil-toast__close:hover {
@@ -134,9 +145,6 @@
   @media (prefers-reduced-motion: reduce) {
     .abaabil-toast {
       transition: none;
-    }
-    @starting-style {
-      .abaabil-toast { opacity: 1; translate: 0 0; }
     }
   }
 }

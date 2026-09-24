@@ -5,8 +5,18 @@
     gap: var(--space-3);
   }
 
+  /* Vertical tabs sit beside the panel, not above it. The attribute is
+     set on the root by the a11y tier. */
+  .abaabil-tabs[data-orientation="vertical"] {
+    flex-direction: row;
+  }
+
+  /* Wraps rather than scrolls: six tabs at 360px would otherwise push
+     the page into horizontal scroll, and overflow-x: auto would summon
+     a vertical scrollbar for the 1px overlap below. */
   .abaabil-tabs__list {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-1);
     border-block-end: 1px solid var(--color-border);
   }
@@ -20,6 +30,7 @@
        replaces that segment of it rather than stacking under it. */
     margin-block-end: -1px;
     border-block-end: 2px solid transparent;
+    min-block-size: var(--control-height-md);
     background: none;
     color: var(--color-text-muted);
     font: inherit;
@@ -45,11 +56,6 @@
   .abaabil-tabs__tab:focus-visible {
     outline: 2px solid var(--color-focus-ring);
     outline-offset: -2px;
-  }
-
-  .abaabil-tabs__tab:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 
   /* Vertical tabs put the marker on the inline-start edge, which is the

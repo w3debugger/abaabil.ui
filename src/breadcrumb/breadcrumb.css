@@ -21,20 +21,22 @@
      accessibility tree. A screen reader should not read punctuation
      between the steps of a trail.
 
-     It is a logical-property chevron rather than a slash, so it points
-     the way the text runs and needs no RTL override. */
+     A chevron rather than a slash, so it points the way the text runs.
+     Physical borders, because the rotation is physical: a logical corner
+     rotated by a fixed angle points down in RTL. [dir="rtl"] rather than
+     :dir(rtl), which is Chrome 120, above the Chrome 116 floor. */
   .abaabil-breadcrumb__item + .abaabil-breadcrumb__item::before {
     content: "";
     inline-size: 0.35rem;
     block-size: 0.35rem;
-    border-block-start: 1.5px solid currentColor;
-    border-inline-end: 1.5px solid currentColor;
+    border-top: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
     rotate: 45deg;
     opacity: 0.6;
     flex: none;
   }
 
-  .abaabil-breadcrumb__list:dir(rtl) .abaabil-breadcrumb__item + .abaabil-breadcrumb__item::before {
+  [dir="rtl"] .abaabil-breadcrumb__item + .abaabil-breadcrumb__item::before {
     rotate: -135deg;
   }
 

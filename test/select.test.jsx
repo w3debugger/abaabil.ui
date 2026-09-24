@@ -169,6 +169,22 @@ describe('Select (a11y tier)', () => {
     expect(screen.getByText('Language')).toHaveAttribute('for', 'custom-id')
   })
 
+  it('derives the description and error ids from a consumer-supplied id', () => {
+    render(
+      <A11ySelect label="Language" id="lang" description="Pick one" error="Required" options={OPTIONS} />
+    )
+    expect(screen.getByLabelText('Language')).toHaveAttribute('aria-describedby', 'lang-description lang-error')
+  })
+
+  it('puts className and style on the group wrapper, not on the select', () => {
+    render(<A11ySelect label="Language" className="mine" style={{ flex: 1 }} options={OPTIONS} />)
+    const select = screen.getByLabelText('Language')
+    expect(select.parentElement).toHaveClass('abaabil-select-group', 'mine')
+    expect(select.parentElement.style.flexGrow).toBe('1')
+    expect(select).not.toHaveClass('mine')
+    expect(select.getAttribute('style')).toBeNull()
+  })
+
   it('generates unique ids across multiple instances', () => {
     render(
       <>

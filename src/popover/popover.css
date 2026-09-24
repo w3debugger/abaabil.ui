@@ -17,16 +17,9 @@
     font-size: var(--font-size-sm);
   }
 
-  .abaabil-popover:focus-visible {
-    outline: 2px solid var(--color-focus-ring);
-    outline-offset: 2px;
-  }
-
-  /* No dimming. A popover is not a modal: the page behind it stays live
-     and interactive, and darkening it would say otherwise. */
-  .abaabil-popover::backdrop {
-    background: transparent;
-  }
+  /* No ::backdrop rule. A popover is not a modal: the page behind it
+     stays live and interactive, and the UA default for a popover's
+     backdrop is already transparent. */
 
   .abaabil-popover__trigger {
     /* Inheriting the page's text colour while leaving the browser's
@@ -72,26 +65,30 @@
     }
   }
 
+  /* Fade in and out. @starting-style gives the entry a state to animate
+     from; display and overlay with allow-discrete keep the panel painted
+     and in the top layer until the fade out has run. */
+  .abaabil-popover {
+    opacity: 0;
+    transition:
+      opacity var(--duration-fast) ease,
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
+  }
+
+  .abaabil-popover:popover-open {
+    opacity: 1;
+  }
+
   @starting-style {
     .abaabil-popover:popover-open {
       opacity: 0;
     }
   }
 
-  .abaabil-popover:popover-open {
-    opacity: 1;
-    transition: opacity var(--duration-fast) ease;
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .abaabil-popover:popover-open {
+    .abaabil-popover {
       transition: none;
-    }
-
-    @starting-style {
-      .abaabil-popover:popover-open {
-        opacity: 1;
-      }
     }
   }
 }

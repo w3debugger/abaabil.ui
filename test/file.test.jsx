@@ -50,6 +50,20 @@ describe('File (a11y tier)', () => {
     expect(el).toHaveAttribute('aria-invalid', 'true')
   })
 
+  it('derives the message ids from a consumer id and renders the error without role="alert"', () => {
+    render(<A11yFile label="Attachment" id="cv" description="PDF only." error="Too large." />)
+    expect(screen.getByLabelText('Attachment')).toHaveAttribute('aria-describedby', 'cv-description cv-error')
+    expect(screen.getByText('Too large.')).not.toHaveAttribute('role')
+  })
+
+  it('puts className and style on the group wrapper, not on the input', () => {
+    render(<A11yFile label="Attachment" className="mine" style={{ flex: 1 }} />)
+    const el = screen.getByLabelText('Attachment')
+    expect(el.parentElement).toHaveClass('abaabil-file-group', 'mine')
+    expect(el.parentElement.style.flexGrow).toBe('1')
+    expect(el).not.toHaveClass('mine')
+  })
+
   it('warns when there is no accessible name', () => {
     render(<A11yFile />)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('abaabil/file'))

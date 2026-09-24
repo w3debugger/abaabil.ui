@@ -175,6 +175,8 @@ Override any of them individually if the derived value is not what you want.
 
 `--color-danger`, `--color-success` and `--color-warning` are independent on purpose: an error is red whatever your brand colour is.
 
+Semantic tokens (`--color-*`, `--space-*`, `--radius-*`, `--font-*`) are deliberately unprefixed so an app or Tailwind `@theme` block that already defines them re-themes the library with no mapping. If your app defines those names for something else, wrap the library in a scope and redefine them there. Every component stylesheet restates the layer order, so `theme.css` may be imported in any order relative to them.
+
 ### The neutrals, and which ones have to stay visible
 
 Four tokens look interchangeable and are not. Each has a contrast floor it
@@ -357,7 +359,7 @@ The rest (dialog, input, textarea, checkbox, radio, switch, select) are server-r
 
 This split is enforced at build time by `scripts/check-directives.js`, which runs as part of `npm run build` and fails the build in both directions: a required `"use client"` that got stripped, or an accidental one on a component that's supposed to stay server-only. That gate is checked against the built output, not just the source, so this table can't silently drift from what actually ships.
 
-`button/a11y` has no hooks and stays server-renderable even though it wires up click suppression and Space/Enter activation: it only attaches `onClick`/`onKeyDown` to the underlying element when they are actually needed (you passed a handler yourself, or the case requires suppressing a click: `disabled` with `keepFocusable`, or a disabled link-button). A plain `<Button>Save</Button>` with no handlers and no `disabled` renders with no function props at all, which is what keeps it serializable from a server module. Since passing your own `onClick` already puts you in a client component, this never puts a function prop where the flight serializer would reject it.
+`button/a11y` has no hooks and stays server-renderable even though it wires up click suppression and Space activation: it only attaches `onClick`/`onKeyDown` to the underlying element when they are actually needed (you passed a handler yourself, or the case requires suppressing a click: `disabled` with `keepFocusable`, or a disabled link-button). A plain `<Button>Save</Button>` with no handlers and no `disabled` renders with no function props at all, which is what keeps it serializable from a server module. Since passing your own `onClick` already puts you in a client component, this never puts a function prop where the flight serializer would reject it.
 
 ## Props
 
@@ -382,6 +384,8 @@ Prop tables below cover the props each tier adds on top of standard HTML attribu
 | `leftIcon` | `ReactNode` | — | Rendered before the children, marked `aria-hidden`. Warns in dev if the button has no accessible name. |
 | `rightIcon` | `ReactNode` | — | Rendered after the children, marked `aria-hidden`. Same accessible-name warning as `leftIcon`. |
 
+On a link-button, Enter is left to the browser, which follows `href` and fires the click natively; Space is turned into that same native click, so `href` and `onClick` both run from either key. A link-button always carries that Space handler, so render link-buttons at the a11y tier from a client component. `keepFocusable` on a disabled link-button keeps it in the tab order. Secondary and ghost buttons take a `--color-muted` fill on hover; each variant exposes `--btn-bg-hover` and `--btn-border-hover`, and a disabled button keeps its resting colours on hover.
+
 ### Dialog
 
 `normal`/`styled` (`abaabil/dialog`, `abaabil/dialog/styled`) render a plain `<dialog>` and accept no props beyond standard HTML attributes; you drive `showModal()`/`close()` yourself through a `ref`.
@@ -393,6 +397,8 @@ Prop tables below cover the props each tier adds on top of standard HTML attribu
 | `open` | `boolean` | `false` | Calls `showModal()`/`close()` on the underlying `<dialog>` as it changes. |
 | `onClose` | `() => void` | — | Called when the dialog closes, whether via `open` becoming `false`, Escape, or a backdrop click. |
 | `label` | `string` | — | Accessible name, rendered as the dialog's heading and wired to `aria-labelledby`. The platform supplies no name on its own; omitting this warns in dev. |
+
+Page scroll is locked from CSS while the dialog is modal (`html:has(.abaabil-dialog:modal)` with `scrollbar-gutter: stable`), so the page does not shift sideways and nothing on `body` is changed. Closing animates out through a discrete `display` and `overlay` transition. Unmounting while `open` does not fire the close event, so set `open` to `false` first if focus should return to the element that opened it.
 
 ### Combobox
 
@@ -437,6 +443,8 @@ Uncontrolled at every tier: there is no `value` prop, the input manages its own 
 
 This is the tier that carries `input`'s reason for existing: a real associated `<label>` (not just `aria-label`), `description` and `error` both joined into a single `aria-describedby`, and `aria-invalid` set when `error` is present. If you pass your own `aria-describedby`, it's merged with the generated description/error ids, not discarded. Without a `label` (and no `aria-label`/`aria-labelledby`), the input has no accessible name and this tier warns in dev.
 
+`className` and `style` land on the wrapper (`.abaabil-input-group`), which is the flex item in your layout; every other prop lands on the input. The description and error ids derive from the control id: `id="email"` gives `email-description` and `email-error`, the same shape as Field. The error is not a live region: it is read with the control as part of its description, the same policy as Select and Field. The label draws a required mark from the control's own `required` attribute, as Field does.
+
 ### Checkbox
 
 `normal` and `styled` (`abaabil/checkbox`, `abaabil/checkbox/styled`):
@@ -462,6 +470,8 @@ A consumer-supplied `ref` composes with the ref this tier uses internally for `i
 |---|---|---|---|
 | `label` | `string` | - | Group label, rendered as the `<legend>`. |
 | `className` | `string` | - | Merged with the group wrapper's base class. |
+
+The `<label>` wraps the control and its text, so the whole row, gap included, is the click target; that is how the 18px box (36 by 20 track for Switch) meets the 24px target size of WCAG 2.5.8. The description is a sibling beneath the label, indented under the text, and not part of the label, so it is never read as the name. Its id derives from the control id: `id="terms"` gives `terms-description`. In Windows forced-colors mode the mark is painted in `CanvasText` so the state stays visible.
 
 ### Radio
 
@@ -490,6 +500,8 @@ A consumer-supplied `ref` composes with the ref this tier uses internally for `i
 | `name` | `string` | generated via `useId` | Shared name for every radio in the group. |
 | `className` | `string` | - | Merged with the group wrapper's base class. |
 
+The `<label>` wraps the control and its text, so the whole row, gap included, is the click target; that is how the 18px box (36 by 20 track for Switch) meets the 24px target size of WCAG 2.5.8. The description is a sibling beneath the label, indented under the text, and not part of the label, so it is never read as the name. Its id derives from the control id: `id="terms"` gives `terms-description`. In Windows forced-colors mode the mark is painted in `CanvasText` so the state stays visible.
+
 ### Select
 
 `normal` and `styled` (`abaabil/select`, `abaabil/select/styled`) render a real native `<select>`, styled, not a custom listbox:
@@ -497,7 +509,7 @@ A consumer-supplied `ref` composes with the ref this tier uses internally for `i
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `options` | `Array<{ value: string, label: string }>` | - | Rendered as `<option>` elements. Only consulted when given; pass `children` instead for `<optgroup>` or hand-written `<option>` markup, since the two never fight over which one renders. |
-| `className` | `string` | - | Merged with the base class. |
+| `className`, `style` | `string`, `object` | - | Land on the wrapper (`.abaabil-select-group`), which is the flex item in your layout; every other prop lands on the select. |
 
 `a11y` (`abaabil/select/a11y`), in addition to the above:
 
@@ -510,6 +522,8 @@ A consumer-supplied `ref` composes with the ref this tier uses internally for `i
 | `id` | `string` | - | Overrides the generated select id. |
 
 CSS customizable select (`appearance: base-select`) was deliberately not used to build this. It is not Baseline: support is Chrome 135 only, with no Firefox support at all, far above this library's Chrome 116 / Firefox 125 / Safari 17 floor.
+
+The description and error ids derive from the control id, the same shape as Field, and the label draws a required mark from the control's own `required` attribute.
 
 ### Accordion
 
@@ -528,7 +542,7 @@ Accordion is the only component whose every tier, including `a11y`, is server-re
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `items` | `Array<{ key?, summary, children? }>` | - | One entry per disclosure. |
-| `name` | `string` | `'abaabil-accordion'` | Shared native group name. Pass `name={undefined}` explicitly to opt out of exclusive behavior. |
+| `name` | `string` | - | Shared native group name, unique on the page. Required for exclusive open/close; without it more than one panel can be open at a time. |
 | `className` | `string` | - | Merged onto the wrapping element. |
 
 `a11y` (`abaabil/accordion/a11y`): `Disclosure` is re-exported unchanged, since `<summary>` already carries the correct implicit role and expanded/collapsed state and there's nothing this tier can add to a single disclosure. `Accordion_a11y`, in addition to `Accordion`'s props above:
@@ -538,6 +552,8 @@ Accordion is the only component whose every tier, including `a11y`, is server-re
 | `label` | `string` | - | Accessible name for the group as a whole. When given, applies `role="group"` and `aria-label` to the wrapper. Left unset by default: an unnamed group announces to screen readers as "group" with no name, which is worse than not grouping at all, and each panel's own summary text already names it. |
 
 **Deliberate limitation:** `Accordion_a11y` offers no `headingLevel` prop, and this is intentional, not an oversight. `<summary>` has an implicit ARIA role of `button` in some browsers, and a heading nested inside a button is not reliably exposed to assistive technology (VoiceOver, for one, does not expose a heading nested inside `<summary>` as a heading). The reverse, wrapping `<summary>` in a heading element, isn't an option either: `<summary>` must be the literal first child of `<details>` for the browser to recognize it as the disclosure trigger. Consumers who need reliable heading navigation across sections need the button-in-heading accordion pattern instead (an explicit heading wrapping a button, with `aria-expanded` and `aria-controls`), a different, ARIA-driven widget that this component does not attempt to be.
+
+Exclusive open/close (opening one panel closes its siblings) comes entirely from the native `name` attribute on `<details>`, so pass a `name` that is unique on the page. `Accordion_a11y` warns in development when there are two or more items and no `name`.
 
 ### Textarea
 
@@ -558,6 +574,8 @@ Accordion is the only component whose every tier, including `a11y`, is server-re
 | `error` | `string` | - | Error message. Sets `aria-invalid` and joins `aria-describedby`. |
 | `required` | `boolean` | `false` | |
 | `id` | `string` | - | Overrides the generated id. |
+
+`className` and `style` land on the wrapper (`.abaabil-textarea-group`), which is the flex item in your layout; every other prop lands on the textarea. The description and error ids derive from the control id: `id="email"` gives `email-description` and `email-error`, the same shape as Field. The error is not a live region: it is read with the control as part of its description, the same policy as Select and Field. The label draws a required mark from the control's own `required` attribute, as Field does.
 
 ### Switch
 
@@ -580,6 +598,8 @@ There is no `aria-checked`. The native `checked` property already exposes the st
 | `id` | `string` | - | Overrides the generated id. |
 
 Deliberately not included: visible "On"/"Off" text beside the control. A switch already announces its state from `checked`, so rendering the same state as adjacent text means a screen reader says it twice. Render your own and mark it `aria-hidden` if you want it visible.
+
+The `<label>` wraps the control and its text, so the whole row, gap included, is the click target; that is how the 18px box (36 by 20 track for Switch) meets the 24px target size of WCAG 2.5.8. The description is a sibling beneath the label, indented under the text, and not part of the label, so it is never read as the name. Its id derives from the control id: `id="terms"` gives `terms-description`. In Windows forced-colors mode the mark is painted in `CanvasText` so the state stays visible.
 
 ### Popover
 
@@ -631,6 +651,8 @@ The W3C APG tabs pattern. Tabs have no native element behind them, so unlike mos
 
 Uncontrolled, like the combobox: observe the selection through `onChange`.
 
+`orientation="vertical"` lays the list beside the panel. The list wraps when the tabs do not fit the width. ArrowLeft and ArrowRight follow the visual direction in a right-to-left document.
+
 ### Alert
 
 `normal` / `styled` (`abaabil/alert`, `abaabil/alert/styled`):
@@ -671,6 +693,8 @@ Native `<progress>`. Omit `value` for an indeterminate bar; it has no default, b
 | `description` | `string` | - | Help text, wired into `aria-describedby`. |
 | `valueText` | `string` | - | Announced instead of the percentage. A bare `<progress value="3" max="8">` says "38 percent"; pass `"3 of 8 files"` when the number means something else. |
 
+Under `prefers-reduced-motion`, an indeterminate bar shows static stripes instead of a partial fill, so it cannot be read as a percentage.
+
 ### Slider
 
 Native `<input type="range">`. The keyboard support, the min/max/step arithmetic and the announced role all come from the platform, which is why this is under 200 bytes at the lower tiers.
@@ -693,6 +717,8 @@ Native `<input type="range">`. The keyboard support, the min/max/step arithmetic
 | `formatValue` | `(value: number) => string` | - | Sets `aria-valuetext` and the visible output. A price slider announces "50" without it. |
 
 Uncontrolled by default; pass `defaultValue` and read `onChange`. An uncontrolled slider starts at the midpoint, matching the native thumb.
+
+The slider's pointer target is 44px tall (WCAG 2.5.8); the visible track and thumb are unchanged. `showValue` snaps the displayed value to `step` the same way the browser snaps the thumb.
 
 ### Breadcrumb
 
@@ -730,6 +756,8 @@ Showing and hiding is done in CSS, by `:hover` and `:focus-within`. Those are th
 
 `a11y` adds the two things CSS cannot: `aria-describedby` from the trigger to the bubble, which is what makes a screen reader read it at all, and Escape to dismiss, which WCAG 1.4.13 requires for content revealed on hover. It clones the child to attach them, so the trigger stays your element rather than a wrapper of ours.
 
+The bubble is positioned inside the wrapper, not in the top layer, so an ancestor with `overflow` other than `visible` (a table cell, a card, a scrolling toolbar) clips it, and `placement="top"` on a trigger at the top of the viewport is cut off; use `placement="bottom"` in a page header. Hover shows after 300ms so sweeping across a toolbar does not flash every tooltip; focus shows instantly.
+
 ### Menu
 
 The W3C APG menu button pattern, on top of the native Popover API. The browser supplies the top layer, the outside-click dismissal and Escape; this component supplies the menu semantics and keyboard.
@@ -743,15 +771,17 @@ Like popover, `id` is required rather than generated.
 | `id` | `string` | - | Panel id; also wires the trigger. Required. |
 | `trigger` | `ReactNode` | - | Button content. |
 | `items` | `Array<{ key?, label, href?, onSelect?, disabled? }>` | - | An item with `href` renders an `<a>`, otherwise a `<button>`. |
-| `triggerProps` | `object` | - | Spread onto the trigger. |
+| `triggerProps` | `object` | - | Spread onto the trigger button. A `className` in it is merged with `abaabil-menu__trigger`, not swapped for it. |
 
 `a11y` adds:
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `label` | `string` | - | Names the menu itself. Without it the menu is named by its trigger. |
+| `label` | `string` | - | Names the menu itself. Without it the panel is `aria-labelledby` the trigger, so the menu is named by whatever the trigger says. Without it the menu is named by its trigger. |
 
 plus `aria-haspopup`, a live `aria-expanded` kept in step with the panel's own `toggle` event, `role="menu"`/`role="menuitem"`, a roving tabindex, Up/Down with wrapping, Home/End, multi-character typeahead, Tab to close, and focus moving to the first item on open and back to the trigger on close.
+
+An item with `href` renders an `<a>`, otherwise a `<button>`. A disabled `href` item keeps its element but loses the `href`; `a11y` marks it `aria-disabled`, the other tiers `data-disabled`.
 
 ### Pagination
 
@@ -809,6 +839,8 @@ A native `<input type="file">`, not a `<button>` with a hidden input behind it. 
 
 It also warns when you pass `accept` without a `description`. `accept` filters the file dialog silently: it is never announced, and it does not apply to a file dropped onto the control. Say what you take in words.
 
+`className` and `style` land on the wrapper (`.abaabil-file-group`), which is the flex item in your layout; every other prop lands on the input. The description and error ids derive from the control id: `id="email"` gives `email-description` and `email-error`, the same shape as Field. The error is not a live region: it is read with the control as part of its description, the same policy as Select and Field. The label draws a required mark from the control's own `required` attribute, as Field does.
+
 ### Toolbar
 
 The W3C APG toolbar pattern. The point of it is the tab sequence: a row of eight buttons is eight stops on the way to the rest of the page, and as a toolbar it is one, with the arrow keys moving between the controls inside. A toolbar that does not do that is a `<div>` with a role on it.
@@ -826,6 +858,8 @@ The W3C APG toolbar pattern. The point of it is the tab sequence: a row of eight
 | `labelledBy` | `string` | - | Id of an element naming it. |
 
 It takes arbitrary children rather than an `items` array, because a toolbar's contents are heterogeneous by definition, and manages `tabindex` on its focusable descendants directly: cloning would only reach the top level. A control that needs the arrows itself, such as a `<select>` or a text field, keeps them.
+
+Clicking or focusing a control makes it the stop, so the next Tab into the toolbar returns to the last used control; a control that disables itself is caught by a `MutationObserver` on `disabled`. A consumer `onKeyDown` or `onFocus` runs before the toolbar's own. Arrow keys follow the visual direction in a right-to-left document.
 
 ### Avatar
 
@@ -936,6 +970,8 @@ horizontal however it is rotated in CSS, so the `a11y` tier sets it
 explicitly. That, and being able to hide a purely decorative rule, is
 the whole reason this is a component rather than an element.
 
+A vertical separator stretches to its flex row; outside a flex row it is an inline 1em rule.
+
 ### Spinner
 
 An indeterminate busy indicator. Server-renderable at every tier.
@@ -974,6 +1010,8 @@ every tier.
 The `a11y` tier always hides the bars from assistive technology, with no
 way to opt out: they are a picture of a layout and read aloud they are
 noise. Set `aria-busy` on your own container, not on the skeleton.
+
+`height` applies to every bar when `lines` is greater than one.
 
 ### Card
 
@@ -1067,8 +1105,7 @@ A modal panel pinned to one edge. A native `<dialog>`.
 
 A drawer is a modal dialog with different geometry, so it is one. Focus
 containment, the inert background, Escape and the top layer are all
-`showModal()`. The entry animation is `@starting-style` in CSS, so
-nothing here holds an "is opening" flag.
+`showModal()`. The entry animation is `@starting-style` and the exit a discrete `display` and `overlay` transition, both in CSS, so nothing here holds an "is opening" flag. Page scroll is locked from CSS while the drawer is modal, with `scrollbar-gutter: stable` so the page does not shift. The slide direction mirrors under a `dir="rtl"` attribute on `<html>` or an ancestor; a document made RTL by the CSS `direction` property alone is placed on the correct edge but slides in from the wrong one.
 
 ### AlertDialog
 
@@ -1092,6 +1129,8 @@ because the role announces one on open. It does not light-dismiss, so
 moves focus to the element marked `data-safe-action`, because the
 platform focuses the first focusable child and a confirmation that opens
 with Delete focused is one Enter from deleting.
+
+Like dialog and drawer, page scroll is locked from CSS while it is modal, and closing animates out.
 
 ### Toast
 
@@ -1127,9 +1166,9 @@ in most screen readers, because there was no region to change. That is
 the single most common way this pattern breaks and it cannot be fixed
 from inside `Toast`.
 
-Politeness is derived from the variant, not left to the caller: `danger`
-is assertive, everything else is polite. The timer pauses on hover, on
-focus within, and while the tab is hidden.
+Render your toasts as children of `ToastLive` inside `ToastRegion` and politeness is derived from the variant, not left to the caller: `danger` goes in the assertive live region, everything else in the polite one. The `polite` and `assertive` props remain for sorting by hand. Each toast is `aria-atomic`, so it is read whole and adding one does not re-announce the others. The timer pauses on hover, on focus within, and while the tab is hidden, and resumes only when none of those hold. The close button returns focus to where it came from. The region is `position: fixed`, not in the top layer, so a toast fired while a modal dialog or drawer is open sits under the backdrop until the dialog closes.
+
+| `ToastLive` `children` | `ReactNode` | - | Toasts, sorted into the polite and assertive regions by `variant`. |
 
 ### Field
 
@@ -1185,6 +1224,10 @@ A one-time code field: one real `<input>` drawn as a row of boxes.
 
 It is a single text field with `autoComplete="one-time-code"`, `inputMode`, `pattern` and `maxLength`, so SMS and password-manager autofill, paste, backspace, selection and mobile keyboards all come from the browser; the six-box look is monospace type, `letter-spacing` and a repeating background. Override `--otp-box-size` (default `--control-height-md`) or `--otp-gap` (default `--space-2`) on `.abaabil-otp` to resize the boxes. `abaabil/otp` and `abaabil/otp/styled` are server-renderable; `abaabil/otp/a11y` is a client component (`useId`), the same split as input.
 
+`className` and `style` land on the wrapper (`.abaabil-otp-group`), which is the flex item in your layout; every other prop lands on the input. The description and error ids derive from the control id: `id="email"` gives `email-description` and `email-error`, the same shape as Field. The error is not a live region: it is read with the control as part of its description, the same policy as Select and Field. The label draws a required mark from the control's own `required` attribute, as Field does.
+
+Below a 22rem viewport the boxes drop to 2rem so six cells fit a 320px screen; set `--otp-box-size` yourself for any other breakpoint.
+
 ### Command
 
 A command palette: a native `<dialog>` holding a search input and the actions that match it.
@@ -1204,10 +1247,12 @@ A command palette: a native `<dialog>` holding a search input and the actions th
 | `label` | `string` | - | Accessible name for the palette and its input. Omitting it warns in dev. |
 | `open` | `boolean` | `false` | Drives `showModal()` and `close()`. |
 | `onClose` | `() => void` | - | Fires on Escape, backdrop click, `close()` and after a choice. |
-| `shortcut` | `string` | - | A key, for example `'k'`. Meta or Ctrl plus that key on the document calls `onOpen`. |
+| `shortcut` | `string` | - | A key, for example `'k'`, case-insensitive. Meta or Ctrl plus that key on the document calls `onOpen`. |
 | `onOpen` | `() => void` | - | Called when `shortcut` is pressed. |
 
-Two APG patterns and nothing invented: a modal dialog (`showModal()` gives focus containment, the inert background, Escape, focus to the input on open and back to the opener on close) holding an editable combobox with list autocomplete, the same keyboard model as `combobox`. Focus stays on the input; the active option is `aria-activedescendant`. Up and Down wrap and skip disabled items, Home and End jump, Enter chooses, and a polite live region reads the result count because a screen reader user cannot see the list shrink. Filtering is a substring match over `label` plus `keywords`, exported as `filterItems` from the normal tier. Every tier is a client component: the query is state.
+Two APG patterns and nothing invented: a modal dialog (`showModal()` gives focus containment, the inert background, Escape, focus to the input on open and back to the opener on close) holding an editable combobox with list autocomplete, the same keyboard model as `combobox`. Focus stays on the input; the active option is `aria-activedescendant`. Up and Down wrap and skip disabled items, in the order the groups are drawn, Home and End jump, Enter chooses, and a polite live region reads the result count because a screen reader user cannot see the list shrink. Filtering is a substring match over `label` plus `keywords`, exported as `filterItems` from the normal tier. Every tier is a client component: the query is state.
+
+`href` is followed by assigning `location.href`, a full navigation, at every tier (Enter on the first match at `normal`/`styled`, Enter on the active option at `a11y`). Under a client-side router use `onSelect` and navigate there instead.
 
 ### Table
 
@@ -1219,18 +1264,20 @@ A real `<table>` for a list of records: caption, `<th scope="col">` per column, 
 | `rows` | `object[]` | - | Keyed by column key, plus an optional `id`. |
 | `caption` | `ReactNode` | - | Names the table. Rendered as a visible heading above it. |
 | `rowKey` | `string \| (row, index) => Key` | `'id'` | Falls back to the index. |
-| `scrollProps` | `object` | - | Spread onto the scroll wrapper. |
-| `captionProps` | `object` | - | Spread onto the `<caption>`. |
+| `scrollProps` | `object` | - | Merged onto the scroll wrapper, under the a11y tier's role, tab stop and label. |
+| `captionProps` | `object` | - | Merged onto the `<caption>`, under its id. |
 | `className` | `string` | - | On the `<table>`. Rest props go there too. |
 
 | `a11y` prop | Type | Default | Description |
 |---|---|---|---|
 | `columns[i].sortable` | `boolean` | `false` | Header becomes a `<button>` and the `<th>` carries `aria-sort`. |
-| `columns[i].compare` | `(a, b) => number` | - | Replaces the default comparator (`localeCompare` for strings, subtraction otherwise). |
+| `columns[i].compare` | `(a, b) => number` | - | Replaces the default comparator (`localeCompare` when either side is a string, subtraction otherwise). Never called with `null` or `undefined`; empty cells sort last in both directions. |
 | `onSort` | `({ key, direction }) => void` | - | Fires on every change. `direction` is `'none' \| 'ascending' \| 'descending'`; `key` is `null` when `none`. |
-| `stickyHeader` | `boolean` | `false` | Adds `abaabil-table--sticky`. Give the wrapper a `max-block-size` for it to matter. |
+| `stickyHeader` | `boolean` | `false` | Adds `abaabil-table--sticky`. Give the wrapper a `max-block-size` for it to matter. The header sticks inside the wrapper, never to the page, because the wrapper is a scroll container; a header that follows the page needs the wrapper's overflow removed. |
 
 The wrapper is `overflow-x: auto`, and at the a11y tier it is also `tabIndex=0`, `role="region"` and `aria-labelledby` the caption, the WAI pattern for a scrollable table: without it the columns off the right edge are unreachable from a keyboard. Warns in development when there is no `caption` and no `aria-label`. Sorting is uncontrolled and cycles none, ascending, descending; the arrow is drawn in CSS from `aria-sort`, so the state has one source and is never read out twice. `a11y` uses `useId` and `useState`, so it carries `'use client'` while the other two tiers render from a Server Component with zero client JS.
+
+The wrapper is a tab stop only while columns overflow: a `ResizeObserver` sets `tabIndex` to -1 when the table fits, so narrow tables add no empty stop.
 
 ### NavigationMenu
 
@@ -1251,7 +1298,7 @@ Like popover, `id` is required rather than generated: each panel is `${id}-${ind
 | `label` | `string` | - | Names the `<nav>`. Warns in development without one, since a page with several navigation landmarks announces each as "navigation". |
 | `openOnHover` | `boolean` | `false` | Also opens a panel after the pointer rests on its trigger for 150ms, mouse and pen only. Click still works. |
 
-`a11y` also adds `aria-current="page"` on the current link, a live `aria-expanded` on each trigger read from the panels' own `toggle` events, ArrowDown on a trigger to open its panel and focus the first link, and ArrowUp or Escape inside a panel to close it and return focus to the trigger. Tab walks links and triggers in order; there is no roving tabindex and no `aria-haspopup`, both of which belong to menus.
+`a11y` also adds `aria-current="page"` on the current link, a live `aria-expanded` on each trigger read from the panels' own `toggle` events, ArrowDown on a trigger to open its panel and focus the first link, and ArrowDown and ArrowUp inside a panel to move between its links, and ArrowUp on the first link or Escape anywhere in the panel to close it and return focus to the trigger. Tab walks links and triggers in order; there is no roving tabindex and no `aria-haspopup`, both of which belong to menus.
 
 `abaabil/navigation-menu` and `abaabil/navigation-menu/styled` render in a Server Component tree with no client JavaScript; `abaabil/navigation-menu/a11y` is a client component.
 
@@ -1277,6 +1324,8 @@ iOS Safari fires no `contextmenu` on long-press, and this component adds no time
 `a11y` also adds `role="menu"`/`role="menuitem"`, a roving tabindex, Up/Down with wrapping, Home/End, multi-character typeahead, Tab to close, Escape to close and return focus to where it was, and focus moving to the first item on open. Shift+F10 and the ContextMenu key open the panel at the region's top-left corner; the wrapper gets `tabIndex={0}` so a region with nothing focusable in it is reachable, and `tabIndex={-1}` turns that off. No `aria-haspopup` on the region: that attribute describes a control, and a region is not one.
 
 `abaabil/context-menu` and `abaabil/context-menu/styled` carry no client directive but attach `onContextMenu`, so they render only below a client boundary; `abaabil/context-menu/a11y` is a client component.
+
+A disabled `href` item keeps its element but loses the `href`; `a11y` marks it `aria-disabled`, the other tiers `data-disabled`.
 
 ### Menubar
 
@@ -1321,6 +1370,6 @@ Set `--carousel-per-view: 3` on the carousel to show three slides at once. Reduc
 |---|---|---|---|
 | `label` | `string` | - | Names the region. Warns in development without one. |
 
-The wrapper becomes a `region` with `aria-roledescription="carousel"`, each slide a `group` named "n of N", the track enters the tab order so arrow keys page it, both buttons carry `aria-controls` for the track and `aria-disabled` at the ends when not looping, and a polite live region says "Slide n of N" once a scroll settles (native `scrollend`, or 150ms after the last `scroll` event where that does not exist).
+The wrapper becomes a `region` with `aria-roledescription="carousel"`, each slide a `group` named "n of N", the track enters the tab order as a named `group` so arrow keys page it, both buttons carry `aria-controls` for the track and `aria-disabled` at the ends when not looping, and a polite live region says "Slide n of N" once a scroll settles (native `scrollend`, or 150ms after the last `scroll` event where that does not exist).
 
 `abaabil/carousel` and `abaabil/carousel/styled` render in a Server Component tree with no client JavaScript; `abaabil/carousel/a11y` is a client component.

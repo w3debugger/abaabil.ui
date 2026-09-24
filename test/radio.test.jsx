@@ -53,6 +53,19 @@ describe('Radio (a11y tier)', () => {
     expect(r.id).toBeTruthy()
   })
 
+  it('wraps the control in the label so the whole row is the hit target, and keeps the description outside it', () => {
+    render(<RadioA11y label="Small" description="Fits most." />)
+    const r = screen.getByRole('radio', { name: 'Small' })
+    const label = screen.getByText('Small')
+    expect(label).toContainElement(r)
+    expect(label).not.toContainElement(screen.getByText('Fits most.'))
+  })
+
+  it('derives the description id from a consumer-supplied id', () => {
+    render(<RadioA11y label="Small" id="size-s" description="Fits most." />)
+    expect(screen.getByRole('radio', { name: 'Small' })).toHaveAttribute('aria-describedby', 'size-s-description')
+  })
+
   it('selects the radio when the label is clicked', async () => {
     render(<RadioA11y label="Small" />)
     const r = screen.getByRole('radio', { name: 'Small' })

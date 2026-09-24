@@ -18,6 +18,11 @@ import File from './styled.jsx'
  *
  * Uses useId to mint stable ids, so this tier needs a client tree.
  *
+ * `className` and `style` land on the wrapper, `.abaabil-file-group`, the
+ * layout hook; everything else lands on the input. The description and
+ * error ids derive from the input id, and the error is not a live
+ * region, both for the reasons given in input/a11y.
+ *
  * @param {object} props
  * @param {string} [props.label] Rendered as a real <label>.
  * @param {boolean} [props.hideLabel=false] Hide it visually; it stays in
@@ -28,6 +33,8 @@ import File from './styled.jsx'
  *   aria-describedby.
  * @param {boolean} [props.required=false]
  * @param {string} [props.id] Overrides the generated id.
+ * @param {string} [props.className] Merged onto the wrapper's base class.
+ * @param {object} [props.style] Applied to the wrapper.
  */
 export default function File_a11y({
   label,
@@ -36,17 +43,19 @@ export default function File_a11y({
   error,
   required = false,
   id,
+  className,
+  style,
   'aria-describedby': ariaDescribedBy,
   ...props
 }) {
   const baseId = useId()
   const inputId = id ?? `${baseId}-file`
-  const descriptionId = `${baseId}-description`
-  const errorId = `${baseId}-error`
+  const descriptionId = `${inputId}-description`
+  const errorId = `${inputId}-error`
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/file: no `label` given, so the file input has no accessible name. ' +
         'Pass `label`, `aria-label`, or `aria-labelledby`.'
@@ -54,7 +63,6 @@ export default function File_a11y({
   }
 
   if (
-    typeof process !== 'undefined' &&
     process.env.NODE_ENV !== 'production' &&
     props.accept &&
     !description
@@ -71,8 +79,10 @@ export default function File_a11y({
       .filter(Boolean)
       .join(' ') || undefined
 
+  const cls = className ? `abaabil-file-group ${className}` : 'abaabil-file-group'
+
   return (
-    <div className="abaabil-file-group">
+    <div className={cls} style={style}>
       {label ? (
         <label
           htmlFor={inputId}
@@ -94,7 +104,7 @@ export default function File_a11y({
         </div>
       ) : null}
       {error ? (
-        <div id={errorId} className="abaabil-file__error" role="alert">
+        <div id={errorId} className="abaabil-file__error">
           {error}
         </div>
       ) : null}

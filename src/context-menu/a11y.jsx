@@ -24,9 +24,10 @@ import { openAt } from './styled.jsx'
  * a control, and a region is not one.
  *
  * The keyboard handling is a port of the sixty lines in menu/a11y.jsx
- * rather than an import from it. Importing would pull menu's stylesheet
- * and code into this entry point, and a consumer of one should not pay
- * for the other.
+ * rather than a shared helper. A helper module was measured: the hook
+ * interface costs more than gzip saves by deduplicating within one
+ * file, so a consumer of one menu pays about 250 B more and only a
+ * consumer of both saves anything, about 90 B.
  *
  * iOS Safari fires no `contextmenu` on long-press; see index.jsx.
  *
@@ -53,7 +54,7 @@ export default function ContextMenu_a11y({ id, items, label, className, children
   const typeahead = useRef({ buffer: '', at: 0 })
   const cls = className ? `abaabil-context-menu ${className}` : 'abaabil-context-menu'
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !label) {
+  if (process.env.NODE_ENV !== 'production' && !label) {
     console.warn(
       'abaabil/context-menu: no `label` given, so the menu has no accessible ' +
         'name and screen readers announce it as an unnamed menu.'
@@ -157,8 +158,16 @@ export default function ContextMenu_a11y({ id, items, label, className, children
           }
 
           if (item.href) {
+            // A disabled link keeps its element and role but loses the
+            // href, so it is neither followed nor announced as a link.
             return (
-              <a key={item.key ?? index} href={item.href} {...shared} onClick={() => close({ restoreFocus: false })}>
+              <a
+                key={item.key ?? index}
+                href={item.disabled ? undefined : item.href}
+                aria-disabled={item.disabled || undefined}
+                {...shared}
+                onClick={item.disabled ? undefined : () => close({ restoreFocus: false })}
+              >
                 {item.label}
               </a>
             )

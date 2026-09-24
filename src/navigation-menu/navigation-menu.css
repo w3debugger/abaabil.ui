@@ -55,19 +55,31 @@
   }
 
   /* The chevron is drawn, not an SVG, and turns over while the panel
-     beside its trigger is open. */
+     beside its trigger is open. Physical borders on purpose: the shape
+     is two edges of a square rotated so their shared corner points
+     down, and that corner has to be bottom-right in every writing
+     direction. Logical borders put it bottom-left in RTL, where the
+     45deg turn then points it sideways. */
   .abaabil-navigation-menu__trigger::after {
     content: "";
     inline-size: 0.4rem;
     block-size: 0.4rem;
-    border-block-end: 1.5px solid currentColor;
-    border-inline-end: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
     rotate: 45deg;
     translate: 0 -0.1rem;
     transition: rotate var(--duration-fast) ease;
   }
 
+  /* Two rules, not one list: an unsupported :has() invalidates the whole
+     selector list it sits in. The aria-expanded rule is the fallback,
+     which the a11y tier writes. */
   .abaabil-navigation-menu__trigger:has(+ :popover-open)::after {
+    rotate: 225deg;
+    translate: 0 0.1rem;
+  }
+
+  .abaabil-navigation-menu__trigger[aria-expanded="true"]::after {
     rotate: 225deg;
     translate: 0 0.1rem;
   }
@@ -102,6 +114,12 @@
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
     font-weight: normal;
+  }
+
+  /* Muted text on the muted hover fill is 4.39:1 in light mode, under
+     4.5, so the description takes the link's own colour while hovered. */
+  .abaabil-navigation-menu__panel-link:hover .abaabil-navigation-menu__description {
+    color: inherit;
   }
 
   @supports (anchor-name: --x) {

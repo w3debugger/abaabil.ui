@@ -17,10 +17,6 @@
   /* Remove the platform's default marker so a custom indicator can replace
      it: list-style handles Chrome/Firefox, the pseudo-element handles
      WebKit/Safari, which does not respect list-style on <summary>. */
-  .abaabil-accordion__summary {
-    list-style: none;
-  }
-
   .abaabil-accordion__summary::-webkit-details-marker {
     display: none;
   }
@@ -30,7 +26,9 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2);
-    min-height: var(--control-height-md);
+    /* 44px: the touch target floor. The padding alone lands at 42px. */
+    min-block-size: 44px;
+    list-style: none;
     padding: var(--space-3) var(--space-4);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);

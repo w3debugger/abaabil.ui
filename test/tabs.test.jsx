@@ -107,6 +107,32 @@ describe('Tabs (a11y tier)', () => {
     expect(screen.getAllByRole('tab')[0]).toHaveFocus()
   })
 
+  it('swaps the arrows in a right-to-left document, so ArrowRight moves visually right', async () => {
+    render(<A11yTabs items={ITEMS} label="Product" />)
+    // jsdom's getComputedStyle does not inherit direction, so it goes on
+    // the tabs themselves rather than on the document.
+    for (const t of screen.getAllByRole('tab')) t.style.direction = 'rtl'
+    screen.getAllByRole('tab')[0].focus()
+    await userEvent.keyboard('{ArrowLeft}')
+    expect(screen.getAllByRole('tab')[1]).toHaveFocus()
+    await userEvent.keyboard('{ArrowRight}')
+    expect(screen.getAllByRole('tab')[0]).toHaveFocus()
+  })
+
+  it('puts the orientation on the root too, so the stylesheet can lay vertical tabs beside the panel', () => {
+    const { container } = render(<A11yTabs items={ITEMS} label="Product" orientation="vertical" />)
+    expect(container.firstChild).toHaveAttribute('data-orientation', 'vertical')
+  })
+
+  it('clamps the selected and focused tab when items shrink beneath them', () => {
+    const { rerender } = render(<A11yTabs items={ITEMS} label="Product" defaultIndex={2} />)
+    rerender(<A11yTabs items={ITEMS.slice(0, 2)} label="Product" defaultIndex={2} />)
+    // Without the clamp: no panel, and every tab at -1, so the tablist
+    // falls out of the tab order entirely.
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('Pricing panel')
+    expect(screen.getAllByRole('tab').map((t) => t.getAttribute('tabindex'))).toEqual(['-1', '0'])
+  })
+
   it('uses the vertical arrow pair and says so, when orientation is vertical', async () => {
     render(<A11yTabs items={ITEMS} label="Product" orientation="vertical" />)
     expect(screen.getByRole('tablist')).toHaveAttribute('aria-orientation', 'vertical')
@@ -134,9 +160,12 @@ describe('Tabs (a11y tier)', () => {
     expect(screen.getByRole('tabpanel')).toHaveAttribute('tabindex', '0')
   })
 
-  it('warns in development when the tablist would have no accessible name', () => {
-    render(<A11yTabs items={ITEMS} />)
+  it('warns once in development when the tablist would have no accessible name, not once per render', () => {
+    const { rerender } = render(<A11yTabs items={ITEMS} />)
+    rerender(<A11yTabs items={ITEMS} />)
+    rerender(<A11yTabs items={ITEMS} />)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('abaabil/tabs'))
+    expect(warn).toHaveBeenCalledTimes(1)
   })
 
   it('does not warn when named by labelledBy', () => {

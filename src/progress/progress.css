@@ -17,7 +17,6 @@
     border: 1px solid var(--color-border);
     border-radius: 999px;
     background: var(--color-track);
-    color: var(--color-primary);
     overflow: hidden;
   }
 
@@ -26,7 +25,6 @@
      pseudo-element discards the whole rule. */
   .abaabil-progress::-webkit-progress-bar {
     background: var(--color-track);
-    border-radius: 999px;
   }
 
   .abaabil-progress::-webkit-progress-value {
@@ -85,11 +83,13 @@
       transition: none;
     }
 
-    /* A bar that says "working" by moving is useless if it cannot move,
-       so it becomes a static half-filled track rather than nothing. */
+    /* A bar that says "working" by moving is useless if it cannot move.
+       A static partial fill is worse than nothing: it reads as a bar
+       stuck at that percentage. Stripes cannot be read as a proportion,
+       so they say "busy, amount unknown" without moving. */
     .abaabil-progress:indeterminate {
       animation: none;
-      background-position: 40% 0;
+      background: repeating-linear-gradient(90deg, var(--color-primary) 0 0.5rem, transparent 0.5rem 1rem) var(--color-track);
     }
   }
 }

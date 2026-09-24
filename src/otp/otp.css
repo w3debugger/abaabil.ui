@@ -7,7 +7,10 @@
      box appears after the last one. The caret after the final character
      lands one full cell past the last glyph, so the content box is one
      whole cell per character: any shorter and the browser scrolls the
-     text to keep the caret in view, sliding every glyph out of its box. */
+     text to keep the caret in view, sliding every glyph out of its box.
+     --otp-box-size is the one knob for the strip's width: six cells at
+     the default are about 303px, so the narrowest phones get a smaller
+     box below. */
   .abaabil-otp {
     --otp-box-size: var(--control-height-md);
     --otp-gap: var(--space-2);
@@ -72,6 +75,19 @@
     color: var(--color-text);
   }
 
+  /* The mark follows the control's own attribute, not a prop, so it
+     cannot say "required" over a control that is not. Empty alt text
+     keeps the asterisk out of the accessible name: the attribute
+     already tells assistive tech. Same rule as field. */
+  .abaabil-otp-group:has(:required) > .abaabil-otp__label::after {
+    content: " *" / "";
+    color: var(--color-danger);
+  }
+
   .abaabil-otp__description { color: var(--color-text-muted); }
   .abaabil-otp__error { color: var(--color-danger); }
+
+  @media (width < 22rem) {
+    .abaabil-otp { --otp-box-size: 2rem; }
+  }
 }

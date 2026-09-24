@@ -5,7 +5,12 @@
 
     appearance: none;
     inline-size: 100%;
-    block-size: var(--slider-thumb);
+    /* The input box is the pointer target, and the author sets it, so
+       WCAG 2.5.8's user-agent exception does not apply. The thumb is
+       17.6px; the box is 44px. Both engines centre the track inside
+       the box and the thumb offset is relative to the track, so
+       nothing visible moves. */
+    block-size: 2.75rem;
     margin: 0;
     background: transparent;
     cursor: pointer;
@@ -68,7 +73,7 @@
 
   .abaabil-slider:focus-visible {
     outline: 2px solid var(--color-focus-ring);
-    outline-offset: 4px;
+    outline-offset: 0;
     border-radius: 999px;
   }
 

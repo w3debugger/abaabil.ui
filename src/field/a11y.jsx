@@ -44,7 +44,7 @@ export default function Field_a11y({ id, error, required = false, children, ...p
   const named = Boolean(
     props.label || element?.props['aria-label'] || element?.props['aria-labelledby']
   )
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !named) {
+  if (process.env.NODE_ENV !== 'production' && !named) {
     console.warn(
       'abaabil/field: no `label` given, so the control has no accessible name. ' +
         'Pass `label`, or `aria-label`/`aria-labelledby` on the control.'
@@ -95,7 +95,7 @@ export function Fieldset_a11y({ id, 'aria-describedby': ariaDescribedBy, ...prop
   const generated = useId()
   const fieldId = id ?? generated
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !props.label) {
+  if (process.env.NODE_ENV !== 'production' && !props.label) {
     console.warn(
       'abaabil/field: Fieldset has no `label`, so the group has no accessible name.'
     )

@@ -32,7 +32,7 @@ import { Toggle, ToggleGroup } from './styled.jsx'
 export function Toggle_a11y({ pressed = false, label, children, ...props }) {
   const named = Boolean(label || props['aria-label'] || props['aria-labelledby'] || children)
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !named) {
+  if (process.env.NODE_ENV !== 'production' && !named) {
     console.warn(
       'abaabil/toggle: no `label`, no aria-label and no children, so this ' +
         'toggle has no accessible name and screen readers announce it as an ' +

@@ -34,7 +34,13 @@ import AlertDialog from './styled.jsx'
  *
  * Like dialog and drawer, it deliberately does not implement a focus
  * trap: showModal() already contains focus, makes the background
- * inert, and renders in the top layer.
+ * inert, and renders in the top layer. Page scroll is locked by the
+ * stylesheet through `html:has(.abaabil-alert-dialog:modal)`, the same
+ * rule dialog and drawer use.
+ *
+ * Unmounting while `open` does not call close(), so focus is not
+ * returned to the element that opened it. Set `open` to false and let
+ * the close event fire before removing the dialog from the tree.
  *
  * @param {object} props
  * @param {boolean} [props.open=false]
@@ -65,7 +71,7 @@ export default function AlertDialog_a11y({
     [consumerRef]
   )
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     if (!label && !props['aria-label'] && !props['aria-labelledby']) {
       console.warn(
         'abaabil/alert-dialog: no `label` given, so the dialog has no ' +
@@ -97,19 +103,12 @@ export default function AlertDialog_a11y({
     }
   }, [open])
 
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const handle = () => onClose?.()
-    el.addEventListener('close', handle)
-    return () => el.removeEventListener('close', handle)
-  }, [onClose])
-
   return (
     <AlertDialog
       ref={setRef}
       aria-labelledby={label ? titleId : undefined}
       aria-describedby={description ? descriptionId : undefined}
+      onClose={onClose}
       {...props}
     >
       {label ? (

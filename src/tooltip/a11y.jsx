@@ -1,6 +1,6 @@
 'use client'
 
-import { cloneElement, isValidElement, useId, useRef, useState } from 'react'
+import { cloneElement, isValidElement, useId, useState } from 'react'
 import './tooltip.css'
 
 /**
@@ -31,6 +31,12 @@ import './tooltip.css'
  * The child is cloned to receive the aria and handlers, so the trigger
  * is your element rather than a wrapper of ours.
  *
+ * The bubble is positioned inside the wrapper, not in the top layer, so
+ * an ancestor with `overflow` other than visible (a table cell, a card,
+ * a scrolling toolbar) clips it, and `placement="top"` on a trigger at
+ * the top of the viewport is cut off. Use `placement="bottom"` in a
+ * page header.
+ *
  * @param {object} props
  * @param {import('react').ReactNode} props.content
  * @param {string} [props.placement='top'] 'top' | 'bottom'.
@@ -39,10 +45,9 @@ import './tooltip.css'
 export default function Tooltip_a11y({ content, placement = 'top', className, children, ...props }) {
   const id = useId()
   const [dismissed, setDismissed] = useState(false)
-  const wrapper = useRef(null)
   const cls = className ? `abaabil-tooltip ${className}` : 'abaabil-tooltip'
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     if (!isValidElement(children)) {
       console.warn(
         'abaabil/tooltip: children must be a single element that can receive props ' +
@@ -71,7 +76,6 @@ export default function Tooltip_a11y({ content, placement = 'top', className, ch
 
   return (
     <span
-      ref={wrapper}
       className={cls}
       data-placement={placement}
       data-dismissed={dismissed ? 'true' : undefined}

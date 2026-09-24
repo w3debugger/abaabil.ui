@@ -12,7 +12,8 @@
 
   .abaabil-pagination__link,
   .abaabil-pagination__current,
-  .abaabil-pagination__step {
+  .abaabil-pagination__step,
+  .abaabil-pagination__gap {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -50,11 +51,6 @@
   }
 
   .abaabil-pagination__gap {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-inline-size: var(--control-height-md);
-    block-size: var(--control-height-md);
     color: var(--color-text-muted);
   }
 
@@ -62,7 +58,9 @@
     border-color: var(--color-border);
   }
 
-  .abaabil-pagination__step:hover {
+  /* Only the link: at either end the step is a <span> that goes
+     nowhere, and a hover wash on it would promise otherwise. */
+  a.abaabil-pagination__step:hover {
     background: var(--color-muted);
   }
 

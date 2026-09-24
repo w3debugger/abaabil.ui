@@ -7,8 +7,7 @@
 
     appearance: none;
     height: var(--select-height);
-    padding-inline: var(--select-padding-x);
-    padding-inline-end: calc(var(--select-padding-x) + 1.125rem);
+    padding-inline: var(--select-padding-x) calc(var(--select-padding-x) + 1.125rem);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background-color: var(--color-surface);
@@ -21,6 +20,7 @@
     background-position: right var(--select-padding-x) center;
     background-size: 0.75rem 0.75rem;
     color: var(--color-text);
+    font: inherit;
     font-size: var(--font-size-sm);
     line-height: 1;
     cursor: pointer;
@@ -57,11 +57,19 @@
     color: var(--color-text);
   }
 
+  /* The mark follows the control's own attribute, not a prop, so it
+     cannot say "required" over a control that is not. Empty alt text
+     keeps the asterisk out of the accessible name: the attribute
+     already tells assistive tech. Same rule as field. */
+  .abaabil-select-group:has(:required) > .abaabil-select__label::after {
+    content: " *" / "";
+    color: var(--color-danger);
+  }
+
   .abaabil-select__description {
     margin: 0;
     font-size: var(--font-size-sm);
-    color: var(--color-text);
-    opacity: 0.75;
+    color: var(--color-text-muted);
   }
 
   .abaabil-select__error {

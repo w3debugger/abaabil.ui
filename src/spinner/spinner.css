@@ -61,7 +61,6 @@
          reads as a component that failed to start. A slow opacity
          pulse is not vestibular motion. */
       animation: abaabil-spinner-pulse 1.6s ease-in-out infinite;
-      border-block-start-color: var(--color-primary);
     }
   }
 }

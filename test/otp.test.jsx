@@ -101,11 +101,22 @@ describe('Otp (a11y tier)', () => {
     expect(input).not.toHaveAttribute('aria-invalid')
   })
 
-  it('passes required and a consumer id through', () => {
-    render(<A11yOtp label="Code" id="otp" required />)
+  it('passes required and a consumer id through, and derives the message ids from that id', () => {
+    render(<A11yOtp label="Code" id="otp" required description="Six digits" error="Wrong" />)
     const input = screen.getByLabelText('Code')
     expect(input).toHaveAttribute('id', 'otp')
     expect(input).toBeRequired()
+    expect(input).toHaveAttribute('aria-describedby', 'otp-description otp-error')
+    expect(screen.getByText('Wrong')).not.toHaveAttribute('role')
+  })
+
+  it('puts className and style on the group wrapper, keeping --otp-length on the input', () => {
+    render(<A11yOtp label="Code" length={4} className="mine" style={{ flex: 1 }} />)
+    const input = screen.getByLabelText('Code')
+    expect(input.parentElement).toHaveClass('abaabil-otp-group', 'mine')
+    expect(input.parentElement.style.flexGrow).toBe('1')
+    expect(input).not.toHaveClass('mine')
+    expect(input.style.getPropertyValue('--otp-length')).toBe('4')
   })
 
   it('warns when it has no accessible name', () => {

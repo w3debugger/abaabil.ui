@@ -3,6 +3,8 @@
     --btn-bg: var(--color-primary);
     --btn-fg: var(--color-primary-fg);
     --btn-border: var(--color-primary);
+    --btn-bg-hover: var(--color-primary-hover);
+    --btn-border-hover: var(--color-primary-hover);
     --btn-height: var(--control-height-md);
     /* Match the optical inset on all four sides: the control centres its text in a
        fixed height, so the free space above and below is (height - font-size) / 2.
@@ -20,6 +22,7 @@
     border-radius: var(--btn-radius);
     background: var(--btn-bg);
     color: var(--btn-fg);
+    font: inherit;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
     line-height: 1;
@@ -28,11 +31,6 @@
     text-decoration: none;
     transition: background-color var(--duration-fast) ease,
                 border-color var(--duration-fast) ease;
-  }
-
-  .abaabil-button:hover {
-    --btn-bg: var(--color-primary-hover);
-    --btn-border: var(--color-primary-hover);
   }
 
   /* :focus-visible only, so mouse users never see the ring */
@@ -45,12 +43,24 @@
     --btn-bg: transparent;
     --btn-fg: var(--color-text);
     --btn-border: var(--color-border);
+    --btn-bg-hover: var(--color-muted);
+    --btn-border-hover: var(--color-border);
   }
 
   .abaabil-button[data-variant="ghost"] {
     --btn-bg: transparent;
     --btn-fg: var(--color-text);
     --btn-border: transparent;
+    --btn-bg-hover: var(--color-muted);
+    --btn-border-hover: transparent;
+  }
+
+  /* Each variant names its own hover pair above, so one rule serves all
+     three and outranks the variant rules by specificity. A disabled
+     button keeps its resting colours: the cursor already says no. */
+  .abaabil-button:hover:not(:disabled, [aria-disabled="true"]) {
+    --btn-bg: var(--btn-bg-hover);
+    --btn-border: var(--btn-border-hover);
   }
 
   .abaabil-button[data-size="sm"] { --btn-height: 2rem; }

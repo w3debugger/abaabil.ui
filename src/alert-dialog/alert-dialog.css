@@ -17,6 +17,13 @@
     background: var(--color-overlay);
   }
 
+  /* Scroll lock, as in dialog.css: keyed on :modal, with the scrollbar
+     gutter kept so the page does not jump sideways. */
+  html:has(.abaabil-alert-dialog:modal) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+
   .abaabil-alert-dialog__title {
     margin: 0 0 var(--space-2);
     font-size: var(--font-size-lg);
@@ -28,20 +35,28 @@
     color: var(--color-text-muted);
   }
 
-  @starting-style {
-    .abaabil-alert-dialog[open] { opacity: 0; transform: scale(0.97); }
+  /* Entry and exit, as in dialog.css: @starting-style for the entry,
+     display and overlay with allow-discrete so the exit is painted. */
+  .abaabil-alert-dialog {
+    opacity: 0;
+    transform: scale(0.97);
+    transition:
+      opacity var(--duration-fast) ease,
+      transform var(--duration-fast) ease,
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
   }
 
   .abaabil-alert-dialog[open] {
     opacity: 1;
     transform: none;
-    transition: opacity var(--duration-fast) ease, transform var(--duration-fast) ease;
+  }
+
+  @starting-style {
+    .abaabil-alert-dialog[open] { opacity: 0; transform: scale(0.97); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .abaabil-alert-dialog[open] { transition: none; }
-    @starting-style {
-      .abaabil-alert-dialog[open] { opacity: 1; transform: none; }
-    }
+    .abaabil-alert-dialog { transition: none; }
   }
 }

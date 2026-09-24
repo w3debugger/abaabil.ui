@@ -120,6 +120,29 @@ describe('Input (a11y tier)', () => {
     expect(screen.getByText('Name')).toHaveAttribute('for', 'custom-id')
   })
 
+  it('derives the description and error ids from a consumer-supplied id, the same shape as Field', () => {
+    render(<A11yInput label="Email" id="email" description="Work address" error="Required" />)
+    expect(document.getElementById('email-description')).toHaveTextContent('Work address')
+    expect(document.getElementById('email-error')).toHaveTextContent('Required')
+    expect(screen.getByLabelText('Email')).toHaveAttribute('aria-describedby', 'email-description email-error')
+  })
+
+  it('renders the error without role="alert": it is read with the control, not announced on its own', () => {
+    render(<A11yInput label="Name" error="Required" />)
+    expect(screen.getByText('Required')).not.toHaveAttribute('role')
+  })
+
+  it('puts className and style on the group wrapper, the layout hook, not on the input', () => {
+    render(<A11yInput label="Name" className="mine" style={{ flex: 1 }} />)
+    const input = screen.getByLabelText('Name')
+    const wrapper = input.parentElement
+    expect(wrapper).toHaveClass('abaabil-input-group')
+    expect(wrapper).toHaveClass('mine')
+    expect(wrapper.style.flexGrow).toBe('1')
+    expect(input).not.toHaveClass('mine')
+    expect(input.getAttribute('style')).toBeNull()
+  })
+
   it('generates unique ids across multiple instances', () => {
     render(
       <>

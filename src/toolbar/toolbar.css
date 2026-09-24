@@ -22,8 +22,7 @@
     align-self: stretch;
     inline-size: 1px;
     block-size: auto;
-    margin-block: var(--space-1);
-    margin-inline: var(--space-1);
+    margin: var(--space-1);
     border: 0;
     /* A separator between groups of controls, not a control edge. */
     background: var(--color-border-subtle);
@@ -32,7 +31,5 @@
   .abaabil-toolbar[data-orientation="vertical"] hr {
     inline-size: auto;
     block-size: 1px;
-    margin-block: var(--space-1);
-    margin-inline: var(--space-1);
   }
 }

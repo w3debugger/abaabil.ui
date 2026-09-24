@@ -180,13 +180,29 @@ const HERE = import.meta.url
 describe('Tooltip stylesheet', () => {
   const css = readFileSync(new URL('../src/tooltip/tooltip.css', HERE), 'utf8')
 
-  it('shows instantly, so appearing never depends on a transition running', () => {
+  it('shows instantly on focus, so appearing never depends on a transition running', () => {
     const shown = css.match(
-      /\.abaabil-tooltip:hover[^{]*\.abaabil-tooltip__bubble[^{]*\{([^}]*)\}/
+      /\.abaabil-tooltip:focus-within \.abaabil-tooltip__bubble[^{]*\{([^}]*)\}/
     )
-    expect(shown, 'the hover/focus rule went missing').not.toBeNull()
+    expect(shown, 'the focus rule went missing').not.toBeNull()
     expect(shown[1]).toMatch(/transition:\s*none/)
     expect(shown[1]).toMatch(/visibility:\s*visible/)
+  })
+
+  // Sweeping the pointer across a toolbar must not flash every tooltip.
+  // The focus rule comes after the hover rule so it wins when both apply.
+  it('delays showing on hover, and lets the focus rule win by coming second', () => {
+    const hover = css.match(/\.abaabil-tooltip:hover \.abaabil-tooltip__bubble[^{]*\{([^}]*)\}/)
+    expect(hover, 'the hover rule went missing').not.toBeNull()
+    expect(hover[1]).toMatch(/transition:\s*opacity 0s 300ms, visibility 0s 300ms/)
+    expect(css.indexOf('.abaabil-tooltip:hover')).toBeLessThan(css.indexOf('.abaabil-tooltip:focus-within'))
+  })
+
+  // translate is physical, so the inset it centres against must be too:
+  // a logical inset in RTL landed the bubble a full width off its trigger.
+  it('centres the bubble with a physical inset, so RTL is not a bubble width off', () => {
+    const bubble = css.match(/\.abaabil-tooltip__bubble \{([^}]*)\}/)
+    expect(bubble[1]).toMatch(/left:\s*50%;\s*translate:\s*-50% 0/)
   })
 
   it('steps visibility at the end of the fade rather than interpolating it', () => {

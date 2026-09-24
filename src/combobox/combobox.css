@@ -4,26 +4,9 @@
     display: inline-block;
   }
 
-  /* hideLabel=true (default): visually hidden. The shared utility class
-     lives in tokens/base.css now (abaabil.base layer); this selector keeps
-     the same rules for this component's own label span rather than
-     applying the utility class directly from JSX, since the visible
-     variant below needs to fully replace it, not just remove one class. */
+  /* The visible label, the default. With hideLabel the span wears
+     abaabil-visually-hidden from tokens/base.css instead. */
   .abaabil-combobox__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /* hideLabel={false}: render the label as a normal visible block above
-     the input, instead of visually hidden. */
-  .abaabil-combobox__label--visible {
     display: block;
     margin-bottom: var(--space-1);
     font-size: var(--font-size-sm);
@@ -64,7 +47,11 @@
     background: var(--color-surface);
   }
 
+  /* 44px rows: the list opens under a finger as often as a pointer. */
   .abaabil-combobox__option {
+    display: flex;
+    align-items: center;
+    min-block-size: 2.75rem;
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-md);
     font-size: var(--font-size-sm);
@@ -99,6 +86,9 @@
       position-try-fallbacks: block-start span-inline-end;
       width: anchor-size(width);
       inset: auto;
+      /* Fixed-positioned, so an input scrolled out of a panel would leave
+         the list floating where the input used to be. */
+      position-visibility: anchors-visible;
     }
   }
 }

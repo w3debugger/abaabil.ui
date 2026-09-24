@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -9,6 +10,8 @@ import {
 } from '../src/toast/a11y.jsx'
 
 afterEach(() => vi.restoreAllMocks())
+
+const HERE = import.meta.url
 
 describe('Toast (normal tier)', () => {
   it('renders a plain container with the variant as data and no live region', () => {
@@ -53,11 +56,44 @@ describe('ToastRegion (a11y tier)', () => {
     expect(container.querySelector('[aria-live="assertive"]')).toBeInTheDocument()
   })
 
-  it('makes both live regions atomic, so the whole message is read as one', () => {
-    const { container } = render(<ToastLive polite={null} assertive={null} />)
+  // aria-atomic on the region made every addition re-announce every
+  // toast already up. On each toast it reads that one message whole.
+  it('makes each toast atomic rather than the live region', () => {
+    const { container } = render(
+      <ToastLive>
+        <A11yToast duration={null} data-testid="t">Saved</A11yToast>
+      </ToastLive>
+    )
     for (const region of container.querySelectorAll('[aria-live]')) {
-      expect(region).toHaveAttribute('aria-atomic', 'true')
+      expect(region).not.toHaveAttribute('aria-atomic')
     }
+    expect(screen.getByTestId('t')).toHaveAttribute('aria-atomic', 'true')
+  })
+
+  // The README promised politeness from the variant; nothing sorted
+  // until ToastLive took children.
+  it('sorts children by variant: danger is assertive, the rest polite', () => {
+    const { container } = render(
+      <ToastLive>
+        <A11yToast duration={null} variant="success">Saved</A11yToast>
+        <A11yToast duration={null} variant="danger">Failed</A11yToast>
+        <A11yToast duration={null}>Note</A11yToast>
+      </ToastLive>
+    )
+    const polite = container.querySelector('[aria-live="polite"]')
+    const assertive = container.querySelector('[aria-live="assertive"]')
+    expect(polite).toHaveTextContent('Saved')
+    expect(polite).toHaveTextContent('Note')
+    expect(polite).not.toHaveTextContent('Failed')
+    expect(assertive).toHaveTextContent('Failed')
+  })
+
+  it('still takes the two hand-sorted slots', () => {
+    const { container } = render(
+      <ToastLive polite={<A11yToast duration={null}>Saved</A11yToast>} assertive={<A11yToast duration={null}>Failed</A11yToast>} />
+    )
+    expect(container.querySelector('[aria-live="polite"]')).toHaveTextContent('Saved')
+    expect(container.querySelector('[aria-live="assertive"]')).toHaveTextContent('Failed')
   })
 })
 
@@ -102,6 +138,38 @@ describe('Toast (a11y tier)', () => {
     expect(onDismiss).toHaveBeenCalled()
   })
 
+  // Leaving by pointer while focus is still inside must not resume the
+  // timer; the toast would vanish from under a keyboard user reaching
+  // for its button.
+  it('stays paused after the pointer leaves while focus is still inside', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    const onDismiss = vi.fn()
+    render(<A11yToast duration={3000} onDismiss={onDismiss} data-testid="t">Saved</A11yToast>)
+    const el = screen.getByTestId('t')
+    screen.getByRole('button', { name: 'Dismiss' }).focus()
+    await user.hover(el)
+    await user.unhover(el)
+    act(() => { vi.advanceTimersByTime(10000) })
+    expect(onDismiss).not.toHaveBeenCalled()
+  })
+
+  // The close button unmounts with the toast, so without this focus
+  // dropped to body.
+  it('returns focus to where it came from when the close button is used', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    render(
+      <>
+        <button type="button">Before</button>
+        <A11yToast duration={null} onDismiss={() => {}}>Saved</A11yToast>
+      </>
+    )
+    screen.getByRole('button', { name: 'Before' }).focus()
+    await user.tab()
+    expect(screen.getByRole('button', { name: 'Dismiss' })).toHaveFocus()
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('button', { name: 'Before' })).toHaveFocus()
+  })
+
   it('dismisses from its close button', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     const onDismiss = vi.fn()
@@ -135,5 +203,21 @@ describe('Toast (a11y tier)', () => {
       </A11yToast>
     )
     expect(warn).not.toHaveBeenCalled()
+  })
+})
+
+// jsdom applies no CSS, so layout is read from the stylesheet.
+describe('Toast stylesheet', () => {
+  const css = readFileSync(new URL('../src/toast/toast.css', HERE), 'utf8')
+
+  // column-reverse put an appended toast furthest from the bottom edge
+  // and ran Tab order bottom to top.
+  it('stacks a bottom region as a plain column', () => {
+    const bottom = css.match(/\.abaabil-toast-region\[data-position="bottom"\] \{([^}]*)\}/)
+    expect(bottom[1]).not.toMatch(/flex-direction/)
+  })
+
+  it('gives the close button a hit area past its 24px box', () => {
+    expect(css).toMatch(/\.abaabil-toast__close::before \{[^}]*inset: -0\.625rem/)
   })
 })

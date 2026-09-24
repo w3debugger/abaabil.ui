@@ -13,6 +13,7 @@
     border-radius: var(--radius-md);
     background: var(--color-surface);
     color: var(--color-text);
+    font: inherit;
     font-size: var(--font-size-sm);
     transition: border-color var(--duration-fast) ease;
   }
@@ -45,6 +46,15 @@
   .abaabil-input__label {
     font-size: var(--font-size-sm);
     color: var(--color-text);
+  }
+
+  /* The mark follows the control's own attribute, not a prop, so it
+     cannot say "required" over a control that is not. Empty alt text
+     keeps the asterisk out of the accessible name: the attribute
+     already tells assistive tech. Same rule as field. */
+  .abaabil-input-group:has(:required) > .abaabil-input__label::after {
+    content: " *" / "";
+    color: var(--color-danger);
   }
 
   .abaabil-input__description {

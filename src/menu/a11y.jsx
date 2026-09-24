@@ -36,7 +36,8 @@ import { anchorNameFor } from './styled.jsx'
  * @param {import('react').ReactNode} props.trigger Button content.
  * @param {Array<{key?: string|number, label: string, href?: string, onSelect?: () => void, disabled?: boolean}>} props.items
  * @param {string} [props.label] Accessible name for the menu itself.
- *   Defaults to nothing, in which case the menu is named by its trigger.
+ *   Defaults to nothing, in which case the panel is `aria-labelledby` the
+ *   trigger, so the menu is named by whatever the trigger says.
  * @param {object} [props.triggerProps]
  * @param {string} [props.className]
  */
@@ -68,6 +69,13 @@ export default function Menu_a11y({
   const cls = className ? `abaabil-menu ${className}` : 'abaabil-menu'
 
   const enabled = items.map((item, index) => (item.disabled ? null : index)).filter((i) => i !== null)
+  // The toggle handler is bound once, so it reads the list through a ref:
+  // items change between opens (Undo becomes disabled), and a closure over
+  // the first render's list would focus a disabled item, which browsers
+  // silently refuse, leaving focus on the trigger with dead arrow keys.
+  const enabledRef = useRef(enabled)
+  enabledRef.current = enabled
+  const triggerId = triggerProps?.id ?? `${id}-trigger`
 
   // The panel's own toggle event is the single source of truth for the
   // open state. Tracking it separately would mean two states that can
@@ -81,7 +89,7 @@ export default function Menu_a11y({
       const isOpen = event.newState === 'open'
       setOpen(isOpen)
       if (isOpen) {
-        const first = enabled[0] ?? 0
+        const first = enabledRef.current[0] ?? 0
         setActive(first)
         // Synchronously, not inside requestAnimationFrame. The panel is
         // already in the top layer and focusable by the time `toggle`
@@ -96,11 +104,6 @@ export default function Menu_a11y({
 
     panel.addEventListener('toggle', onToggle)
     return () => panel.removeEventListener('toggle', onToggle)
-    // `enabled` is derived from items each render; depending on it would
-    // rebind on every render for no benefit. The handler reads the
-    // current value through the closure on the render that bound it,
-    // which is correct as long as items are stable while open.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function close({ restoreFocus = true } = {}) {
@@ -171,13 +174,14 @@ export default function Menu_a11y({
     <>
       <button
         type="button"
+        id={triggerId}
         ref={triggerRef}
         popoverTarget={id}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="abaabil-menu__trigger"
         style={{ anchorName: anchorNameFor(id) }}
         {...triggerProps}
+        className={triggerProps?.className ? `abaabil-menu__trigger ${triggerProps.className}` : 'abaabil-menu__trigger'}
       >
         {trigger}
       </button>
@@ -187,6 +191,7 @@ export default function Menu_a11y({
         ref={panelRef}
         role="menu"
         aria-label={label}
+        aria-labelledby={label ? undefined : triggerId}
         className={cls}
         style={{ positionAnchor: anchorNameFor(id) }}
         onKeyDown={handleKeyDown}
@@ -202,8 +207,16 @@ export default function Menu_a11y({
           }
 
           if (item.href) {
+            // A disabled link keeps its element and role but loses the
+            // href, so it is neither followed nor announced as a link.
             return (
-              <a key={item.key ?? index} href={item.href} {...shared} onClick={() => close({ restoreFocus: false })}>
+              <a
+                key={item.key ?? index}
+                href={item.disabled ? undefined : item.href}
+                aria-disabled={item.disabled || undefined}
+                {...shared}
+                onClick={item.disabled ? undefined : () => close({ restoreFocus: false })}
+              >
                 {item.label}
               </a>
             )

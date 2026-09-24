@@ -7,7 +7,7 @@ const read = (p) => readFileSync(new URL(`../src/tokens/${p}`, import.meta.url),
 describe('token system', () => {
   it('declares the layer order before any rules', () => {
     expect(read('layers.css')).toMatch(
-      /@layer\s+abaabil\.reset,\s*abaabil\.tokens,\s*abaabil\.base,\s*abaabil\.components;/
+      /@layer\s+abaabil\.tokens,\s*abaabil\.base,\s*abaabil\.components;/
     )
   })
 

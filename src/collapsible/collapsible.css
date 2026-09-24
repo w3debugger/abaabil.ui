@@ -32,18 +32,19 @@
     content: "";
     inline-size: 0.45em;
     block-size: 0.45em;
-    border-inline-end: 2px solid currentColor;
-    border-block-end: 2px solid currentColor;
-    /* Points at the inline end when closed, which is the direction the
-       panel will come from. Logical, so it points the other way in an
-       RTL document without a second rule. */
+    /* Physical borders, because the rotation is physical too: a logical
+       corner rotated by a fixed angle points somewhere else in RTL.
+       Closed points at the inline end, the side the panel comes from,
+       so RTL gets its own angle below. */
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
     transform: rotate(-45deg);
-    transition: transform 0.15s ease;
+    transition: transform var(--duration-fast) ease;
     flex-shrink: 0;
   }
 
   [dir="rtl"] .abaabil-collapsible__summary::before {
-    transform: rotate(-135deg);
+    transform: rotate(135deg);
   }
 
   .abaabil-collapsible[open] > .abaabil-collapsible__summary::before {

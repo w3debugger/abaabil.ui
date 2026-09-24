@@ -104,6 +104,24 @@ describe('Textarea (a11y tier)', () => {
     expect(ids).toHaveLength(3)
   })
 
+  it('derives the description and error ids from a consumer-supplied id', () => {
+    render(<A11yTextarea label="Bio" id="bio" description="Help" error="Bad" />)
+    expect(screen.getByLabelText('Bio')).toHaveAttribute('aria-describedby', 'bio-description bio-error')
+  })
+
+  it('renders the error without role="alert"', () => {
+    render(<A11yTextarea label="Bio" error="Too short" />)
+    expect(screen.getByText('Too short')).not.toHaveAttribute('role')
+  })
+
+  it('puts className and style on the group wrapper, not on the textarea', () => {
+    render(<A11yTextarea label="Bio" className="mine" style={{ flex: 1 }} />)
+    const field = screen.getByLabelText('Bio')
+    expect(field.parentElement).toHaveClass('abaabil-textarea-group', 'mine')
+    expect(field.parentElement.style.flexGrow).toBe('1')
+    expect(field).not.toHaveClass('mine')
+  })
+
   it('warns in development when the field would have no accessible name', () => {
     render(<A11yTextarea />)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('abaabil/textarea'))

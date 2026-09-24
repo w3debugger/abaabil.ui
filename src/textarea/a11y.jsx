@@ -12,10 +12,13 @@ import Textarea from './styled.jsx'
  *
  * Uses useId to mint stable, unique ids, so this tier needs a client tree.
  *
- * Extra props (id, name, placeholder, maxLength, onChange, ...) land on
- * the textarea, the semantic control consumers are actually targeting. A
- * consumer-supplied aria-describedby is preserved and combined with the
- * generated description/error ids rather than replaced.
+ * `className` and `style` land on the wrapper, `.abaabil-textarea-group`,
+ * the layout hook. Every other prop (id, name, placeholder, maxLength,
+ * onChange, ...) lands on the textarea, the semantic control consumers
+ * are actually targeting. A consumer-supplied aria-describedby is
+ * preserved and combined with the generated description/error ids
+ * rather than replaced. Those ids derive from the textarea id, and the
+ * error is not a live region, both for the reasons given in input/a11y.
  *
  * @param {object} props
  * @param {string} [props.label] Rendered as a real <label>, associated
@@ -30,6 +33,8 @@ import Textarea from './styled.jsx'
  *   description.
  * @param {boolean} [props.required=false]
  * @param {string} [props.id] Overrides the generated textarea id.
+ * @param {string} [props.className] Merged onto the wrapper's base class.
+ * @param {object} [props.style] Applied to the wrapper.
  */
 export default function Textarea_a11y({
   label,
@@ -38,17 +43,19 @@ export default function Textarea_a11y({
   error,
   required = false,
   id,
+  className,
+  style,
   'aria-describedby': ariaDescribedBy,
   ...props
 }) {
   const baseId = useId()
   const textareaId = id ?? `${baseId}-textarea`
-  const descriptionId = `${baseId}-description`
-  const errorId = `${baseId}-error`
+  const descriptionId = `${textareaId}-description`
+  const errorId = `${textareaId}-error`
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/textarea: no `label` given, so the textarea has no accessible name. ' +
         'Pass `label`, `aria-label`, or `aria-labelledby`.'
@@ -60,8 +67,10 @@ export default function Textarea_a11y({
       .filter(Boolean)
       .join(' ') || undefined
 
+  const cls = className ? `abaabil-textarea-group ${className}` : 'abaabil-textarea-group'
+
   return (
-    <div className="abaabil-textarea-group">
+    <div className={cls} style={style}>
       {label ? (
         <label
           htmlFor={textareaId}
@@ -85,7 +94,7 @@ export default function Textarea_a11y({
         </div>
       ) : null}
       {error ? (
-        <div id={errorId} className="abaabil-textarea__error" role="alert">
+        <div id={errorId} className="abaabil-textarea__error">
           {error}
         </div>
       ) : null}

@@ -100,10 +100,23 @@ describe('NavigationMenu (a11y tier)', () => {
     expect(screen.getByRole('button', { name: 'Products' })).toHaveFocus()
   })
 
-  it('closes on ArrowUp too, the disclosure pattern\'s way back', async () => {
+  it('walks the panel links with ArrowDown and ArrowUp, staying put at the last', async () => {
     render(<A11yNavigationMenu id="n" label="Main" items={ITEMS} />)
     const panel = stub(document.getElementById('n-1'))
-    screen.getByRole('link', { name: 'Analytics' }).focus()
+    screen.getByRole('link', { name: /Editor/ }).focus()
+    await userEvent.keyboard('{ArrowDown}')
+    expect(screen.getByRole('link', { name: 'Analytics' })).toHaveFocus()
+    await userEvent.keyboard('{ArrowDown}')
+    expect(screen.getByRole('link', { name: 'Analytics' })).toHaveFocus()
+    await userEvent.keyboard('{ArrowUp}')
+    expect(screen.getByRole('link', { name: /Editor/ })).toHaveFocus()
+    expect(panel.hidePopover).not.toHaveBeenCalled()
+  })
+
+  it('closes on ArrowUp from the first link, the disclosure pattern\'s way back', async () => {
+    render(<A11yNavigationMenu id="n" label="Main" items={ITEMS} />)
+    const panel = stub(document.getElementById('n-1'))
+    screen.getByRole('link', { name: /Editor/ }).focus()
     await userEvent.keyboard('{ArrowUp}')
     expect(panel.hidePopover).toHaveBeenCalled()
     expect(screen.getByRole('button', { name: 'Products' })).toHaveFocus()
@@ -122,6 +135,20 @@ describe('NavigationMenu (a11y tier)', () => {
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
       vi.advanceTimersByTime(200)
       expect(panel.showPopover).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('clears a pending hover timer when it unmounts', () => {
+    vi.useFakeTimers()
+    try {
+      const { unmount } = render(<A11yNavigationMenu id="n" label="Main" openOnHover items={ITEMS} />)
+      const panel = stub(document.getElementById('n-1'))
+      fireEvent.pointerEnter(screen.getByRole('button', { name: 'Products' }), { pointerType: 'mouse' })
+      unmount()
+      vi.advanceTimersByTime(200)
+      expect(panel.showPopover).not.toHaveBeenCalled()
     } finally {
       vi.useRealTimers()
     }

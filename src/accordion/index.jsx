@@ -35,12 +35,14 @@ export function Disclosure({ summary, className, summaryClassName, children, ...
  *
  * @param {object} props
  * @param {Array<{key?: string|number, summary: import('react').ReactNode, children?: import('react').ReactNode}>} props.items
- * @param {string} [props.name] Shared native group name. Defaults to a
- *   stable value so a plain `<Accordion items={...} />` is exclusive out of
- *   the box; pass `name={undefined}` explicitly to opt out.
+ * @param {string} [props.name] Shared native group name. No default: a
+ *   shared default made every accordion on a page one group, so opening a
+ *   panel in one closed the open panel in every other. Pass a `name` that
+ *   is unique on the page for exclusive open/close; without one, more
+ *   than one panel can be open at a time.
  * @param {string} [props.className] Merged onto the wrapping element.
  */
-export function Accordion({ items, name = 'abaabil-accordion', className, ...props }) {
+export function Accordion({ items, name, className, ...props }) {
   const cls = className ? `abaabil-accordion-group ${className}` : 'abaabil-accordion-group'
   return (
     <div className={cls} {...props}>

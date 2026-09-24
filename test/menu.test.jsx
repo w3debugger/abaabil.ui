@@ -40,6 +40,18 @@ describe('Menu (normal tier)', () => {
       .toBe('--abaabil-menu-m')
   })
 
+  it('merges a triggerProps className with the trigger class rather than replacing it', () => {
+    render(<Menu id="m" trigger="Actions" items={ITEMS} triggerProps={{ className: 'abaabil-button' }} />)
+    expect(screen.getByRole('button', { name: 'Actions' })).toHaveClass('abaabil-menu__trigger', 'abaabil-button')
+  })
+
+  it('drops the href from a disabled link and marks it with data-disabled', () => {
+    render(<Menu id="m" trigger="Actions" items={[{ label: 'Go', href: '/x', disabled: true }]} />)
+    const item = screen.getByText('Go')
+    expect(item).not.toHaveAttribute('href')
+    expect(item).toHaveAttribute('data-disabled')
+  })
+
   it('adds no menu semantics at the normal tier', () => {
     render(<Menu id="m" trigger="Actions" items={ITEMS} />)
     expect(document.getElementById('m')).not.toHaveAttribute('role')
@@ -79,6 +91,34 @@ describe('Menu (a11y tier)', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
     fireEvent(panel, Object.assign(new Event('toggle'), { newState: 'closed' }))
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('merges a triggerProps className, so the menubar can still find the trigger', () => {
+    open(<A11yMenu id="m" trigger="Actions" items={ITEMS} triggerProps={{ className: 'abaabil-button' }} />)
+    expect(screen.getByRole('button', { name: 'Actions' })).toHaveClass('abaabil-menu__trigger', 'abaabil-button')
+  })
+
+  it('opens on the first item that is enabled now, not the one enabled at mount', () => {
+    const { panel, rerender } = open(
+      <A11yMenu id="m" trigger="Actions" items={[{ label: 'Undo' }, { label: 'Redo' }]} />
+    )
+    rerender(<A11yMenu id="m" trigger="Actions" items={[{ label: 'Undo', disabled: true }, { label: 'Redo' }]} />)
+    fireEvent(panel, Object.assign(new Event('toggle'), { newState: 'open' }))
+    expect(screen.getByRole('menuitem', { name: 'Redo' })).toHaveFocus()
+    expect(screen.getByRole('menuitem', { name: 'Redo' })).toHaveAttribute('tabindex', '0')
+  })
+
+  it('names the menu by its trigger when no label is given', () => {
+    open(<A11yMenu id="m" trigger="Actions" items={ITEMS} />)
+    expect(screen.getByRole('menu', { name: 'Actions' })).toBeInTheDocument()
+  })
+
+  it('a disabled link keeps its role but loses its href and says so', () => {
+    open(<A11yMenu id="m" trigger="Actions" items={[{ label: 'Go', href: '/x', disabled: true }, { label: 'Do' }]} />)
+    const item = screen.getByRole('menuitem', { name: 'Go' })
+    expect(item).not.toHaveAttribute('href')
+    expect(item).toHaveAttribute('aria-disabled', 'true')
+    expect(screen.queryByRole('link')).toBeNull()
   })
 
   it('uses a roving tabindex, so Tab leaves the menu rather than walking it', () => {

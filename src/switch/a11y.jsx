@@ -18,7 +18,13 @@ import Switch from './styled.jsx'
  * switch already announces its state ("on"/"off") from the native checked
  * property, and painting the same state as adjacent text means a screen
  * reader hears it twice. If you want visible state text, render it
- * yourself and mark it aria-hidden.
+ * yourself and mark it aria-hidden. *
+ * DOM shape: the <label> wraps the control and its text, so the whole
+ * row, gap included, is the hit target (2.5.8 asks for 24px and the track
+ * is 36 by 20). The description is a sibling of the label, not a child, so it
+ * stays out of the accessible name and reaches assistive tech only
+ * through aria-describedby. The description id derives from the control
+ * id, so a consumer `id="terms"` gives `terms-description`.
  *
  * @param {object} props
  * @param {string} props.label Accessible name. The platform does not supply one.
@@ -34,11 +40,11 @@ export default function Switch_a11y({
 }) {
   const baseId = useId()
   const inputId = id ?? `${baseId}-switch`
-  const descriptionId = `${baseId}-description`
+  const descriptionId = `${inputId}-description`
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/switch: no `label` given, so the switch has no accessible name ' +
         'and screen readers announce it as unnamed.'
@@ -48,14 +54,18 @@ export default function Switch_a11y({
   const describedBy =
     [ariaDescribedBy, description ? descriptionId : null].filter(Boolean).join(' ') || undefined
 
+  const control = <Switch {...props} id={inputId} aria-describedby={describedBy} />
+
   return (
     <span className="abaabil-switch__wrapper">
-      <Switch {...props} id={inputId} aria-describedby={describedBy} />
       {label ? (
         <label htmlFor={inputId} className="abaabil-switch__label">
+          {control}
           {label}
         </label>
-      ) : null}
+      ) : (
+        control
+      )}
       {description ? (
         <span id={descriptionId} className="abaabil-switch__description">
           {description}

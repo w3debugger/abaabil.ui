@@ -12,10 +12,16 @@ import Drawer from './styled.jsx'
  * dismissal, aria-modal, top-layer rendering and an inert background.
  *
  * What it adds is the `open` prop wired to showModal()/close(), an
- * accessible name, light dismiss on the backdrop, and the scroll lock
- * a drawer needs more than a centred dialog does: a drawer usually
- * leaves most of the page visible, which makes scrolling behind it
- * look like the page is working when it is inert.
+ * accessible name and light dismiss on the backdrop. The scroll lock a
+ * drawer needs more than a centred dialog does (a drawer leaves most
+ * of the page visible, which makes scrolling behind it look like the
+ * page is working when it is inert) is in the stylesheet:
+ * `html:has(.abaabil-drawer:modal)` sets overflow hidden with a stable
+ * scrollbar gutter, so nothing here touches `document.body`.
+ *
+ * Unmounting while `open` does not call close(), so focus is not
+ * returned to the element that opened it. Set `open` to false and let
+ * the close event fire before removing the drawer from the tree.
  *
  * A consumer-supplied `ref` and `onMouseDown` compose with this
  * component's own rather than replacing them, so passing either does
@@ -23,10 +29,16 @@ import Drawer from './styled.jsx'
  * dialog, and for the same reason: both were bugs waiting to happen.
  *
  * The animation is in the stylesheet and driven by the native `open`
- * attribute plus @starting-style, not by state here. A drawer that
- * slid in from JavaScript would need to hold its own "closing" flag
+ * attribute, @starting-style for the entry and a discrete `display`
+ * and `overlay` transition for the exit, not by state here. A drawer
+ * that slid from JavaScript would need to hold its own "closing" flag
  * and delay close() until a transition ended, which is a state machine
  * for something CSS now does on its own.
+ *
+ * Right-to-left is detected from a `dir="rtl"` attribute on an
+ * ancestor, usually <html>. A document made RTL by the CSS `direction`
+ * property alone still places the drawer on the correct edge, but
+ * slides it in from the wrong one.
  *
  * @param {object} props
  * @param {boolean} [props.open=false]
@@ -62,7 +74,6 @@ export default function Drawer_a11y({
   )
 
   if (
-    typeof process !== 'undefined' &&
     process.env.NODE_ENV !== 'production' &&
     !hasAccessibleName
   ) {
@@ -79,29 +90,17 @@ export default function Drawer_a11y({
     else if (!open && el.open) el.close()
   }, [open])
 
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const handle = () => onClose?.()
-    el.addEventListener('close', handle)
-    return () => el.removeEventListener('close', handle)
-  }, [onClose])
-
-  useEffect(() => {
-    if (!open) return
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = previous
-    }
-  }, [open])
-
-  // The backdrop is part of the dialog's own box, so a pointer event
-  // landing on the element itself rather than its children is a
-  // backdrop click.
+  // The backdrop is part of the dialog's own box, and so are its padding
+  // and its own scrollbar (the drawer scrolls), so the target alone does
+  // not say where the pointer landed. Only a point outside the box is
+  // the backdrop.
   const handleMouseDown = (event) => {
     onMouseDown?.(event)
-    if (event.target === ref.current) ref.current.close()
+    const el = ref.current
+    if (event.target !== el) return
+    const r = el.getBoundingClientRect()
+    const { clientX: x, clientY: y } = event
+    if (x < r.left || x > r.right || y < r.top || y > r.bottom) el.close()
   }
 
   return (
@@ -109,6 +108,7 @@ export default function Drawer_a11y({
       ref={setRef}
       side={side}
       aria-labelledby={label ? titleId : undefined}
+      onClose={onClose}
       onMouseDown={handleMouseDown}
       {...props}
     >

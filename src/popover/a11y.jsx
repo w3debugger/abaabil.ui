@@ -63,7 +63,7 @@ export default function Popover_a11y({
     label || labelledBy || props['aria-label'] || props['aria-labelledby']
   )
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/popover: no `label` or `labelledBy` given, so the panel has no ' +
         'accessible name and screen readers announce it as an unnamed group.'

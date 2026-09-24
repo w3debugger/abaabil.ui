@@ -38,15 +38,19 @@ export default function Avatar({ src, name, alt = '', className, children, ...pr
  * into four letters in a circle.
  *
  * Uses Intl.Segmenter where available so a name whose first character
- * is an emoji or an astral-plane letter is not cut in half.
+ * is an emoji or an astral-plane letter is not cut in half. One
+ * segmenter for the module: constructing one is an ICU object, and
+ * an avatar list would otherwise build two per row per render.
  */
+const seg = typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter() : null
+
 export function initials(name) {
   if (!name) return ''
   const words = String(name).trim().split(/\s+/).filter(Boolean)
   if (!words.length) return ''
   const first = (w) => {
-    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-      const [g] = new Intl.Segmenter().segment(w)
+    if (seg) {
+      const [g] = seg.segment(w)
       return g ? g.segment : w[0]
     }
     return [...w][0]

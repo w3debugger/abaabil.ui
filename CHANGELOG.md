@@ -4,6 +4,82 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.6.2] - 2026-09-25
+
+A review pass over all forty components: keyboard, screen reader, RTL, dark mode, forced colours, touch targets, and bytes. Nothing here changes an import path.
+
+### Fixed
+
+- **Every development warning was silent in Vite, Astro and Remix apps.** The guard `typeof process !== 'undefined'` is never replaced by those bundlers, so none of the 32 accessibility warnings (missing labels, a card heading without a level, a toast action with a timer) ever fired in the browser. The guard is now the bare `process.env.NODE_ENV` check, which also drops about 300 B of dead code across the a11y tiers.
+- Safari's native select popup, scrollbars and date pickers were light under a dark theme: the theme now sets `color-scheme`.
+- **Link-buttons could not be activated from the keyboard.** `Button` a11y with `as="a"` cancelled Enter and let Space call only `onClick`. Enter now follows `href` natively and Space fires the same native click.
+- `keepFocusable` on a disabled link-button now keeps it in the tab order instead of being ignored.
+- Secondary and ghost buttons had no hover state; they now take a `--color-muted` fill, and a disabled button no longer changes on hover.
+- Input, select and button inherit the page font (`font: inherit`), matching textarea and file.
+- Checkbox, radio and switch descriptions rendered beside the label on one line; they now sit beneath the label text.
+- Checkbox, radio and switch state was invisible in Windows forced-colors mode; the mark, dot and thumb are now painted in `CanvasText`.
+- The otp strip overflowed a 320px viewport; boxes shrink to 2rem below 22rem.
+- The file input stood a few px taller than every other control.
+- dialog and drawer no longer light-dismiss on a mousedown in their own padding, the gap under the title, or the drawer's scrollbar; only a point outside the box closes.
+- the tooltip bubble is centred on its trigger in RTL (it was a full bubble width off).
+- `ToastLive` takes `children` and sorts them by `variant` (`danger` assertive, the rest polite), which the docs had promised; the `polite` and `assertive` props still work.
+- `aria-atomic` moved from the toast live regions to each toast, so adding a toast no longer re-announces the ones already showing.
+- toasts in a bottom region stack newest nearest the edge with Tab order matching, the timer no longer resumes while focus is still inside (or the pointer still over), the close button returns focus to where it came from, and its hit area is 44px.
+- menu: `triggerProps.className` is merged with `abaabil-menu__trigger` instead of replacing it, which had silently unstyled the trigger and removed it from a menubar's keyboard row.
+- menu: opening now focuses the first item that is enabled now, not the one enabled at mount, so a menu whose first item became disabled no longer opens with focus stuck on the trigger.
+- menu: without `label`, the panel is `aria-labelledby` its trigger, as the docs said.
+- menu, context-menu: `disabled` on an `href` item drops the `href` and dims the item (`aria-disabled` at `a11y`, `data-disabled` below); it was a live link.
+- navigation-menu: the chevron pointed sideways in RTL.
+- navigation-menu: the chevron flips without `:has()` at the `a11y` tier via `aria-expanded`.
+- command: arrow keys follow the drawn group order, so interleaved groups no longer make the highlight jump between groups.
+- command: a consumer `aria-label` now names the search input as well as the dialog.
+- command: Enter on an `href` item at `normal`/`styled` follows the link, as `a11y` already did.
+- command: the document shortcut listener is bound once per `shortcut` rather than on every render, and `shortcut` is case-insensitive.
+- command: the first option scrolls back into view when the query changes.
+- combobox: a consumer `aria-label` is no longer overridden by an `aria-labelledby` pointing at an empty span.
+- combobox: typing after a selection clears it and calls `onChange(null)`.
+- combobox: the anchored list hides when its input scrolls out of view (`position-visibility: anchors-visible`).
+- dark mode: menu and context-menu drop their fill while an item is focused so the inset ring meets 3:1; the command active marker is drawn in the text colour; nav-menu descriptions inherit the link colour on hover.
+- **Collapsible's chevron pointed the wrong way in right-to-left documents**, right when closed and left when open; the breadcrumb separator pointed down. Both chevrons now use physical borders, and breadcrumb uses `[dir="rtl"]` so Chrome 116 to 119 get the rule too.
+- **Vertical tabs stacked above the panel** instead of beside it.
+- **Tabs overflowed the page** instead of wrapping, and were 36px tall; they now wrap and meet `--control-height-md`.
+- **Tabs and toolbar arrows moved the wrong way in right-to-left documents.**
+- **Tabs lost their tab stop when `items` shrank** below the selected index.
+- **Toolbar orphaned custom focusables** (`tabindex="0"` with a role) after the first render, ignored a control focused by click, and kept the stop on a control that disabled itself. A consumer `onKeyDown` also silently replaced the roving handler.
+- **Pagination showed a hover wash on the unavailable Previous or Next text.**
+- **Table's `scrollProps` and `captionProps` wiped the a11y tier's region, tab stop and caption id**, which the documented `stickyHeader` recipe triggered.
+- **Table's sort button never filled its header cell**, leaving 60px rows and an inset ring.
+- **Table's default sort scattered empty cells** and compared strings against the word "null"; empties now sort last in both directions.
+- **Every table was a tab stop** even when nothing overflowed; the stop now appears only while columns overflow.
+- **Table's sort focus ring was 2.84:1 in dark mode**; the fill drops to the surface while focused.
+- **Carousel's buttons covered the slides again** whenever a consumer set `padding` on the root, because the 1.6.1 gutters were padding the consumer replaced. The root is now a flex row with static buttons, so consumer padding adds outside.
+- **Carousel's focused track announced nothing**: `aria-label` on a role-less div is dropped; the track is now a named `group`.
+- slider pointer target is 44px tall; the thumb and track are unchanged (WCAG 2.5.8).
+- slider `showValue` output snaps to `step`, so it no longer prints a value the thumb is not on.
+- progress indeterminate bar under reduced motion shows stripes instead of a static 27% fill.
+- skeleton `height` now applies when `lines` is greater than one.
+- skeleton status wrapper is `display: block`, so its `role="status"` is announced in every engine.
+- vertical separator outside a flex row no longer breaks the line.
+- disabled standalone toggle no longer changes colour on hover.
+
+### Changed
+
+- Every per-component stylesheet restates the cascade layer order, so importing a component's CSS before `theme.css` no longer puts `abaabil.components` below `abaabil.base`. The unused `abaabil.reset` layer is gone from the order.
+- `className` and `style` on the a11y tiers of input, textarea, otp and file land on the group wrapper, the layout hook, as they already did on select and field; select's `style` moves there too.
+- The error message on input, textarea, otp and file no longer carries `role="alert"`, matching select and field: it is read with the control through `aria-describedby`.
+- Input, textarea, select, otp and file draw a required mark on the label from the control's own `required` attribute, the same rule as field.
+- Description and error ids on every form control's a11y tier derive from the control id, so `id="email"` gives `email-description` and `email-error` everywhere Field already did.
+- Checkbox, radio and switch a11y tiers wrap the control inside the `<label>`, so the whole row is the click target (DOM shape change; the description stays a sibling).
+- Checkbox, radio and select description text uses `--color-text-muted` like the rest of the controls, instead of `--color-text` at 75% opacity.
+- dialog, drawer and alert-dialog lock page scroll from CSS (`html:has(.abaabil-x:modal)` with `scrollbar-gutter: stable`) instead of `body.style.overflow`, which removes the sideways jump and gives alert-dialog the lock it was missing.
+- dialog, alert-dialog, drawer and popover animate out on close through a discrete `display` and `overlay` transition, off under reduced motion.
+- tooltip shows after a 300ms hover delay; focus still shows instantly.
+- navigation-menu: ArrowDown and ArrowUp move between a panel's links; ArrowUp closes only from the first link. The hover-open timer is cleared on unmount.
+- combobox: options render only while the list is open.
+- menu and combobox rows and the menubar are 2.75rem tall; menubar's open-trigger tint works at every tier.
+- **Accordion's `name` has no default.** The shared default put every accordion on the page in one native group, so opening a panel in one closed the open panel in every other. Pass a `name` that is unique on the page for exclusive open/close; the a11y tier warns in development when two or more items have none.
+- toggle group inputs use the shared `abaabil-visually-hidden` class; toggle.css is about 70 B gz smaller.
+
 ## [1.6.1] - 2026-09-25
 
 ### Fixed

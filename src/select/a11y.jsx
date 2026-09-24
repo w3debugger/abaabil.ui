@@ -27,10 +27,14 @@ import Select from './styled.jsx'
  *   into aria-describedby alongside the description.
  * @param {string} [props.id] Explicit id for the select. Defaults to a
  *   generated one.
- * @param {string} [props.className] Merged onto the wrapper.
+ * @param {string} [props.className] Merged onto the wrapper's base class,
+ *   `.abaabil-select-group`, the layout hook.
+ * @param {object} [props.style] Applied to the wrapper.
  *
  * A consumer-supplied aria-describedby is preserved and combined with the
- * generated description/error ids rather than replaced.
+ * generated description/error ids rather than replaced. Those ids derive
+ * from the select id, and the error is not a live region, both for the
+ * reasons given in input/a11y.
  */
 export default function Select_a11y({
   label,
@@ -39,13 +43,14 @@ export default function Select_a11y({
   error,
   id,
   className,
+  style,
   'aria-describedby': ariaDescribedBy,
   ...props
 }) {
   const baseId = useId()
   const selectId = id ?? `${baseId}-select`
-  const descriptionId = description ? `${baseId}-description` : undefined
-  const errorId = error ? `${baseId}-error` : undefined
+  const descriptionId = description ? `${selectId}-description` : undefined
+  const errorId = error ? `${selectId}-error` : undefined
   const describedBy = [ariaDescribedBy, descriptionId, errorId].filter(Boolean).join(' ') || undefined
 
   // A control named with aria-label or aria-labelledby is correctly named.
@@ -54,7 +59,7 @@ export default function Select_a11y({
     label || props['aria-label'] || props['aria-labelledby']
   )
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/select: no `label` given, so the select has no accessible name ' +
         'and screen readers announce it as unnamed.'
@@ -64,7 +69,7 @@ export default function Select_a11y({
   const cls = className ? `abaabil-select-group ${className}` : 'abaabil-select-group'
 
   return (
-    <div className={cls}>
+    <div className={cls} style={style}>
       {label ? (
         <label
           htmlFor={selectId}

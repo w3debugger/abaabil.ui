@@ -110,8 +110,37 @@ describe('Button (a11y tier)', () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
+  it('lets Enter and Space both fire the native click on a link-button with no onClick, so href is followed', async () => {
+    render(<A11yButton as="a" href="#x">Go</A11yButton>)
+    const el = screen.getByRole('button', { name: 'Go' })
+    const clicks = vi.fn()
+    el.addEventListener('click', clicks)
+    el.focus()
+    await userEvent.keyboard('{Enter}')
+    expect(clicks).toHaveBeenCalledTimes(1)
+    await userEvent.keyboard(' ')
+    expect(clicks).toHaveBeenCalledTimes(2)
+  })
+
+  it('suppresses both keys on a disabled link-button', async () => {
+    const onClick = vi.fn()
+    render(<A11yButton as="a" href="#x" disabled keepFocusable onClick={onClick}>Go</A11yButton>)
+    const el = screen.getByRole('button', { name: 'Go' })
+    el.focus()
+    await userEvent.keyboard('{Enter}')
+    await userEvent.keyboard(' ')
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
   it('removes a disabled link-button from the tab order', () => {
     render(<A11yButton as="a" href="#x" disabled>Go</A11yButton>)
     expect(screen.getByRole('button', { name: 'Go' })).toHaveAttribute('tabindex', '-1')
+  })
+
+  it('keeps a disabled link-button in the tab order when keepFocusable is set', () => {
+    render(<A11yButton as="a" href="#x" disabled keepFocusable>Go</A11yButton>)
+    const el = screen.getByRole('button', { name: 'Go' })
+    expect(el).toHaveAttribute('tabindex', '0')
+    expect(el).toHaveAttribute('aria-disabled', 'true')
   })
 })

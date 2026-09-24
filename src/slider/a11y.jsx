@@ -32,6 +32,7 @@ import Slider from './styled.jsx'
  *   visible output and aria-valuetext.
  * @param {number} [props.min=0]
  * @param {number} [props.max=100]
+ * @param {number|'any'} [props.step=1]
  * @param {string} [props.id] Overrides the generated id.
  */
 export default function Slider_a11y({
@@ -42,6 +43,7 @@ export default function Slider_a11y({
   formatValue,
   min = 0,
   max = 100,
+  step = 1,
   value,
   defaultValue,
   onChange,
@@ -62,7 +64,22 @@ export default function Slider_a11y({
   // outside its range to the nearest end, so an unclamped copy here
   // would print a number the control is not on: defaultValue={30} with
   // max={11} showed "30" beside a thumb sitting at 11.
-  const clamp = (n) => Math.min(Math.max(Number(n), Number(min)), Number(max))
+  //
+  // Snapped to step for the same reason again. The browser moves an
+  // off-step value to the nearest allowed one (ties upward, never past
+  // max), so step={30} with the derived midpoint 50 put the thumb at 60
+  // while the output printed 50. toPrecision strips the float noise a
+  // decimal step leaves behind (0.1 * 3 is not 0.3).
+  const clamp = (n) => {
+    const lo = Number(min)
+    const hi = Number(max)
+    const s = Number(step)
+    n = Math.min(Math.max(Number(n), lo), hi)
+    if (!(s > 0)) return n
+    const q = (n - lo) / s
+    const up = lo + Math.round(q) * s
+    return +(up > hi ? lo + Math.floor(q) * s : up).toPrecision(12)
+  }
   const [internal, setInternal] = useState(() =>
     clamp(defaultValue ?? Math.floor((Number(min) + Number(max)) / 2))
   )
@@ -70,7 +87,7 @@ export default function Slider_a11y({
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/slider: no `label` given, so the slider has no accessible name. ' +
         'Pass `label`, `aria-label`, or `aria-labelledby`.'
@@ -114,6 +131,7 @@ export default function Slider_a11y({
         id={sliderId}
         min={min}
         max={max}
+        step={step}
         {...(controlled ? { value } : { defaultValue: internal })}
         onChange={handleChange}
         aria-valuetext={text}

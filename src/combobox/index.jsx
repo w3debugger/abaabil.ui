@@ -26,9 +26,8 @@ export default function Combobox({
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
 
-  const filtered = options.filter((o) =>
-    o.label.toLowerCase().includes(query.trim().toLowerCase())
-  )
+  const q = query.trim().toLowerCase()
+  const filtered = options.filter((o) => o.label.toLowerCase().includes(q))
 
   const select = (option) => {
     setQuery(option.label)

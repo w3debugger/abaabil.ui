@@ -4,7 +4,10 @@
 
     display: block;
     inline-size: 100%;
-    padding: var(--space-2);
+    /* Tighter than the other controls' block padding, because the
+       ::file-selector-button inside adds its own: this lands the whole
+       control near --control-height-md rather than a few px over. */
+    padding: var(--space-1) var(--space-2);
     border: 1px solid var(--file-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
@@ -59,6 +62,15 @@
   .abaabil-file__label {
     font-size: var(--font-size-sm);
     color: var(--color-text);
+  }
+
+  /* The mark follows the control's own attribute, not a prop, so it
+     cannot say "required" over a control that is not. Empty alt text
+     keeps the asterisk out of the accessible name: the attribute
+     already tells assistive tech. Same rule as field. */
+  .abaabil-file-group:has(:required) > .abaabil-file__label::after {
+    content: " *" / "";
+    color: var(--color-danger);
   }
 
   .abaabil-file__description {

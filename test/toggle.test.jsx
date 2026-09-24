@@ -74,6 +74,11 @@ describe('ToggleGroup (normal tier)', () => {
     expect(screen.getByRole('radio', { name: 'Left' })).toHaveFocus()
   })
 
+  it('clips the inputs with the shared visually-hidden class rather than its own copy', () => {
+    render(<ToggleGroup name="align" items={ALIGN} />)
+    expect(screen.getByRole('radio', { name: 'Left' })).toHaveClass('abaabil-visually-hidden')
+  })
+
   it('moves selection with arrow keys, from the platform', async () => {
     render(<ToggleGroup name="align" defaultValue="left" items={ALIGN} />)
     await userEvent.tab()

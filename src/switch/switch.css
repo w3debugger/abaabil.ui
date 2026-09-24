@@ -64,22 +64,27 @@
     cursor: not-allowed;
   }
 
+  /* A column: the label row (track and text) above the description. */
   .abaabil-switch__wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  /* The label wraps the track, so the row and its gap are all clickable. */
+  .abaabil-switch__label {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    flex-wrap: wrap;
-  }
-
-  .abaabil-switch__label {
     font-size: var(--font-size-sm);
     color: var(--color-text);
     cursor: pointer;
   }
 
+  /* Indented past the track (--switch-width, which lives on the input
+     and so is out of reach here) and the row gap, under the text. */
   .abaabil-switch__description {
-    display: block;
-    flex-basis: 100%;
+    padding-inline-start: calc(2.25rem + var(--space-2));
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
   }
@@ -88,6 +93,15 @@
     .abaabil-switch,
     .abaabil-switch::before {
       transition: none;
+    }
+  }
+
+  /* Forced colours flatten every background to Canvas, so track and
+     thumb would merge. A text system colour on the thumb survives the
+     override, and its position still shows on from off. */
+  @media (forced-colors: active) {
+    .abaabil-switch::before {
+      background: CanvasText;
     }
   }
 }

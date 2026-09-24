@@ -56,6 +56,13 @@ describe('ContextMenu (normal tier)', () => {
     expect(screen.getByRole('button', { name: 'Do' })).toHaveAttribute('type', 'button')
   })
 
+  it('drops the href from a disabled link and marks it with data-disabled', () => {
+    render(<ContextMenu id="m" items={[{ label: 'Go', href: '/x', disabled: true }]}><p>Region</p></ContextMenu>)
+    const item = screen.getByText('Go')
+    expect(item).not.toHaveAttribute('href')
+    expect(item).toHaveAttribute('data-disabled')
+  })
+
   it('closes after an item is chosen, since a click inside is not a light-dismiss', () => {
     const onSelect = vi.fn()
     render(<ContextMenu id="m" items={[{ label: 'Do', onSelect }]}><p>Region</p></ContextMenu>)
@@ -180,6 +187,16 @@ describe('ContextMenu (a11y tier)', () => {
     render(<A11yContextMenu id="m" label="File actions" items={ITEMS}><p>Region</p></A11yContextMenu>)
     fireEvent.keyDown(region(), { key: 'ContextMenu' })
     expect(document.getElementById('m').showPopover).toHaveBeenCalled()
+  })
+
+  it('a disabled link keeps its role but loses its href and says so', () => {
+    const { panel } = open([{ label: 'Go', href: '/x', disabled: true }, { label: 'Do' }])
+    const item = screen.getByRole('menuitem', { name: 'Go' })
+    expect(item).not.toHaveAttribute('href')
+    expect(item).toHaveAttribute('aria-disabled', 'true')
+    expect(screen.queryByRole('link')).toBeNull()
+    fireEvent.click(item)
+    expect(panel.hidePopover).not.toHaveBeenCalled()
   })
 
   it('does not put aria-haspopup on the region, which is not a control', () => {

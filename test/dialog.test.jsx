@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import Dialog from '../src/dialog/index.jsx'
@@ -73,11 +73,47 @@ describe('Dialog (a11y tier)', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('locks body scroll while open and restores it on close', () => {
-    const { rerender } = render(<A11yDialog open label="S" data-testid="d">Body</A11yDialog>)
-    expect(document.body.style.overflow).toBe('hidden')
-    rerender(<A11yDialog label="S" data-testid="d">Body</A11yDialog>)
-    expect(document.body.style.overflow).not.toBe('hidden')
+  // The listener used to be bound in an effect keyed on onClose, so an
+  // inline arrow rebound it on every render of the parent.
+  it('does not rebind the close listener when onClose is a new function', () => {
+    const { rerender } = render(<A11yDialog open label="S" onClose={() => {}} data-testid="d">Body</A11yDialog>)
+    const el = screen.getByTestId('d')
+    const add = vi.spyOn(el, 'addEventListener')
+    const onClose = vi.fn()
+    rerender(<A11yDialog open label="S" onClose={onClose} data-testid="d">Body</A11yDialog>)
+    expect(add).not.toHaveBeenCalledWith('close', expect.anything())
+    el.close()
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  // The padding and the gap under the title are the dialog's own box too,
+  // so the event target alone cannot tell a backdrop click from one that
+  // landed beside a button.
+  it('light-dismisses on a click outside its box, not on one inside it', () => {
+    render(<A11yDialog open label="S" data-testid="d">Body</A11yDialog>)
+    const el = screen.getByTestId('d')
+    el.getBoundingClientRect = () => ({ left: 100, top: 100, right: 300, bottom: 200 })
+    fireEvent.mouseDown(el, { clientX: 150, clientY: 150 })
+    expect(el.open).toBe(true)
+    fireEvent.mouseDown(el, { clientX: 10, clientY: 10 })
+    expect(el.open).toBe(false)
+  })
+
+  // Locking from CSS keys on :modal, the platform's own state, and keeps
+  // the scrollbar gutter so the page does not jump sideways. Nothing on
+  // body is touched.
+  it('locks page scroll from the stylesheet, leaving body untouched', () => {
+    render(<A11yDialog open label="S" data-testid="d">Body</A11yDialog>)
+    expect(document.body.style.overflow).toBe('')
+    const css = readFileSync(new URL('../src/dialog/dialog.css', HERE), 'utf8')
+    expect(css).toMatch(/html:has\(\.abaabil-dialog:modal\)\s*\{[^}]*overflow:\s*hidden[^}]*scrollbar-gutter:\s*stable/)
+  })
+
+  it('transitions display and overlay out, so closing animates and reduced motion snaps', () => {
+    const css = readFileSync(new URL('../src/dialog/dialog.css', HERE), 'utf8')
+    expect(css).toMatch(/display var\(--duration-fast\) allow-discrete/)
+    expect(css).toMatch(/overlay var\(--duration-fast\) allow-discrete/)
+    expect(css).toMatch(/prefers-reduced-motion: reduce\)\s*\{\s*\.abaabil-dialog \{ transition: none; \}/)
   })
 
   it('never sets tabindex on the dialog element', () => {

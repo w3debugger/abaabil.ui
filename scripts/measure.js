@@ -86,7 +86,9 @@ const BUDGETS = {
   'dist/select/a11y.js': 700,
   'dist/accordion/index.js': 450,
   'dist/accordion/styled.js': 150,
-  'dist/accordion/a11y.js': 250,
+  // 1.6.2: the a11y tier gained a dev warning for two or more items with
+  // no `name`, now that `name` has no default. 250 to 400.
+  'dist/accordion/a11y.js': 400,
   'dist/textarea/index.js': 250,
   'dist/textarea/styled.js': 150,
   'dist/textarea/a11y.js': 700,

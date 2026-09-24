@@ -45,7 +45,7 @@ export default function Progress_a11y({
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/progress: no `label` given, so the progress bar has no accessible name. ' +
         'Pass `label`, `aria-label`, or `aria-labelledby`.'

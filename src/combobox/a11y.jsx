@@ -25,8 +25,8 @@ import './combobox.css'
  * @param {object} props
  * @param {Array<{value: string, label: string}>} props.options
  * @param {string} props.label Accessible name for the input.
- * @param {boolean} [props.hideLabel=false] Visually hide the label (it stays
- *   in the accessibility tree either way). Set to false to render it visibly.
+ * @param {boolean} [props.hideLabel=false] Visually hide the label; it
+ *   stays in the accessibility tree. The default renders it above the input.
  * @param {(value: string|null) => void} [props.onChange]
  */
 export default function Combobox_a11y({
@@ -49,7 +49,7 @@ export default function Combobox_a11y({
     label || props['aria-label'] || props['aria-labelledby']
   )
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/combobox: no `label` given, so the combobox has no accessible name ' +
         'and screen readers announce it as unnamed.'
@@ -61,9 +61,8 @@ export default function Combobox_a11y({
   const [active, setActive] = useState(-1)
   const [selected, setSelected] = useState(null)
 
-  const filtered = options.filter((o) =>
-    o.label.toLowerCase().includes(query.trim().toLowerCase())
-  )
+  const q = query.trim().toLowerCase()
+  const filtered = options.filter((o) => o.label.toLowerCase().includes(q))
 
   // An activedescendant pointing at an unrendered option is the classic
   // silent failure, so clamp it against the current filtered list.
@@ -143,12 +142,17 @@ export default function Combobox_a11y({
   }
 
   const cls = className ? `abaabil-combobox ${className}` : 'abaabil-combobox'
+  // A consumer's aria-label only names the control if no labelledby is
+  // set: a labelledby that resolves to an empty span wins over it.
+  const labelledBy = label ? labelId : props['aria-labelledby']
 
   return (
     <div className={cls}>
-      <span id={labelId} className={hideLabel ? 'abaabil-combobox__label' : 'abaabil-combobox__label--visible'}>
-        {label}
-      </span>
+      {label ? (
+        <span id={labelId} className={hideLabel ? 'abaabil-visually-hidden' : 'abaabil-combobox__label'}>
+          {label}
+        </span>
+      ) : null}
       <input
         {...props}
         className="abaabil-combobox__input"
@@ -157,7 +161,7 @@ export default function Combobox_a11y({
         value={query}
         placeholder={placeholder}
         autoComplete="off"
-        aria-labelledby={labelId}
+        aria-labelledby={labelledBy}
         aria-expanded={expanded}
         aria-controls={listId}
         aria-autocomplete="list"
@@ -167,17 +171,24 @@ export default function Combobox_a11y({
         onClick={(e) => { props.onClick?.(e); setOpen(true) }}
         onBlur={(e) => { props.onBlur?.(e); handleBlur(e) }}
         onKeyDown={(e) => { props.onKeyDown?.(e); handleKeyDown(e) }}
-        onChange={(e) => { setQuery(e.target.value); setOpen(true); setActive(-1) }}
+        onChange={(e) => {
+          setQuery(e.target.value)
+          setOpen(true)
+          setActive(-1)
+          // Typing after a commit is the other way a selection is cleared,
+          // and onChange is the consumer's only signal for that.
+          if (selected !== null) { setSelected(null); onChange?.(null) }
+        }}
       />
 
       <ul
         id={listId}
         role="listbox"
-        aria-labelledby={labelId}
+        aria-labelledby={labelledBy}
         className="abaabil-combobox__list"
         hidden={!expanded}
       >
-        {filtered.map((o, i) => (
+        {expanded && filtered.map((o, i) => (
           <li
             key={o.value}
             id={optionId(i)}

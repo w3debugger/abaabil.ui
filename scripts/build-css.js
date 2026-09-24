@@ -13,6 +13,9 @@ const theme = ['tokens/layers.css', 'tokens/primitive.css', 'tokens/semantic.css
   .map((f) => readFileSync(join(root, 'src', f), 'utf8'))
   .join('\n')
 
+// Restated at the top of every per-component file; see the loop below.
+const layerOrder = readFileSync(join(root, 'src/tokens/layers.css'), 'utf8')
+
 writeFileSync(out('theme.css'), transform({
   filename: 'theme.css', code: Buffer.from(theme), minify: true, targets: TARGETS,
 }).code)
@@ -24,8 +27,13 @@ for (const c of components) {
   const src = join(root, 'src', c, `${c}.css`)
   if (!existsSync(src)) continue
   const css = readFileSync(src, 'utf8')
+  // Each component stylesheet restates the layer order. Layer order is
+  // fixed by first occurrence, so a consumer who imports a component's
+  // CSS before theme.css would otherwise get components as the lowest
+  // layer and base above it. Only the per-component files carry it;
+  // styles.css starts with theme.css, which already does.
   writeFileSync(out(`${c}/${c}.css`), transform({
-    filename: `${c}.css`, code: Buffer.from(css), minify: true, targets: TARGETS,
+    filename: `${c}.css`, code: Buffer.from(layerOrder + css), minify: true, targets: TARGETS,
   }).code)
   all.push(css)
 }

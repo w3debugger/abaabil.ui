@@ -13,10 +13,19 @@ import Input from './styled.jsx'
  * Uses useId to mint stable, unique ids for the label and the description
  * and error text, so this tier needs a client tree.
  *
- * Extra props (id, name, placeholder, aria-describedby, onChange, ...)
- * land on the input, the semantic control consumers are actually
+ * `className` and `style` land on the wrapper, `.abaabil-input-group`,
+ * which is the flex item in a consumer's layout and so the layout hook.
+ * Every other prop (id, name, placeholder, aria-describedby, onChange,
+ * ...) lands on the input, the semantic control consumers are actually
  * targeting. A consumer-supplied aria-describedby is preserved and
  * combined with the generated description/error ids rather than replaced.
+ *
+ * The description and error ids derive from the input id, so a consumer
+ * who passes `id="email"` gets `email-description` and `email-error`,
+ * the same shape field gives. The error is not a live region, for the
+ * reason written out in field/a11y: it is read with the control as part
+ * of its description, and a submit that shows several errors at once
+ * would otherwise fire several alerts over each other.
  *
  * @param {object} props
  * @param {string} [props.label] Rendered as a real <label>, associated
@@ -32,6 +41,8 @@ import Input from './styled.jsx'
  *   description.
  * @param {boolean} [props.required=false]
  * @param {string} [props.id] Overrides the generated input id.
+ * @param {string} [props.className] Merged onto the wrapper's base class.
+ * @param {object} [props.style] Applied to the wrapper.
  */
 export default function Input_a11y({
   label,
@@ -40,17 +51,19 @@ export default function Input_a11y({
   error,
   required = false,
   id,
+  className,
+  style,
   'aria-describedby': ariaDescribedBy,
   ...props
 }) {
   const baseId = useId()
   const inputId = id ?? `${baseId}-input`
-  const descriptionId = `${baseId}-description`
-  const errorId = `${baseId}-error`
+  const descriptionId = `${inputId}-description`
+  const errorId = `${inputId}-error`
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/input: no `label` given, so the input has no accessible name. ' +
         'Pass `label`, `aria-label`, or `aria-labelledby`.'
@@ -62,8 +75,10 @@ export default function Input_a11y({
       .filter(Boolean)
       .join(' ') || undefined
 
+  const cls = className ? `abaabil-input-group ${className}` : 'abaabil-input-group'
+
   return (
-    <div className="abaabil-input-group">
+    <div className={cls} style={style}>
       {label ? (
         <label
           htmlFor={inputId}
@@ -85,7 +100,7 @@ export default function Input_a11y({
         </div>
       ) : null}
       {error ? (
-        <div id={errorId} className="abaabil-input__error" role="alert">
+        <div id={errorId} className="abaabil-input__error">
           {error}
         </div>
       ) : null}

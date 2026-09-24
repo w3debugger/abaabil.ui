@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Children, useEffect, useRef, useState } from 'react'
 import './toast.css'
 import { Toast, ToastRegion } from './styled.jsx'
 
@@ -50,10 +50,21 @@ export function ToastRegion_a11y({ label = 'Notifications', children, ...props }
  * interrupts whatever is being read. Everything else is polite, which
  * waits. A stream of polite "Saved" messages is ignorable; a stream of
  * assertive ones makes the page unusable with a screen reader, and
- * that failure is invisible to anyone not using one.
+ * that failure is invisible to anyone not using one. The sorting is
+ * done by `ToastLive` below, which reads the `variant` prop of each
+ * child it is given; a toast rendered anywhere else has no live region
+ * and is not announced.
  *
- * `aria-atomic` is set so the whole message is read as one sentence
- * rather than the changed words alone.
+ * `aria-atomic` is set on each toast, not on the live region, so the
+ * whole message is read as one sentence rather than the changed words
+ * alone, and adding a toast does not re-announce the ones already up.
+ *
+ * STACKING
+ *
+ * The region is `position: fixed` with a high z-index, not in the top
+ * layer, so it can never cover an open dialog. The other way round: a
+ * toast fired while a modal dialog or drawer is open sits under the
+ * backdrop, inert and unreachable, until the dialog closes.
  *
  * DISMISSAL
  *
@@ -102,9 +113,11 @@ export function Toast_a11y({
   const [paused, setPaused] = useState(false)
   const dismiss = useRef(onDismiss)
   dismiss.current = onDismiss
+  // Where focus came from when it entered the toast, so pressing the
+  // close button does not drop focus on body when the button unmounts.
+  const returnTo = useRef(null)
 
   if (
-    typeof process !== 'undefined' &&
     process.env.NODE_ENV !== 'production' &&
     action &&
     duration !== null
@@ -134,14 +147,27 @@ export function Toast_a11y({
   }, [duration])
 
   const hold = () => setPaused(true)
-  const release = () => setPaused(document.hidden)
+  // Leaving by pointer while focus is still inside, or by focus while
+  // still hovered, must not resume the timer.
+  const release = (event) =>
+    setPaused(document.hidden || event.currentTarget.matches(':hover, :focus-within'))
+  const focus = (event) => {
+    const from = event.relatedTarget
+    if (from && !event.currentTarget.contains(from)) returnTo.current = from
+    hold()
+  }
+  const close = () => {
+    returnTo.current?.focus()
+    dismiss.current?.()
+  }
 
   return (
     <Toast
       variant={variant}
+      aria-atomic="true"
       onMouseEnter={hold}
       onMouseLeave={release}
-      onFocusCapture={hold}
+      onFocusCapture={focus}
       onBlurCapture={release}
       {...props}
     >
@@ -151,7 +177,7 @@ export function Toast_a11y({
         <button
           type="button"
           className="abaabil-toast__close"
-          onClick={() => dismiss.current?.()}
+          onClick={close}
         >
           <span className="abaabil-visually-hidden">{closeLabel}</span>
           <span aria-hidden="true">&times;</span>
@@ -162,17 +188,31 @@ export function Toast_a11y({
 }
 
 /**
- * The two live regions, rendered inside ToastRegion. Put your polite
- * toasts in the first slot and your assertive ones in the second, or
- * use `ToastList` below, which sorts them for you.
+ * The two live regions, rendered inside ToastRegion. Give it your
+ * toasts as children and it sorts them by `variant`: danger goes in
+ * the assertive region, everything else in the polite one. The
+ * `polite` and `assertive` slots still work for callers who sort by
+ * hand.
+ *
+ * The sort reads the `variant` prop of each direct child, so a toast
+ * wrapped in a component of your own is polite whatever it renders.
+ *
+ * @param {object} props
+ * @param {import('react').ReactNode} [props.children] Toasts, sorted here.
+ * @param {import('react').ReactNode} [props.polite]
+ * @param {import('react').ReactNode} [props.assertive]
  */
-export function ToastLive({ polite, assertive }) {
+export function ToastLive({ polite, assertive, children }) {
+  const all = Children.toArray(children)
+  const danger = (child) => child.props?.variant === 'danger'
   return (
     <>
-      <div className="abaabil-toast-live" aria-live="polite" aria-atomic="true">
+      <div className="abaabil-toast-live" aria-live="polite">
+        {all.filter((child) => !danger(child))}
         {polite}
       </div>
-      <div className="abaabil-toast-live" aria-live="assertive" aria-atomic="true">
+      <div className="abaabil-toast-live" aria-live="assertive">
+        {all.filter(danger)}
         {assertive}
       </div>
     </>

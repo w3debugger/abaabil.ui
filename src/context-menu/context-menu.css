@@ -49,18 +49,22 @@
     cursor: pointer;
   }
 
-  .abaabil-context-menu__item:hover,
-  .abaabil-context-menu__item:focus-visible {
+  .abaabil-context-menu__item:hover {
     background: var(--color-muted);
   }
 
-  /* Inside the item, not around it: the panel clips at its padding. */
+  /* Inside the item, not around it: the panel clips at its padding. The
+     fill drops back to the surface while focused: the ring on the muted
+     fill is 2.84:1 in dark mode, under the 3:1 floor. */
   .abaabil-context-menu__item:focus-visible {
     outline: 2px solid var(--color-focus-ring);
     outline-offset: -2px;
+    background: var(--color-surface);
   }
 
-  .abaabil-context-menu__item:disabled {
+  /* :disabled is a button; the attributes are a disabled link, which the
+     a11y tier marks with aria-disabled and the normal tier with data. */
+  .abaabil-context-menu__item:is(:disabled, [aria-disabled], [data-disabled]) {
     opacity: 0.5;
     cursor: not-allowed;
     background: none;

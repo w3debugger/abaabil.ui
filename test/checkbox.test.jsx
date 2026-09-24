@@ -54,6 +54,19 @@ describe('Checkbox (a11y tier)', () => {
     expect(cb.id).toBeTruthy()
   })
 
+  it('wraps the control in the label so the whole row is the hit target, and keeps the description outside it', () => {
+    render(<CheckboxA11y label="Subscribe" description="You can unsubscribe anytime." />)
+    const cb = screen.getByRole('checkbox', { name: 'Subscribe' })
+    const label = screen.getByText('Subscribe')
+    expect(label).toContainElement(cb)
+    expect(label).not.toContainElement(screen.getByText('You can unsubscribe anytime.'))
+  })
+
+  it('derives the description id from a consumer-supplied id', () => {
+    render(<CheckboxA11y label="Subscribe" id="terms" description="Read them first." />)
+    expect(screen.getByRole('checkbox', { name: 'Subscribe' })).toHaveAttribute('aria-describedby', 'terms-description')
+  })
+
   it('toggles the checkbox when the label is clicked', async () => {
     render(<CheckboxA11y label="Subscribe" />)
     const cb = screen.getByRole('checkbox', { name: 'Subscribe' })

@@ -46,10 +46,14 @@
     outline-offset: 2px;
   }
 
+  /* 44px rows: the menu opens from a tap on its trigger, so the items
+     are touch targets too. */
   .abaabil-menu__item {
     appearance: none;
-    display: block;
+    display: flex;
+    align-items: center;
     inline-size: 100%;
+    min-block-size: 2.75rem;
     padding-block: var(--space-2);
     padding-inline: var(--space-3);
     border: 0;
@@ -73,19 +77,23 @@
   /* The roving tabindex means exactly one item is focusable, and moving
      between them moves real focus, so the focus ring is the selection
      indicator. It sits inside the item rather than around it because the
-     panel clips at its own padding. */
+     panel clips at its own padding. The fill drops back to the surface
+     while focused: the ring on the muted fill is 2.84:1 in dark mode,
+     under the 3:1 floor. */
   .abaabil-menu__item:focus-visible {
     outline: 2px solid var(--color-focus-ring);
     outline-offset: -2px;
-    background: var(--color-muted);
+    background: var(--color-surface);
   }
 
-  .abaabil-menu__item:disabled {
+  /* :disabled is a button; the attributes are a disabled link, which the
+     a11y tier marks with aria-disabled and the normal tier with data. */
+  .abaabil-menu__item:is(:disabled, [aria-disabled], [data-disabled]) {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .abaabil-menu__item:disabled:hover {
+  .abaabil-menu__item:is(:disabled, [aria-disabled], [data-disabled]):hover {
     background: none;
   }
 
@@ -93,10 +101,9 @@
     .abaabil-menu {
       position: fixed;
       inset: auto;
-      margin: 0;
+      margin: var(--space-1) 0 0;
       position-area: block-end span-inline-end;
       position-try-fallbacks: block-start span-inline-end, block-end span-inline-start;
-      margin-block-start: var(--space-1);
     }
   }
 

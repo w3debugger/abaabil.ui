@@ -14,7 +14,9 @@
  * @param {string} props.id Panel id; also wires the trigger.
  * @param {import('react').ReactNode} props.trigger Button content.
  * @param {Array<{key?: string|number, label: import('react').ReactNode, href?: string, onSelect?: () => void, disabled?: boolean}>} props.items
- * @param {object} [props.triggerProps] Spread onto the trigger button.
+ * @param {object} [props.triggerProps] Spread onto the trigger button. A
+ *   `className` in it is merged with `abaabil-menu__trigger`, not swapped
+ *   for it: menubar finds its triggers by that class.
  * @param {string} [props.className] Merged onto the panel.
  */
 function anchorNameFor(id) {
@@ -29,9 +31,9 @@ export default function Menu({ id, trigger, items, triggerProps, className, ...p
       <button
         type="button"
         popoverTarget={id}
-        className="abaabil-menu__trigger"
         style={{ anchorName: anchorNameFor(id) }}
         {...triggerProps}
+        className={triggerProps?.className ? `abaabil-menu__trigger ${triggerProps.className}` : 'abaabil-menu__trigger'}
       >
         {trigger}
       </button>
@@ -58,8 +60,10 @@ export function MenuItem({ label, href, onSelect, disabled, className, ...props 
   const cls = className ? `abaabil-menu__item ${className}` : 'abaabil-menu__item'
 
   if (href) {
+    // A disabled link drops its href so it cannot be followed; the data
+    // attribute is what the stylesheet dims.
     return (
-      <a href={href} className={cls} {...props}>
+      <a href={disabled ? undefined : href} data-disabled={disabled || undefined} className={cls} {...props}>
         {label}
       </a>
     )

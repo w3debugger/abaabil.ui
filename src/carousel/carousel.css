@@ -1,18 +1,23 @@
 @layer abaabil.components {
-  /* The buttons sit in these gutters, beside the track rather than
-     over it. Absolutely positioned over the slide they covered the first
-     and last 44px of whatever a slide held, and a caption or a heading
-     that starts at the edge is exactly what a slide holds. 44px plus the
-     button's own inset on each side. */
+  /* Button, track, button in a row. The buttons are beside the track,
+     not over it: absolutely positioned they covered the first and last
+     44px of whatever a slide held. 1.6.1 reserved that room as
+     padding-inline on the root with the buttons still absolute, which
+     a consumer's own `padding` on the root replaced, putting the
+     buttons back over the slides. Static flex items cannot be moved by
+     the consumer's padding, which now adds outside instead. */
   .abaabil-carousel {
-    position: relative;
-    padding-inline: calc(44px + var(--space-2) * 2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
   }
 
   /* The track is the component: an overflow container the browser
      already drags, flings, snaps and mirrors. The scrollbar is hidden
      because the buttons and the snap points are the affordance. */
   .abaabil-carousel__track {
+    flex: 1;
+    min-inline-size: 0;
     display: flex;
     margin: 0;
     padding: 0;
@@ -34,9 +39,7 @@
      toggle so a carousel beside a toolbar reads as one system. */
   .abaabil-carousel__prev,
   .abaabil-carousel__next {
-    position: absolute;
-    inset-block-start: 50%;
-    translate: 0 -50%;
+    flex: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -51,14 +54,6 @@
     font-size: var(--font-size-lg);
     line-height: 1;
     cursor: pointer;
-  }
-
-  .abaabil-carousel__prev {
-    inset-inline-start: var(--space-2);
-  }
-
-  .abaabil-carousel__next {
-    inset-inline-end: var(--space-2);
   }
 
   /* The glyphs are drawn, not rendered, so the hidden label is the only

@@ -21,7 +21,7 @@
     user-select: none;
   }
 
-  .abaabil-toggle:hover,
+  .abaabil-toggle:not(:disabled):hover,
   .abaabil-toggle-group__input:not(:disabled) + .abaabil-toggle-group__label:hover {
     background: var(--color-muted);
   }
@@ -33,15 +33,20 @@
 
   /* Pressed is a filled control, not a tinted one. A toggle's whole
      job is to be unambiguous at a glance, and a 10% wash next to an
-     unpressed sibling is not. */
+     unpressed sibling is not.
+
+     Colour is not the only signal. Someone who cannot separate the
+     fill from the surface still sees the pressed member inset while
+     its siblings are not (WCAG 1.4.1). */
   .abaabil-toggle[data-pressed],
   .abaabil-toggle-group__input:checked + .abaabil-toggle-group__label {
     background: var(--color-primary);
     border-color: var(--color-primary);
     color: var(--color-primary-fg);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25);
   }
 
-  .abaabil-toggle[data-pressed]:hover,
+  .abaabil-toggle[data-pressed]:not(:disabled):hover,
   .abaabil-toggle-group__input:checked:not(:disabled) + .abaabil-toggle-group__label:hover {
     background: var(--color-primary-hover);
     border-color: var(--color-primary-hover);
@@ -51,14 +56,6 @@
   .abaabil-toggle-group__input:disabled + .abaabil-toggle-group__label {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-
-  /* Colour is not the only signal. Someone who cannot separate the
-     fill from the surface still sees the pressed member inset while
-     its siblings are not (WCAG 1.4.1). */
-  .abaabil-toggle[data-pressed],
-  .abaabil-toggle-group__input:checked + .abaabil-toggle-group__label {
-    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.25);
   }
 
   .abaabil-toggle-group {
@@ -90,24 +87,14 @@
     border-end-start-radius: 0;
   }
 
-  /* The real input, kept in the layout and operable rather than
-     display:none. A hidden input is not focusable, and this component
+  /* The real input is kept in the layout and operable rather than
+     display:none: a hidden input is not focusable, and this component
      depends entirely on the browser's own radio group keyboard
-     behaviour, which only exists while the inputs are real. So it is
-     clipped to nothing and the label beside it is what you see. */
-  .abaabil-toggle-group__input {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
-  }
+     behaviour, which only exists while the inputs are real. It wears
+     the library's visually-hidden class (tokens/base.css) and the
+     label beside it is what you see.
 
-  /* Focus lands on the input, which is invisible, so the ring has to
+     Focus lands on the input, which is invisible, so the ring has to
      be drawn on the label it controls. Without this the keyboard user
      moving through the group sees nothing move. */
   .abaabil-toggle-group__input:focus-visible + .abaabil-toggle-group__label {

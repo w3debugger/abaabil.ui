@@ -16,6 +16,9 @@
  * It is logical rather than physical: "start" and "end" follow the
  * document's direction, so a drawer that opens from the right in
  * English opens from the left in Arabic without a second component.
+ * The slide direction is mirrored under a `dir="rtl"` attribute; a
+ * document made RTL by the CSS `direction` property alone is placed on
+ * the correct edge but slides in from the wrong one.
  *
  * @param {object} props
  * @param {'start'|'end'|'top'|'bottom'} [props.side='end']

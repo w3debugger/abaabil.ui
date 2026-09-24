@@ -65,10 +65,11 @@
   .abaabil-command__option:hover { background: var(--color-muted); }
 
   /* Active is where aria-activedescendant points. The bar is the
-     colour-independent half of the signal (WCAG 1.4.1). */
+     colour-independent half of the signal (WCAG 1.4.1), drawn in the
+     text colour: the accent on the muted fill is 2.84:1 in dark mode. */
   .abaabil-command__option[data-active="true"] {
     background: var(--color-muted);
-    border-inline-start-color: var(--color-primary);
+    border-inline-start-color: var(--color-text);
   }
 
   .abaabil-command__option[data-disabled] { opacity: 0.5; cursor: not-allowed; }

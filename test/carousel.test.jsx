@@ -96,10 +96,13 @@ describe('Carousel (a11y tier)', () => {
     expect(screen.getByRole('group', { name: '3 of 3' })).toBeInTheDocument()
   })
 
-  it('points both buttons at the track, which is in the tab order', () => {
+  it('points both buttons at the track, which is a named group in the tab order', () => {
     const { container } = render(<A11yCarousel label="Featured" items={SLIDES} />)
     const track = container.querySelector('.abaabil-carousel__track')
     expect(track).toHaveAttribute('tabindex', '0')
+    // aria-label on a role-less div is dropped, so the focused track
+    // would announce nothing.
+    expect(screen.getByRole('group', { name: 'Featured' })).toBe(track)
     expect(track.id).toBeTruthy()
     for (const button of screen.getAllByRole('button')) {
       expect(button).toHaveAttribute('aria-controls', track.id)
@@ -149,10 +152,12 @@ describe('Carousel (a11y tier)', () => {
     expect(live).toHaveTextContent('Slide 2 of 3')
   })
 
-  it('warns when it has no name', () => {
+  it('warns once when it has no name, not once per render', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    render(<A11yCarousel items={SLIDES} />)
+    const { rerender } = render(<A11yCarousel items={SLIDES} />)
+    rerender(<A11yCarousel items={SLIDES} />)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('accessible name'))
+    expect(warn).toHaveBeenCalledTimes(1)
   })
 
   it('has no axe violations', async () => {

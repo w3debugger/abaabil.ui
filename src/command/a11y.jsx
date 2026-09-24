@@ -27,7 +27,9 @@ import { filterItems, groupItems } from './styled.jsx'
  * the ARIA is written, so wrapping would mean duplicating the state
  * rather than the JSX. Links become plain options followed on Enter,
  * because an option with a focusable child is a nested interactive
- * control, which the listbox model forbids.
+ * control, which the listbox model forbids. Following one assigns
+ * `location.href`, a full navigation; under a client-side router use
+ * `onSelect` and navigate there instead.
  *
  * @param {object} props
  * @param {string} props.id Names the dialog and the ids inside it.
@@ -35,7 +37,7 @@ import { filterItems, groupItems } from './styled.jsx'
  * @param {boolean} [props.open=false] Controlled. Drives showModal() and close().
  * @param {() => void} [props.onClose] Fires on Escape, backdrop click, close() and after a choice.
  * @param {() => void} [props.onOpen] Called when `shortcut` is pressed.
- * @param {string} [props.shortcut] A key, for example 'k', bound with Meta or Ctrl on the document.
+ * @param {string} [props.shortcut] A key, for example 'k', bound with Meta or Ctrl on the document. Case-insensitive.
  * @param {string} props.label Accessible name for the palette and its input.
  * @param {string} [props.placeholder]
  * @param {string} [props.emptyText='No results']
@@ -57,6 +59,10 @@ export default function Command_a11y({
   const ref = useRef(null)
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
+  // The shortcut listener is bound once per shortcut and reads the latest
+  // onOpen through a ref, so an inline arrow does not rebind it per render.
+  const onOpenRef = useRef(onOpen)
+  onOpenRef.current = onOpen
 
   const labelId = `${id}-label`
   const inputId = `${id}-input`
@@ -64,14 +70,18 @@ export default function Command_a11y({
   const optionId = (i) => `${id}-option-${i}`
 
   const named = Boolean(label || props['aria-label'] || props['aria-labelledby'])
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !named) {
+  if (process.env.NODE_ENV !== 'production' && !named) {
     console.warn(
       'abaabil/command: no `label` given, so the palette and its search input ' +
         'have no accessible name and screen readers announce them as unnamed.'
     )
   }
 
-  const filtered = filterItems(items, query)
+  // Grouped first, then flattened, so the arrow keys and the ids walk
+  // the list in the order it is drawn: with interleaved groups, items
+  // order and display order differ.
+  const groups = groupItems(filterItems(items, query))
+  const filtered = groups.flatMap(([, members]) => members)
   const count = filtered.length
   // An activedescendant pointing at a filtered-out or disabled option is
   // the silent failure, so clamp to the first enabled one when needed.
@@ -86,16 +96,19 @@ export default function Command_a11y({
 
   useEffect(() => {
     if (!shortcut) return
+    const key = shortcut.toLowerCase()
     const handle = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === shortcut) { e.preventDefault(); onOpen?.() }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === key) { e.preventDefault(); onOpenRef.current?.() }
     }
     document.addEventListener('keydown', handle)
     return () => document.removeEventListener('keydown', handle)
-  }, [shortcut, onOpen])
+  }, [shortcut])
 
+  // Also on query: typing resets the active index to 0, and 0 to 0 is
+  // no change, but the list under it is new and may be scrolled away.
   useEffect(() => {
     if (activeIndex >= 0) document.getElementById(optionId(activeIndex))?.scrollIntoView?.({ block: 'nearest' })
-  }, [activeIndex])
+  }, [activeIndex, query])
 
   const select = (item) => {
     if (!item || item.disabled) return
@@ -126,8 +139,10 @@ export default function Command_a11y({
     }
   }
 
+  // Options are rendered in `filtered` order, so a counter is the index.
+  let n = 0
   const option = (item) => {
-    const i = filtered.indexOf(item)
+    const i = n++
     return (
       <li
         key={item.value ?? item.label}
@@ -157,7 +172,7 @@ export default function Command_a11y({
       {...props}
       ref={ref}
     >
-      <form className="abaabil-command__form" onSubmit={(e) => e.preventDefault()}>
+      <div className="abaabil-command__form">
         {label ? <label id={labelId} htmlFor={inputId} className="abaabil-visually-hidden">{label}</label> : null}
         <input
           id={inputId}
@@ -166,6 +181,7 @@ export default function Command_a11y({
           role="combobox"
           autoComplete="off"
           placeholder={placeholder}
+          aria-label={label ? undefined : props['aria-label']}
           value={query}
           aria-expanded={count > 0}
           aria-controls={listId}
@@ -175,7 +191,7 @@ export default function Command_a11y({
           onKeyDown={handleKeyDown}
         />
         <ul id={listId} role="listbox" aria-labelledby={label ? labelId : undefined} className="abaabil-command__list" hidden={!count}>
-          {groupItems(filtered).map(([group, members], gi) =>
+          {groups.map(([group, members], gi) =>
             group ? (
               <li key={group} role="group" aria-labelledby={`${id}-group-${gi}`} className="abaabil-command__group">
                 <div id={`${id}-group-${gi}`} className="abaabil-command__heading">{group}</div>
@@ -190,7 +206,7 @@ export default function Command_a11y({
         <div className="abaabil-visually-hidden" aria-live="polite">
           {open ? `${count} result${count === 1 ? '' : 's'}` : ''}
         </div>
-      </form>
+      </div>
     </dialog>
   )
 }

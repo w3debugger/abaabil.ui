@@ -42,6 +42,13 @@ describe('Command (normal tier)', () => {
     expect(screen.getByRole('link', { name: 'Docs' })).toHaveAttribute('href', '/docs')
   })
 
+  it('follows an href item on Enter, the same way the a11y tier does', async () => {
+    render(<Command id="cmd" open items={[{ label: 'Docs', href: '#docs' }]} />)
+    await userEvent.type(screen.getByRole('searchbox'), '{Enter}')
+    expect(window.location.hash).toBe('#docs')
+    window.location.hash = ''
+  })
+
   it('shows the empty text when nothing matches', async () => {
     render(<Command id="cmd" open items={ITEMS} emptyText="Nothing here" />)
     await userEvent.type(screen.getByRole('searchbox'), 'zzz')
@@ -60,6 +67,37 @@ describe('Command (a11y tier)', () => {
     const active = document.getElementById(input.getAttribute('aria-activedescendant'))
     expect(active).toHaveTextContent('New file')
     expect(active).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('names the input from a consumer aria-label, not only from label', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(<A11yCommand id="cmd" open aria-label="Commands" items={ITEMS} />)
+    expect(screen.getByRole('combobox', { name: 'Commands' })).toBeInTheDocument()
+    expect(warn).not.toHaveBeenCalled()
+  })
+
+  it('walks the options with the arrows in the order they are drawn, not items order', async () => {
+    const items = [
+      { label: 'Alpha', group: 'G1' },
+      { label: 'Beta', group: 'G2' },
+      { label: 'Gamma', group: 'G1' },
+    ]
+    render(<A11yCommand id="cmd" open label="Commands" items={items} />)
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Alpha', 'Gamma', 'Beta'])
+    const input = screen.getByRole('combobox')
+    await userEvent.type(input, '{ArrowDown}')
+    expect(document.getElementById(input.getAttribute('aria-activedescendant'))).toHaveTextContent('Gamma')
+    await userEvent.type(input, '{ArrowDown}')
+    expect(document.getElementById(input.getAttribute('aria-activedescendant'))).toHaveTextContent('Beta')
+  })
+
+  it('scrolls the first option into view again when the query changes', async () => {
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    render(<A11yCommand id="cmd" open label="Commands" items={ITEMS} />)
+    const before = scroll.mock.calls.length
+    await userEvent.type(screen.getByRole('combobox'), 'f')
+    expect(scroll.mock.calls.length).toBeGreaterThan(before)
   })
 
   it('names each group from its heading', () => {
@@ -117,6 +155,18 @@ describe('Command (a11y tier)', () => {
     unmount()
     await userEvent.keyboard('{Meta>}k{/Meta}')
     expect(onOpen).toHaveBeenCalledTimes(2)
+  })
+
+  it('binds the shortcut once and still calls the latest onOpen after a re-render', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const first = vi.fn()
+    const second = vi.fn()
+    const { rerender } = render(<A11yCommand id="cmd" label="Commands" items={ITEMS} shortcut="K" onOpen={() => first()} />)
+    rerender(<A11yCommand id="cmd" label="Commands" items={ITEMS} shortcut="K" onOpen={() => second()} />)
+    expect(add.mock.calls.filter(([type]) => type === 'keydown')).toHaveLength(1)
+    await userEvent.keyboard('{Meta>}k{/Meta}')
+    expect(first).not.toHaveBeenCalled()
+    expect(second).toHaveBeenCalledTimes(1)
   })
 
   it('warns when it has no accessible name', () => {

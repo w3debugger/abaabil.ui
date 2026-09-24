@@ -43,7 +43,6 @@ export default function Avatar_a11y({
   const cls = className ? `abaabil-avatar ${className}` : 'abaabil-avatar'
 
   if (
-    typeof process !== 'undefined' &&
     process.env.NODE_ENV !== 'production' &&
     !decorative &&
     !name

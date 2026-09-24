@@ -106,6 +106,27 @@ describe('Slider (a11y tier)', () => {
     expect(container.querySelector('output')).toHaveTextContent('11')
   })
 
+  it('snaps the output to step, so it cannot disagree with a thumb the browser moved', () => {
+    // The browser moves an off-step value to the nearest allowed one,
+    // ties upward: step={30} snaps the derived midpoint 50 to 60.
+    const { container } = render(<A11ySlider label="Volume" min={0} max={100} step={30} showValue />)
+    expect(container.querySelector('output')).toHaveTextContent('60')
+  })
+
+  it('snaps downward when the nearer step would pass max, as the browser does', () => {
+    const { container } = render(
+      <A11ySlider label="Volume" min={0} max={100} step={40} defaultValue={100} showValue />
+    )
+    expect(container.querySelector('output')).toHaveTextContent('80')
+  })
+
+  it('prints a clean number for a decimal step', () => {
+    const { container } = render(
+      <A11ySlider label="Volume" min={0} max={1} step={0.1} defaultValue={0.3} showValue />
+    )
+    expect(container.querySelector('output')).toHaveTextContent(/^0\.3$/)
+  })
+
   it('follows the given value when controlled', () => {
     const { container } = render(
       <A11ySlider label="Volume" value={17} onChange={() => {}} showValue />

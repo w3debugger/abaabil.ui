@@ -12,6 +12,12 @@
  * What CSS cannot do is Escape-to-dismiss and the aria-describedby
  * association. Those are the a11y tier.
  *
+ * The bubble is positioned inside the wrapper, not in the top layer, so
+ * an ancestor with `overflow` other than visible (a table cell, a card,
+ * a scrolling toolbar) clips it, and `placement="top"` on a trigger at
+ * the top of the viewport is cut off. Use `placement="bottom"` in a
+ * page header.
+ *
  * There is no role="tooltip" here, unlike on abaabil/switch, where the
  * role is the component's identity and stays in the normal tier. The
  * difference is that a switch's role does something on its own: it

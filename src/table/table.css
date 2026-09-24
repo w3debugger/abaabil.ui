@@ -56,8 +56,9 @@
   }
 
   /* The button fills the cell so the whole header is the 44px hit
-     target; the cell's padding moves onto it. */
-  .abaabil-table__sortable { padding: 0; }
+     target; the cell's padding moves onto it. `th` in the selector so
+     it outranks the shared cell padding rule above. */
+  .abaabil-table th.abaabil-table__sortable { padding: 0; }
 
   .abaabil-table__sort {
     inline-size: 100%;
@@ -73,7 +74,11 @@
 
   .abaabil-table__sort:hover { background: var(--color-border-subtle); }
 
+  /* The ring is inset, so it sits on the button's own fill. On the
+     muted header that is 2.84:1 in dark mode; on the surface it is the
+     pair the contrast test already guards. */
   .abaabil-table__sort:focus-visible {
+    background: var(--color-surface);
     outline: 2px solid var(--color-focus-ring);
     outline-offset: -2px;
   }

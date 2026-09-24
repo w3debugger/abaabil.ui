@@ -29,7 +29,9 @@ import { useState } from 'react'
  * @property {string} [group] Heading the item is listed under.
  * @property {string|string[]} [keywords] Extra terms the filter matches.
  * @property {(item: CommandItem) => void} [onSelect]
- * @property {string} [href] Rendered as a real link.
+ * @property {string} [href] Rendered as a real link. Choosing it from the
+ *   keyboard assigns `location.href`, a full navigation; under a
+ *   client-side router use `onSelect` and navigate there instead.
  * @property {boolean} [disabled]
  */
 
@@ -90,6 +92,9 @@ export default function Command({
     item.onSelect?.(item)
     setQuery('')
     onClose?.()
+    // Enter picks the first match without going through the <a>, so the
+    // link has to be followed here too, as the a11y tier does.
+    if (item.href) window.location.href = item.href
   }
 
   const option = (item) => (

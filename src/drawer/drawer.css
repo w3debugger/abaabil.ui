@@ -19,6 +19,13 @@
     background: var(--color-overlay);
   }
 
+  /* Scroll lock, as in dialog.css: keyed on :modal, with the scrollbar
+     gutter kept so the page does not jump sideways. */
+  html:has(.abaabil-drawer:modal) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+
   /* Logical sides, so "end" is the right edge in English and the left
      in Arabic with no second rule and no prop change. inset-inline-end
      resolves per direction; a physical `right: 0` would put the drawer
@@ -29,20 +36,21 @@
     block-size: 100dvh;
     inset-block: 0;
     margin-block: 0;
-    border-inline-start: 1px solid var(--color-border);
   }
 
   .abaabil-drawer[data-side="end"] {
+    --drawer-from: 100% 0;
     inset-inline-end: 0;
     inset-inline-start: auto;
     margin-inline: auto 0;
+    border-inline-start: 1px solid var(--color-border);
   }
 
   .abaabil-drawer[data-side="start"] {
+    --drawer-from: -100% 0;
     inset-inline-start: 0;
     inset-inline-end: auto;
     margin-inline: 0 auto;
-    border-inline-start: 0;
     border-inline-end: 1px solid var(--color-border);
   }
 
@@ -56,6 +64,7 @@
   }
 
   .abaabil-drawer[data-side="top"] {
+    --drawer-from: 0 -100%;
     inset-block-start: 0;
     inset-block-end: auto;
     margin-block: 0 auto;
@@ -63,6 +72,7 @@
   }
 
   .abaabil-drawer[data-side="bottom"] {
+    --drawer-from: 0 100%;
     inset-block-end: 0;
     inset-block-start: auto;
     margin-block: auto 0;
@@ -75,42 +85,41 @@
     font-weight: var(--font-weight-semibold);
   }
 
-  /* Slides in from its own edge. @starting-style is what makes this
-     possible without JavaScript: the drawer animates from a state that
-     only exists at the moment it enters the top layer, so nothing has
-     to hold a "is opening" flag. Browsers without it show the drawer
-     immediately, which is a fine degradation.
+  /* start and end are mirrored in an RTL document, so their slide
+     directions have to mirror too. Keyed on the attribute: a document
+     made RTL by the CSS `direction` property alone gets the right edge
+     and the wrong slide. :dir(rtl) would cover both but is above the
+     browser floor. */
+  [dir="rtl"] .abaabil-drawer[data-side="end"] { --drawer-from: -100% 0; }
+  [dir="rtl"] .abaabil-drawer[data-side="start"] { --drawer-from: 100% 0; }
+
+  /* Slides in from its own edge and back out. @starting-style is what
+     makes the entry possible without JavaScript: the drawer animates
+     from a state that only exists at the moment it enters the top
+     layer, so nothing has to hold an "is opening" flag. display and
+     overlay with allow-discrete keep it painted and in the top layer
+     until the exit has run. Browsers without either show and hide the
+     drawer immediately, which is a fine degradation.
 
      translate rather than transform, so a consumer setting transform
-     on the drawer does not silently cancel the entry. */
-  @starting-style {
-    .abaabil-drawer[data-side="end"][open] { translate: 100% 0; }
-    .abaabil-drawer[data-side="start"][open] { translate: -100% 0; }
-    .abaabil-drawer[data-side="top"][open] { translate: 0 -100%; }
-    .abaabil-drawer[data-side="bottom"][open] { translate: 0 100%; }
-  }
-
-  /* start and end are mirrored in an RTL document, so their entry
-     directions have to mirror too. */
-  [dir="rtl"] {
-    @starting-style {
-      .abaabil-drawer[data-side="end"][open] { translate: -100% 0; }
-      .abaabil-drawer[data-side="start"][open] { translate: 100% 0; }
-    }
+     on the drawer does not silently cancel the slide. */
+  .abaabil-drawer {
+    translate: var(--drawer-from);
+    transition:
+      translate var(--duration-fast) ease,
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
   }
 
   .abaabil-drawer[open] {
     translate: 0 0;
-    transition: translate var(--duration-fast) ease;
+  }
+
+  @starting-style {
+    .abaabil-drawer[open] { translate: var(--drawer-from); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .abaabil-drawer[open] { transition: none; }
-    @starting-style {
-      .abaabil-drawer[data-side="end"][open],
-      .abaabil-drawer[data-side="start"][open],
-      .abaabil-drawer[data-side="top"][open],
-      .abaabil-drawer[data-side="bottom"][open] { translate: 0 0; }
-    }
+    .abaabil-drawer { transition: none; }
   }
 }

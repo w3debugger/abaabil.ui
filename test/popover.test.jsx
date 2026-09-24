@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { axe } from 'jest-axe'
@@ -141,5 +142,21 @@ describe('Popover (a11y tier)', () => {
       </A11yPopover>
     )
     expect(await axe(container)).toHaveNoViolations()
+  })
+})
+
+// jsdom applies no CSS, so the fade itself cannot be exercised here; the
+// stylesheet is read instead. Same trap as test/tooltip.test.jsx: Vite
+// rewrites `new URL('<literal>', import.meta.url)` at transform time, so
+// the base is captured at module scope.
+const HERE = import.meta.url
+
+describe('Popover stylesheet', () => {
+  const css = readFileSync(new URL('../src/popover/popover.css', HERE), 'utf8')
+
+  it('transitions display and overlay out, so closing fades and reduced motion snaps', () => {
+    expect(css).toMatch(/display var\(--duration-fast\) allow-discrete/)
+    expect(css).toMatch(/overlay var\(--duration-fast\) allow-discrete/)
+    expect(css).toMatch(/prefers-reduced-motion: reduce\)\s*\{\s*\.abaabil-popover \{\s*transition: none;/)
   })
 })

@@ -42,7 +42,6 @@ export default function Menubar_a11y({ label, className, children, ...props }) {
   const cls = className ? `abaabil-menubar ${className}` : 'abaabil-menubar'
 
   if (
-    typeof process !== 'undefined' &&
     process.env.NODE_ENV !== 'production' &&
     !(label || props['aria-label'] || props['aria-labelledby'])
   ) {

@@ -65,6 +65,65 @@ describe('Table (a11y tier)', () => {
     expect(region).toHaveFocus()
   })
 
+  it('keeps the region wiring under a consumer scrollProps and captionProps', () => {
+    // The documented stickyHeader recipe passes scrollProps, and that
+    // used to replace the role, the tab stop and the label wholesale.
+    render(
+      <A11yTable
+        caption="Groceries"
+        columns={COLUMNS}
+        rows={ROWS}
+        stickyHeader
+        scrollProps={{ style: { maxBlockSize: 200 } }}
+        captionProps={{ className: 'x' }}
+      />
+    )
+    const region = screen.getByRole('region', { name: 'Groceries' })
+    expect(region).toHaveAttribute('tabindex', '0')
+    expect(region).toHaveStyle({ maxBlockSize: '200px' })
+    expect(screen.getByRole('table', { name: 'Groceries' }).querySelector('caption')).toHaveClass('x')
+  })
+
+  it('drops the tab stop while nothing overflows, and restores it when something does', () => {
+    let fire
+    vi.stubGlobal('ResizeObserver', class {
+      constructor(cb) { fire = cb }
+      observe() {}
+      disconnect() {}
+    })
+    render(<A11yTable caption="Groceries" columns={COLUMNS} rows={ROWS} />)
+    const region = screen.getByRole('region', { name: 'Groceries' })
+    const size = (scrollWidth, clientWidth) => {
+      Object.defineProperty(region, 'scrollWidth', { configurable: true, value: scrollWidth })
+      Object.defineProperty(region, 'clientWidth', { configurable: true, value: clientWidth })
+      fire()
+    }
+    size(300, 300)
+    expect(region.tabIndex).toBe(-1)
+    size(900, 300)
+    expect(region.tabIndex).toBe(0)
+    vi.unstubAllGlobals()
+  })
+
+  it('sorts empty cells last in both directions, and strings against numbers as text', async () => {
+    const rows = [
+      { id: 1, name: 'b', price: 3 },
+      { id: 2, name: null, price: null },
+      { id: 3, name: 'a', price: 1 },
+      { id: 4, name: undefined, price: undefined },
+      { id: 5, name: 'c', price: 2 },
+    ]
+    render(<A11yTable caption="Groceries" columns={COLUMNS} rows={rows} rowKey="id" />)
+    const price = () =>
+      screen.getAllByRole('row').slice(1).map((tr) => within(tr).getAllByRole('cell')[1].textContent)
+    await userEvent.click(screen.getByRole('button', { name: 'Price' }))
+    expect(price()).toEqual(['1', '2', '3', '', ''])
+    await userEvent.click(screen.getByRole('button', { name: 'Price' }))
+    expect(price()).toEqual(['3', '2', '1', '', ''])
+    await userEvent.click(screen.getByRole('button', { name: 'Name' }))
+    expect(names()).toEqual(['a', 'b', 'c', '', ''])
+  })
+
   it('cycles a sortable header through none, ascending, descending', async () => {
     render(<A11yTable caption="Groceries" columns={COLUMNS} rows={ROWS} />)
     const th = screen.getByRole('columnheader', { name: 'Name' })
@@ -106,10 +165,12 @@ describe('Table (a11y tier)', () => {
     expect(within(th).queryByRole('button')).toBeNull()
   })
 
-  it('warns when it has no name', () => {
+  it('warns once when it has no name, not once per render', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    render(<A11yTable columns={COLUMNS} rows={ROWS} />)
+    const { rerender } = render(<A11yTable columns={COLUMNS} rows={ROWS} />)
+    rerender(<A11yTable columns={COLUMNS} rows={ROWS} />)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('accessible name'))
+    expect(warn).toHaveBeenCalledTimes(1)
   })
 
   it('does not warn with an aria-label instead of a caption', () => {

@@ -4,14 +4,19 @@ import './carousel.css'
 import { useEffect, useId, useRef, useState } from 'react'
 import { step } from './styled.jsx'
 
+// The missing-name warning fires once per page load, not once per render.
+let warned
+
 /**
  * Carousel, a11y tier. The W3C APG carousel pattern, minus autoplay.
  *
  * The platform already scrolls, snaps and flings the track. What it
  * does not do is say what the thing is or where you are in it, so this
  * tier adds the region with its name and "carousel" role description,
- * a "slide, n of N" group per slide, the track in the tab order so the
- * arrow keys page through it natively, `aria-controls` from each button
+ * a "slide, n of N" group per slide, the track in the tab order (as a
+ * named `group`: `aria-label` on a role-less div is dropped by browsers,
+ * so focusing it would announce nothing) so the arrow keys page through
+ * it natively, `aria-controls` from each button
  * to the track, `aria-disabled` on a button with nowhere to go, and a
  * polite live region that reads "Slide n of N" once a scroll settles.
  * The track and slides are divs here rather than the normal tier's
@@ -55,10 +60,11 @@ export default function Carousel_a11y({
   const count = slides.length
 
   if (
-    typeof process !== 'undefined' &&
     process.env.NODE_ENV !== 'production' &&
+    !warned &&
     !(label || props['aria-label'] || props['aria-labelledby'])
   ) {
+    warned = true
     console.warn(
       'abaabil/carousel: no `label` given, so the carousel has no accessible ' +
         'name and is announced as an unnamed region. Pass `label`, `aria-label`, ' +
@@ -109,6 +115,7 @@ export default function Carousel_a11y({
         ref={trackRef}
         id={trackId}
         className="abaabil-carousel__track"
+        role="group"
         tabIndex={0}
         aria-label={label}
       >

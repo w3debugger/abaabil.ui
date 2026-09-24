@@ -40,15 +40,27 @@ export { Disclosure }
  * ARIA-driven widget, not this native-<details> one. This component is a
  * disclosure/accordion, not a substitute for that pattern.
  *
+ * Warns in development when there are two or more items and no `name`:
+ * without one the panels do not close each other, which is usually not
+ * what an accordion was reached for. `name` has no default because a
+ * shared one grouped every accordion on the page together.
+ *
  * No hooks: like Disclosure above, this renders in a server tree.
  *
  * @param {object} props
  * @param {Array<{key?: string|number, summary: import('react').ReactNode, children?: import('react').ReactNode}>} props.items
- * @param {string} [props.name] Shared native group name for exclusive open/close.
+ * @param {string} [props.name] Shared native group name for exclusive
+ *   open/close. Must be unique on the page.
  * @param {string} [props.label] Accessible name for the group as a whole.
  * @param {string} [props.className]
  */
 export function Accordion_a11y({ label, ...props }) {
+  if (process.env.NODE_ENV !== 'production' && !props.name && props.items?.length > 1) {
+    console.warn(
+      'abaabil/accordion: no `name` given, so the panels will not close each ' +
+        'other. Pass a `name` that is unique on the page for exclusive open/close.'
+    )
+  }
   const groupProps = label ? { role: 'group', 'aria-label': label } : null
   return <Accordion {...groupProps} {...props} />
 }

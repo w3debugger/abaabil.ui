@@ -98,6 +98,11 @@ describe('Combobox a11y: closed listbox is out of the accessibility tree', () =>
     render(<Combobox options={OPTIONS} label="Fruit" />)
     expect(screen.queryByRole('listbox')).toBeNull()
   })
+
+  it('renders no options into the DOM while closed', () => {
+    render(<Combobox options={OPTIONS} label="Fruit" />)
+    expect(screen.queryAllByRole('option', { hidden: true })).toHaveLength(0)
+  })
 })
 
 describe('Combobox a11y: aria-activedescendant referential integrity', () => {
@@ -211,6 +216,19 @@ describe('Combobox a11y: Escape has two stages and is idempotent', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
+  it('typing after a commit clears the selection and notifies once', async () => {
+    const onChange = vi.fn()
+    render(<Combobox options={OPTIONS} onChange={onChange} label="Fruit" />)
+    const input = screen.getByRole('combobox')
+    await userEvent.click(input)
+    await userEvent.click(screen.getByRole('option', { name: 'Apple' }))
+    await userEvent.clear(input)
+    await userEvent.type(input, 'Ban')
+    expect(input).toHaveValue('Ban')
+    expect(onChange.mock.calls).toEqual([['ap'], [null]])
+    expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('aria-selected', 'false')
+  })
+
   it('spamming Escape after a commit clears once, notifies once, then goes silent', async () => {
     const onChange = vi.fn()
     render(<Combobox options={OPTIONS} onChange={onChange} label="Fruit" />)
@@ -254,34 +272,39 @@ describe('Combobox a11y: option id uniqueness and scoping', () => {
   it('ids stay unique at every filter width: all, two, one match', async () => {
     render(<Combobox options={OPTIONS} label="Fruit" />)
     const input = screen.getByRole('combobox')
+    await userEvent.click(input)
 
-    let ids = screen.getAllByRole('option', { hidden: true }).map((o) => o.id)
+    let ids = screen.getAllByRole('option').map((o) => o.id)
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids).toHaveLength(3)
 
     await userEvent.type(input, 'ap')
-    ids = screen.getAllByRole('option', { hidden: true }).map((o) => o.id)
+    ids = screen.getAllByRole('option').map((o) => o.id)
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids).toHaveLength(2)
 
     await userEvent.type(input, 'ple')
-    ids = screen.getAllByRole('option', { hidden: true }).map((o) => o.id)
+    ids = screen.getAllByRole('option').map((o) => o.id)
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids).toHaveLength(1)
   })
 
-  it('two comboboxes on the same page scope their option ids disjointly', () => {
+  it('two comboboxes on the same page scope their option ids disjointly', async () => {
     render(
       <>
         <Combobox options={OPTIONS} label="Fruit A" />
         <Combobox options={OPTIONS} label="Fruit B" />
       </>
     )
-    const allIds = screen.getAllByRole('option', { hidden: true }).map((o) => o.id)
+    // Options render only while open, so each is opened in turn.
+    await userEvent.click(screen.getByRole('combobox', { name: 'Fruit A' }))
+    const a = screen.getAllByRole('option').map((o) => o.id)
+    await userEvent.click(screen.getByRole('combobox', { name: 'Fruit B' }))
+    const b = screen.getAllByRole('option').map((o) => o.id)
     // 3 options per combobox, 2 comboboxes: unique-as-a-set proves the
     // useId prefix scopes each combobox's ids away from the other's.
-    expect(allIds).toHaveLength(6)
-    expect(new Set(allIds).size).toBe(6)
+    expect([...a, ...b]).toHaveLength(6)
+    expect(new Set([...a, ...b]).size).toBe(6)
   })
 })
 
@@ -367,6 +390,26 @@ describe('Combobox a11y: IME composition', () => {
     fireEvent.keyDown(input, { key: 'Enter', isComposing: true })
     expect(onChange).not.toHaveBeenCalled()
     expect(input).toHaveAttribute('aria-expanded', 'true')
+  })
+})
+
+describe('Combobox a11y: naming without label', () => {
+  it('a consumer aria-label names the input and is not overridden by an empty labelledby', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(<Combobox options={OPTIONS} aria-label="Fruit" />)
+    const input = screen.getByRole('combobox', { name: 'Fruit' })
+    expect(input).not.toHaveAttribute('aria-labelledby')
+    expect(warn).not.toHaveBeenCalled()
+  })
+
+  it('a consumer aria-labelledby survives the spread', () => {
+    render(
+      <>
+        <span id="ext">Fruit</span>
+        <Combobox options={OPTIONS} aria-labelledby="ext" />
+      </>
+    )
+    expect(screen.getByRole('combobox', { name: 'Fruit' })).toHaveAttribute('aria-labelledby', 'ext')
   })
 })
 

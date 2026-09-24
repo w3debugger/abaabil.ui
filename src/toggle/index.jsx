@@ -72,7 +72,7 @@ export function ToggleGroup({
       {items.map(({ value, label, disabled }) => (
         <label key={value} className="abaabil-toggle-group__item">
           <input
-            className="abaabil-toggle-group__input"
+            className="abaabil-toggle-group__input abaabil-visually-hidden"
             type={type}
             name={name}
             value={value}

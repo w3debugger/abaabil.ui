@@ -121,6 +121,67 @@ describe('Toolbar (a11y tier)', () => {
     expect(select).toHaveFocus()
   })
 
+  it('keeps a custom focusable in the arrow sequence after the roving tabindex writes -1 onto it', () => {
+    render(
+      <A11yToolbar label="Formatting">
+        <button type="button">A</button>
+        <div tabIndex={0} role="button">Custom</div>
+        <button type="button">B</button>
+      </A11yToolbar>
+    )
+    const [a, custom] = screen.getAllByRole('button')
+    expect(custom.tabIndex).toBe(-1)
+    a.focus()
+    fireEvent.keyDown(a, { key: 'ArrowRight' })
+    expect(custom).toHaveFocus()
+  })
+
+  it('moves the stop to a control focused by a click, so the next Tab in returns there', () => {
+    render(<A11yToolbar label="Formatting"><Buttons /></A11yToolbar>)
+    const [bold, italic] = screen.getAllByRole('button')
+    act(() => italic.focus())
+    expect(italic.tabIndex).toBe(0)
+    expect(bold.tabIndex).toBe(-1)
+  })
+
+  it('moves the stop off a control that disables itself without a re-render', async () => {
+    render(<A11yToolbar label="Formatting"><Buttons /></A11yToolbar>)
+    const [bold, italic] = screen.getAllByRole('button')
+    expect(bold.tabIndex).toBe(0)
+    bold.disabled = true
+    // MutationObserver callbacks are microtasks.
+    await act(async () => {})
+    expect(italic.tabIndex).toBe(0)
+    expect(document.querySelectorAll('button:not([disabled])[tabindex="0"]')).toHaveLength(1)
+  })
+
+  it('swaps the arrows in a right-to-left document, so ArrowRight moves visually right', () => {
+    render(<A11yToolbar label="Formatting"><Buttons /></A11yToolbar>)
+    // jsdom's getComputedStyle does not inherit direction, so it goes on
+    // the toolbar itself rather than on the document.
+    screen.getByRole('toolbar').style.direction = 'rtl'
+    const [bold, italic] = screen.getAllByRole('button')
+    bold.focus()
+    fireEvent.keyDown(bold, { key: 'ArrowLeft' })
+    expect(italic).toHaveFocus()
+    fireEvent.keyDown(italic, { key: 'ArrowRight' })
+    expect(bold).toHaveFocus()
+  })
+
+  it('still calls a consumer onKeyDown and onFocus', () => {
+    const onKeyDown = vi.fn()
+    const onFocus = vi.fn()
+    render(
+      <A11yToolbar label="Formatting" onKeyDown={onKeyDown} onFocus={onFocus}><Buttons /></A11yToolbar>
+    )
+    const [bold, italic] = screen.getAllByRole('button')
+    act(() => bold.focus())
+    fireEvent.keyDown(bold, { key: 'ArrowRight' })
+    expect(onFocus).toHaveBeenCalled()
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+    expect(italic).toHaveFocus()
+  })
+
   it('picks up a control that appears after the first render', () => {
     const { rerender } = render(
       <A11yToolbar label="Formatting"><button type="button">Bold</button></A11yToolbar>
@@ -135,9 +196,11 @@ describe('Toolbar (a11y tier)', () => {
     expect(screen.getByRole('button', { name: 'Italic' }).tabIndex).toBe(-1)
   })
 
-  it('warns when the toolbar has no accessible name', () => {
-    render(<A11yToolbar><Buttons /></A11yToolbar>)
+  it('warns once when the toolbar has no accessible name, not once per render', () => {
+    const { rerender } = render(<A11yToolbar><Buttons /></A11yToolbar>)
+    rerender(<A11yToolbar><Buttons /></A11yToolbar>)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('abaabil/toolbar'))
+    expect(warn).toHaveBeenCalledTimes(1)
   })
 
   it('has no axe violations', async () => {

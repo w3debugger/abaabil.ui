@@ -18,8 +18,12 @@
   .abaabil-separator[data-orientation="vertical"] {
     /* Stretches to the row it sits in rather than declaring a height,
        so a rule between two toolbar buttons matches their height
-       without being told what that is. Falls back to 1em where there is
-       no stretch to inherit, which is the line box it sits on. */
+       without being told what that is. Outside a flex row an <hr> is a
+       block and would break the line, so it is made inline there and
+       falls back to 1em, the line box it sits on; flex blockifies it
+       again, so the toolbar case is unchanged. */
+    display: inline-block;
+    vertical-align: middle;
     block-size: auto;
     align-self: stretch;
     min-block-size: 1em;

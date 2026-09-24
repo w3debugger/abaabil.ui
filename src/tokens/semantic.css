@@ -1,5 +1,9 @@
 @layer abaabil.tokens {
   :root {
+    /* Tells the browser which palette its own widgets should use: the
+       native select popup, scrollbars, date pickers and the file dialog
+       button. Without it Safari draws a white listbox under a dark select. */
+    color-scheme: light;
     --color-primary: var(--abaabil-blue-500);
     /* Derived from --color-primary, not pinned to a blue primitive.
        Setting --color-primary to red used to give a red button with a
@@ -95,6 +99,7 @@
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
+      color-scheme: dark;
       --color-surface: var(--abaabil-dark-surface);
       --color-text: var(--abaabil-dark-text);
       --color-border: var(--abaabil-dark-border);
@@ -110,6 +115,7 @@
   }
 
   :root[data-theme="dark"] {
+    color-scheme: dark;
     --color-surface: var(--abaabil-dark-surface);
     --color-text: var(--abaabil-dark-text);
     --color-border: var(--abaabil-dark-border);

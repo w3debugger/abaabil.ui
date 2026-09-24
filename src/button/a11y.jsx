@@ -6,10 +6,22 @@ import Button from './styled.jsx'
  * CSS or plain prop spreading. No hooks, so this still renders in a
  * server tree: do not add a "use client" directive.
  *
+ * A link-button (`as="a"`) is the one shape that always carries a
+ * function prop: its Space handler, which a plain link does not have.
+ * Render link-buttons at this tier from a client component; a server
+ * component cannot serialize the handler onto a host element.
+ *
+ * Keyboard on a link-button: Enter is left to the browser, which follows
+ * `href` and fires the click (and so `onClick`) natively. Space is
+ * turned into that same native click, so `href` and `onClick` both run
+ * from either key, and a disabled link-button suppresses both through
+ * the one click handler.
+ *
  * @param {object} props
  * @param {boolean} [props.disabled]
  * @param {boolean} [props.keepFocusable] Use aria-disabled instead of the
  *   native disabled attribute, so screen reader users can still find it.
+ *   On a link-button it keeps the disabled link in the tab order.
  * @param {React.ReactNode} [props.leftIcon]
  * @param {React.ReactNode} [props.rightIcon]
  */
@@ -27,7 +39,7 @@ export default function Button_a11y({
   const label = props['aria-label'] ?? props['aria-labelledby']
   const hasText = typeof children === 'string' ? children.trim().length > 0 : Boolean(children)
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && (leftIcon || rightIcon) && !hasText && !label) {
+  if (process.env.NODE_ENV !== 'production' && (leftIcon || rightIcon) && !hasText && !label) {
     console.warn(
       'abaabil/button: an icon-only button has no accessible name. ' +
         'Pass aria-label or aria-labelledby.'
@@ -50,14 +62,14 @@ export default function Button_a11y({
       : {
           // <a> has no disabled state and does not activate on Space.
           role: 'button',
-          tabIndex: disabled ? -1 : 0,
+          tabIndex: disabled && !keepFocusable ? -1 : 0,
           'aria-disabled': disabled || undefined,
         }
 
   const handleKeyDown = (event) => {
-    if (as !== 'button' && (event.key === ' ' || event.key === 'Enter')) {
+    if (as !== 'button' && event.key === ' ') {
       event.preventDefault()
-      suppressed(onClick)(event)
+      if (!disabled) event.currentTarget.click()
     }
     onKeyDown?.(event)
   }

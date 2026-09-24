@@ -16,7 +16,12 @@ import Otp from './styled.jsx'
  * came from typing, paste or SMS autofill. No state is kept for it, so
  * the field stays uncontrolled and the consumer's own onInput still
  * runs. Nothing extra is announced: a single text field with a label
- * needs no live region.
+ * needs no live region, and the error is not one either, for the
+ * reasons given in input/a11y.
+ *
+ * `className` and `style` land on the wrapper, `.abaabil-otp-group`, the
+ * layout hook; everything else lands on the input. The description and
+ * error ids derive from the input id.
  *
  * @param {object} props
  * @param {string} [props.label] Rendered as a real <label>, associated
@@ -28,6 +33,8 @@ import Otp from './styled.jsx'
  *   wired into aria-describedby alongside the description.
  * @param {boolean} [props.required=false]
  * @param {string} [props.id] Overrides the generated input id.
+ * @param {string} [props.className] Merged onto the wrapper's base class.
+ * @param {object} [props.style] Applied to the wrapper.
  * @param {number} [props.length=6]
  * @param {(value: string) => void} [props.onComplete] Called with the
  *   value when the entry reaches `length`.
@@ -39,6 +46,8 @@ export default function Otp_a11y({
   error,
   required = false,
   id,
+  className,
+  style,
   length = 6,
   onComplete,
   onInput,
@@ -47,12 +56,12 @@ export default function Otp_a11y({
 }) {
   const baseId = useId()
   const inputId = id ?? `${baseId}-input`
-  const descriptionId = `${baseId}-description`
-  const errorId = `${baseId}-error`
+  const descriptionId = `${inputId}-description`
+  const errorId = `${inputId}-error`
 
   const hasAccessibleName = Boolean(label || props['aria-label'] || props['aria-labelledby'])
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
     console.warn(
       'abaabil/otp: no `label` given, so the code field has no accessible name. ' +
         'Pass `label`, `aria-label`, or `aria-labelledby`.'
@@ -70,8 +79,10 @@ export default function Otp_a11y({
     if (onComplete && value.length === length) onComplete(value)
   }
 
+  const cls = className ? `abaabil-otp-group ${className}` : 'abaabil-otp-group'
+
   return (
-    <div className="abaabil-otp-group">
+    <div className={cls} style={style}>
       {label ? (
         <label
           htmlFor={inputId}
@@ -95,7 +106,7 @@ export default function Otp_a11y({
         </div>
       ) : null}
       {error ? (
-        <div id={errorId} className="abaabil-otp__error" role="alert">
+        <div id={errorId} className="abaabil-otp__error">
           {error}
         </div>
       ) : null}

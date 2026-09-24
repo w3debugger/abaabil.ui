@@ -1,6 +1,11 @@
 @layer abaabil.components {
+  /* The wrapper the a11y tier adds around the bars and their hidden
+     label. Display contents would drop it out of layout entirely, but
+     that also drops the role in some engines, so it stays a block that
+     adds nothing: every bar is already display: block. Same rule as
+     spinner.css. */
   .abaabil-skeleton-status {
-    display: contents;
+    display: block;
   }
 
   .abaabil-skeleton {
@@ -45,11 +50,21 @@
     border-radius: var(--radius-md);
   }
 
+  /* The wrapper owns the size of a multi-line block: `width` and
+     `height` land here as custom properties, and each bar inherits
+     the height back instead of declaring its own, or `height` would
+     silently do nothing when lines > 1. */
   .abaabil-skeleton-lines {
+    --skeleton-height: 0.8em;
+
     display: flex;
     flex-direction: column;
     gap: 0.45em;
     inline-size: var(--skeleton-width, 100%);
+  }
+
+  .abaabil-skeleton-lines .abaabil-skeleton {
+    --skeleton-height: inherit;
   }
 
   /* A paragraph does not end flush with the margin. Without this the

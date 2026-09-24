@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { Disclosure, Accordion } from '../src/accordion/index.jsx'
@@ -42,13 +42,23 @@ describe('Accordion (normal tier)', () => {
     expect(details.firstElementChild).toBe(summary)
   })
 
-  it('gives every Disclosure in an Accordion the same shared `name`, which is what makes native grouping exclusive', () => {
-    const { container } = render(<Accordion items={items} />)
+  it('gives every Disclosure in an Accordion the shared `name`, which is what makes native grouping exclusive', () => {
+    const { container } = render(<Accordion items={items} name="faq" />)
     const detailsEls = [...container.querySelectorAll('details')]
     expect(detailsEls).toHaveLength(3)
-    const names = detailsEls.map((d) => d.getAttribute('name'))
-    expect(names.every(Boolean)).toBe(true)
-    expect(new Set(names).size).toBe(1)
+    expect(detailsEls.map((d) => d.getAttribute('name'))).toEqual(['faq', 'faq', 'faq'])
+  })
+
+  it('has no default `name`, so two accordions on a page never close each other', () => {
+    // A shared default put every accordion on the page in one native
+    // group: opening a panel in the sidebar closed the open FAQ panel.
+    const { container } = render(
+      <>
+        <Accordion items={items} />
+        <Accordion items={items} />
+      </>
+    )
+    for (const d of container.querySelectorAll('details')) expect(d).not.toHaveAttribute('name')
   })
 
   // NOT COVERED: jsdom (as used by this project, jsdom ^25) does not
@@ -141,6 +151,21 @@ describe('Disclosure (a11y tier)', () => {
 })
 
 describe('Accordion_a11y (a11y tier)', () => {
+  let warn
+  beforeEach(() => { warn = vi.spyOn(console, 'warn').mockImplementation(() => {}) })
+  afterEach(() => { warn.mockRestore() })
+
+  it('warns in development when two or more items share no `name`', () => {
+    render(<Accordion_a11y items={items} label="FAQ" />)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('abaabil/accordion'))
+  })
+
+  it('does not warn with a `name`, or with a single item', () => {
+    render(<Accordion_a11y items={items} name="faq" label="FAQ" />)
+    render(<Accordion_a11y items={items.slice(0, 1)} label="FAQ" />)
+    expect(warn).not.toHaveBeenCalled()
+  })
+
   it('applies role="group" and aria-label to the wrapper when `label` is given', () => {
     const { container } = render(<Accordion_a11y items={items} label="FAQ" />)
     const group = container.querySelector('.abaabil-accordion-group')

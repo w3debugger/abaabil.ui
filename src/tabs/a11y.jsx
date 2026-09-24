@@ -3,6 +3,9 @@
 import { useId, useRef, useState } from 'react'
 import './tabs.css'
 
+// The missing-name warning fires once per page load, not once per render.
+let warned
+
 /**
  * Tabs, a11y tier. The W3C APG tabs pattern in full.
  *
@@ -24,6 +27,10 @@ import './tabs.css'
  * cheap. Pass `activation="manual"` when a panel is expensive enough that
  * arrowing across the tablist should not render every one of them; then
  * focus moves without selecting and Enter or Space commits.
+ *
+ * Right-to-left: the arrows follow the visual direction, read from the
+ * tab's computed `direction` at keydown, so ArrowRight always moves
+ * toward the visual right.
  *
  * @param {object} props
  * @param {Array<{key?: string|number, label: import('react').ReactNode, children?: import('react').ReactNode}>} props.items
@@ -48,8 +55,14 @@ export default function Tabs_a11y({
   className,
   ...props
 }) {
+  // Clamped, not trusted: items can shrink after a later tab was
+  // selected, and an index past the end would render no panel and put
+  // every tab at tabindex -1, dropping the tablist out of the tab order.
+  const last = items.length - 1
   const [selected, setSelected] = useState(defaultIndex)
   const [focused, setFocused] = useState(defaultIndex)
+  const sel = Math.min(selected, last)
+  const foc = Math.min(focused, last)
   const tabRefs = useRef([])
   const baseId = useId()
   const cls = className ? `abaabil-tabs ${className}` : 'abaabil-tabs'
@@ -61,7 +74,8 @@ export default function Tabs_a11y({
     label || labelledBy || props['aria-label'] || props['aria-labelledby']
   )
 
-  if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && !hasAccessibleName) {
+  if (process.env.NODE_ENV !== 'production' && !hasAccessibleName && !warned) {
+    warned = true
     console.warn(
       'abaabil/tabs: no `label` or `labelledBy` given, so the tablist has no ' +
         'accessible name. Pass `label`, `labelledBy`, `aria-label`, or `aria-labelledby`.'
@@ -79,11 +93,11 @@ export default function Tabs_a11y({
     if (activation === 'automatic') select(index)
   }
 
-  const next = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight'
-  const prev = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft'
-
   function handleKeyDown(event, index) {
-    const last = items.length - 1
+    const vertical = orientation === 'vertical'
+    const rtl = !vertical && getComputedStyle(event.currentTarget).direction === 'rtl'
+    const next = vertical ? 'ArrowDown' : rtl ? 'ArrowLeft' : 'ArrowRight'
+    const prev = vertical ? 'ArrowUp' : rtl ? 'ArrowRight' : 'ArrowLeft'
     let target = null
 
     if (event.key === next) target = index === last ? 0 : index + 1
@@ -106,7 +120,7 @@ export default function Tabs_a11y({
   }
 
   return (
-    <div className={cls} {...props}>
+    <div className={cls} data-orientation={orientation} {...props}>
       <div
         role="tablist"
         aria-label={label}
@@ -121,15 +135,15 @@ export default function Tabs_a11y({
             type="button"
             role="tab"
             id={tabId(index)}
-            aria-selected={index === selected}
+            aria-selected={index === sel}
             aria-controls={panelId(index)}
             // Roving tabindex: one stop for the whole tablist.
-            tabIndex={index === focused ? 0 : -1}
+            tabIndex={index === foc ? 0 : -1}
             ref={(node) => {
               tabRefs.current[index] = node
             }}
             className="abaabil-tabs__tab"
-            data-selected={index === selected ? 'true' : undefined}
+            data-selected={index === sel ? 'true' : undefined}
             onClick={() => {
               setFocused(index)
               select(index)
@@ -141,7 +155,7 @@ export default function Tabs_a11y({
         ))}
       </div>
       {items.map((item, index) =>
-        index === selected ? (
+        index === sel ? (
           <div
             key={item.key ?? index}
             role="tabpanel"

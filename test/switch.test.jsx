@@ -68,6 +68,19 @@ describe('Switch (a11y tier)', () => {
     expect(el).toBeChecked()
   })
 
+  it('wraps the control in the label so the whole row is the hit target, and keeps the description outside it', () => {
+    render(<A11ySwitch label="Notifications" description="Email me about replies" />)
+    const el = screen.getByRole('switch', { name: 'Notifications' })
+    const label = screen.getByText('Notifications')
+    expect(label).toContainElement(el)
+    expect(label).not.toContainElement(screen.getByText('Email me about replies'))
+  })
+
+  it('derives the description id from a consumer-supplied id', () => {
+    render(<A11ySwitch label="Notifications" id="notify" description="Help" />)
+    expect(screen.getByRole('switch')).toHaveAttribute('aria-describedby', 'notify-description')
+  })
+
   it('wires description into aria-describedby', () => {
     render(<A11ySwitch label="Notifications" description="Email me about replies" />)
     const el = screen.getByRole('switch')

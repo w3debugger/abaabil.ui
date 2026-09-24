@@ -9,10 +9,10 @@
  * inline properties written from the event's `clientX`/`clientY`, and
  * clamped to the viewport once, after `showPopover()` has given it a
  * size. No portal, no resize observer, no scroll listener: a popover
- * in the top layer with `position: fixed` stays put on its own, and a
- * scroll or resize light-dismisses it anyway. Physical `left`/`top`
- * rather than logical properties, because pointer coordinates are
- * physical.
+ * in the top layer with `position: fixed` keeps its viewport point
+ * while the page scrolls under it, which is fine for a menu that lives
+ * only until the next click. Physical `left`/`top` rather than logical
+ * properties, because pointer coordinates are physical.
  *
  * Contains no hooks, so it carries no directive. It does attach
  * `onContextMenu` unconditionally, so it has to sit below a client
@@ -81,8 +81,10 @@ export function ContextMenuItem({ label, href, onSelect, disabled, className, ..
   const cls = className ? `abaabil-context-menu__item ${className}` : 'abaabil-context-menu__item'
 
   if (href) {
+    // A disabled link drops its href so it cannot be followed; the data
+    // attribute is what the stylesheet dims.
     return (
-      <a href={href} className={cls} {...props}>
+      <a href={disabled ? undefined : href} data-disabled={disabled || undefined} className={cls} {...props}>
         {label}
       </a>
     )

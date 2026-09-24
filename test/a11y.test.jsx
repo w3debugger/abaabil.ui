@@ -123,7 +123,7 @@ describe('Cross-component axe sweep (a11y tier)', () => {
       { key: 'shipping', summary: 'Shipping', children: 'Ships in 3-5 business days.' },
       { key: 'returns', summary: 'Returns', children: 'Returns accepted within 30 days.' },
     ]
-    const { container } = render(<Accordion_a11y label="FAQ" items={items} />)
+    const { container } = render(<Accordion_a11y label="FAQ" name="faq" items={items} />)
     // Toggle the native <details> directly: reliable regardless of jsdom's
     // click-to-toggle support, and it is the same observable open state.
     container.querySelector('details').open = true
