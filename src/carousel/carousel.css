@@ -1,6 +1,12 @@
 @layer abaabil.components {
+  /* The buttons sit in these gutters, beside the track rather than
+     over it. Absolutely positioned over the slide they covered the first
+     and last 44px of whatever a slide held, and a caption or a heading
+     that starts at the edge is exactly what a slide holds. 44px plus the
+     button's own inset on each side. */
   .abaabil-carousel {
     position: relative;
+    padding-inline: calc(44px + var(--space-2) * 2);
   }
 
   /* The track is the component: an overflow container the browser

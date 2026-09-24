@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.6.1] - 2026-09-25
+
+### Fixed
+
+- **Carousel's buttons covered the slide.** They were positioned over
+  the track, so the first and last 44px of every slide sat under a
+  button. The carousel now reserves a gutter on each inline side and the
+  buttons live there, beside the track.
+
 ## [1.6.0] - 2026-09-25
 
 ### Added
