@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.6.3] - 2026-10-12
+
+Documentation and package metadata only. No code, import path or size changes.
+
+### Changed
+
+- The README now links to npm, the docs site and the source, and `homepage` points at https://www.abaabil.com.
+- The README "Delivered size" table is regenerated from the measured published 1.6.2: 28 of its 39 rows were out of date, including `dialog/a11y`, which read 580 B and measures 553 B.
+
 ## [1.6.2] - 2026-09-25
 
 A review pass over all forty components: keyboard, screen reader, RTL, dark mode, forced colours, touch targets, and bytes. Nothing here changes an import path.
