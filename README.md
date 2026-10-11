@@ -2,6 +2,8 @@
 
 Minimal, themeable, accessible React components. Zero dependencies.
 
+[npm](https://www.npmjs.com/package/abaabil) · [Docs and measurements](https://www.abaabil.com) · [Source](https://github.com/w3debugger/abaabil.ui)
+
 Forty components: button, dialog, alert-dialog, drawer, popover, menu, context-menu, menubar, navigation-menu, command, tooltip, combobox, input, textarea, otp, field, file, checkbox, radio, switch, select, slider, toggle, accordion, collapsible, tabs, toolbar, breadcrumb, pagination, table, carousel, progress, spinner, skeleton, alert, toast, avatar, badge, card, separator.
 
 ```js
@@ -15,7 +17,7 @@ function Example() {
 
 Each component ships three tiers, `normal`, `styled`, `a11y`, so you only pay for what you use. Two facts worth knowing up front:
 
-- A fully accessible `dialog/a11y` is **580 B gzipped**, against `@radix-ui/react-dialog` at **13,493 B**. Both are measured the same way: a dialog you can actually open, imported with every part it needs, bundled with esbuild, `react`/`react-dom` external, minified, then gzipped. Both numbers are JS only; Radix ships no stylesheet of its own, and it also bundles its own positioning and portal logic and predates a usable native `<dialog>`, so it isn't attempting exactly what abaabil does. The difference is mostly what the platform now gives you for free, not a claim of doing more with less.
+- A fully accessible `dialog/a11y` is **553 B gzipped**, against `@radix-ui/react-dialog` at **13,493 B**. Both are measured the same way: a dialog you can actually open, imported with every part it needs, bundled with esbuild, `react`/`react-dom` external, minified, then gzipped. Both numbers are JS only; Radix ships no stylesheet of its own, and it also bundles its own positioning and portal logic and predates a usable native `<dialog>`, so it isn't attempting exactly what abaabil does. The difference is mostly what the platform now gives you for free, not a claim of doing more with less.
 
   Earlier releases of this README compared 674 B against Radix at 3,422 B. That Radix figure was wrong: it was what you get importing only `Dialog.Root`, which renders nothing. The corrected comparison is less favourable to Radix, not more, which is why it is stated here rather than quietly changed.
 - `accordion/a11y` needs **no JavaScript at all**. Every tier of accordion, including `a11y`, is server-renderable, because it's built on native `<details>`/`<summary>` rather than a scripted widget.
@@ -41,44 +43,44 @@ The gzipped cost of importing each entry point on its own, React treated as exte
 | Entry | JS | CSS |
 |---|---:|---:|
 | `abaabil/button` | 199 B | - |
-| `abaabil/button/styled` | 198 B | 551 B |
-| `abaabil/button/a11y` | 557 B | 551 B |
+| `abaabil/button/styled` | 198 B | 610 B |
+| `abaabil/button/a11y` | 552 B | 610 B |
 | `abaabil/dialog` | 168 B | - |
-| `abaabil/dialog/styled` | 169 B | 371 B |
-| `abaabil/dialog/a11y` | 580 B | 371 B |
-| `abaabil/combobox` | 455 B | - |
-| `abaabil/combobox/styled` | 455 B | 615 B |
-| `abaabil/combobox/a11y` | 1,097 B | 615 B |
+| `abaabil/dialog/styled` | 169 B | 443 B |
+| `abaabil/dialog/a11y` | 553 B | 443 B |
+| `abaabil/combobox` | 458 B | - |
+| `abaabil/combobox/styled` | 458 B | 622 B |
+| `abaabil/combobox/a11y` | 1,104 B | 622 B |
 | `abaabil/input` | 166 B | - |
-| `abaabil/input/styled` | 166 B | 497 B |
-| `abaabil/input/a11y` | 501 B | 497 B |
+| `abaabil/input/styled` | 166 B | 556 B |
+| `abaabil/input/a11y` | 505 B | 556 B |
 | `abaabil/checkbox` | 168 B | - |
-| `abaabil/checkbox/styled` | 168 B | 651 B |
-| `abaabil/checkbox/a11y` | 534 B | 651 B |
+| `abaabil/checkbox/styled` | 168 B | 712 B |
+| `abaabil/checkbox/a11y` | 529 B | 712 B |
 | `abaabil/radio` | 165 B | - |
-| `abaabil/radio/styled` | 166 B | 542 B |
-| `abaabil/radio/a11y` | 444 B | 542 B |
+| `abaabil/radio/styled` | 166 B | 602 B |
+| `abaabil/radio/a11y` | 436 B | 602 B |
 | `abaabil/select` | 209 B | - |
-| `abaabil/select/styled` | 210 B | 771 B |
-| `abaabil/select/a11y` | 530 B | 771 B |
-| `abaabil/accordion` | 320 B | - |
-| `abaabil/accordion/styled` | 320 B | 528 B |
-| `abaabil/accordion/a11y` | 364 B | 528 B |
+| `abaabil/select/styled` | 210 B | 829 B |
+| `abaabil/select/a11y` | 525 B | 829 B |
+| `abaabil/accordion` | 317 B | - |
+| `abaabil/accordion/styled` | 317 B | 542 B |
+| `abaabil/accordion/a11y` | 361 B | 542 B |
 | `abaabil/textarea` | 166 B | - |
-| `abaabil/textarea/styled` | 166 B | 476 B |
-| `abaabil/textarea/a11y` | 506 B | 476 B |
+| `abaabil/textarea/styled` | 166 B | 527 B |
+| `abaabil/textarea/a11y` | 507 B | 527 B |
 | `abaabil/switch` | 177 B | - |
-| `abaabil/switch/styled` | 177 B | 585 B |
-| `abaabil/switch/a11y` | 423 B | 585 B |
+| `abaabil/switch/styled` | 177 B | 634 B |
+| `abaabil/switch/a11y` | 414 B | 634 B |
 | `abaabil/popover` | 387 B | - |
-| `abaabil/popover/styled` | 388 B | 436 B |
-| `abaabil/popover/a11y` | 484 B | 436 B |
+| `abaabil/popover/styled` | 388 B | 503 B |
+| `abaabil/popover/a11y` | 483 B | 503 B |
 | `abaabil/tabs` | 349 B | - |
-| `abaabil/tabs/styled` | 349 B | 529 B |
-| `abaabil/tabs/a11y` | 786 B | 529 B |
+| `abaabil/tabs/styled` | 349 B | 552 B |
+| `abaabil/tabs/a11y` | 837 B | 552 B |
 | `abaabil/alert` | 190 B | - |
-| `abaabil/alert/styled` | 190 B | 345 B |
-| `abaabil/alert/a11y` | 341 B | 345 B |
+| `abaabil/alert/styled` | 190 B | 357 B |
+| `abaabil/alert/a11y` | 341 B | 357 B |
 
 Measured against `abaabil@1.2.0`. Each entry point is bundled on its own with its full module graph (so `button/styled`'s cost already includes the `button` markup it imports) using esbuild, `react`/`react-dom` external, minified, then gzipped. The `styled` and `a11y` tiers also pull in their component's stylesheet as a side-effect import; the CSS column is that stylesheet's own gzipped size, separate from the JS number. `normal` tier entries have no CSS column because they import none.
 
