@@ -1,5 +1,9 @@
 # abaabil
 
+[![npm version](https://img.shields.io/npm/v/abaabil)](https://www.npmjs.com/package/abaabil)
+[![npm downloads per month](https://img.shields.io/npm/dm/abaabil)](https://www.npmjs.com/package/abaabil)
+[![MIT license](https://img.shields.io/npm/l/abaabil)](https://www.npmjs.com/package/abaabil)
+
 Minimal, themeable, accessible React components. Zero dependencies.
 
 [npm](https://www.npmjs.com/package/abaabil) · [Docs and measurements](https://www.abaabil.com) · [Source](https://github.com/w3debugger/abaabil.ui)
